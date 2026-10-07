@@ -1,0 +1,58 @@
+# Ejemplos de perfiles reutilizables. Configuración completa para validate/serve.
+version: 1
+auth:
+  public: { type: none }
+  api_key:
+    type: apiKey
+    in: header
+    name: X-API-Key
+    value: '${env.API_KEY}'
+  query_key:
+    type: apiKey
+    in: query
+    name: api_key
+    value: '${env.API_KEY}'
+  bearer:
+    type: bearer
+    token: '${env.API_TOKEN}'
+  basic:
+    type: basic
+    username: '${env.API_USERNAME}'
+    password: '${env.API_PASSWORD}'
+  oauth_service:
+    type: oauth2
+    tokenUrl: '${env.OAUTH_TOKEN_URL}'
+    clientId: '${env.OAUTH_CLIENT_ID}'
+    clientSecret: '${env.OAUTH_CLIENT_SECRET}'
+    tokenAuthMethod: basic
+    scopes: [users.read]
+tools:
+  - name: api_list_users
+    description: Lista usuarios y devuelve ID y nombre, con credenciales OAuth2 de servicio.
+    inputSchema:
+      type: object
+      properties:
+        limit: { type: integer, minimum: 1, maximum: 100 }
+      required: [limit]
+      additionalProperties: false
+    outputSchema:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            type: object
+            properties: { id: { type: string }, name: { type: string } }
+            required: [id, name]
+            additionalProperties: false
+      required: [users]
+      additionalProperties: false
+    execution:
+      type: http
+      baseUrl: '${env.API_BASE_URL}'
+      path: /users
+      query: { limit: '${input.limit}' }
+      auth: oauth_service
+    response:
+      parser: { type: json }
+      transform: '{"users": [data.items.{"id": $string(id), "name": name}]}'

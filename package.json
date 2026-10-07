@@ -1,0 +1,40 @@
+{
+  "name": "underqubit-sidecar-mcp",
+  "version": "0.1.0",
+  "description": "Servidor MCP configurable para APIs REST y CLIs locales",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "bin": {
+    "underqubit-sidecar-mcp": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "npm run build && tsc --noEmit",
+    "start": "node dist/cli.js",
+    "dev": "npm run build && node --enable-source-maps dist/cli.js",
+    "test": "npm run build && vitest run",
+    "test:network": "npm run build && vitest run --config vitest.network.config.ts",
+    "schema": "npm run build && node scripts/generate-schema.mjs",
+    "check": "npm run build && tsc --noEmit && vitest run"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/node": "^2.1.0",
+    "@modelcontextprotocol/server": "^2.2.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "axios": "^1.18.1",
+    "jsonata": "^2.1.0",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "^2.2.0",
+    "@types/node": "^24.13.2",
+    "nock": "^14.0.16",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,0 +1,41 @@
+version: 1
+tools:
+  - name: ops_list_projects
+    description: Lista proyectos de una muestra operativa fija con ID, nombre y responsable. Para métricas consultar ops_project_stats con cada ID.
+    inputSchema: { type: object, additionalProperties: false }
+    outputSchema:
+      type: object
+      properties:
+        projects:
+          type: array
+          items:
+            type: object
+            properties: { id: { type: string }, name: { type: string }, owner: { type: string } }
+            required: [id, name, owner]
+            additionalProperties: false
+      required: [projects]
+      additionalProperties: false
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false }
+    execution: { type: cli, command: node, args: [evaluation-cli.mjs, list] }
+    response: { parser: { type: json }, transform: '{"projects": data}' }
+  - name: ops_project_stats
+    description: Obtiene requests, errores y latencia en milisegundos de un proyecto de la muestra fija. Los errores están incluidos dentro del total de requests.
+    inputSchema:
+      type: object
+      properties:
+        id: { type: string, enum: [atlas, boreal, coral], description: ID obtenido de ops_list_projects. }
+      required: [id]
+      additionalProperties: false
+    outputSchema:
+      type: object
+      properties:
+        requests: { type: integer }
+        errors: { type: integer }
+        latencyMs: { type: integer }
+      required: [requests, errors, latencyMs]
+      additionalProperties: false
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false }
+    execution: { type: cli, command: node, args: [evaluation-cli.mjs, stats, '${input.id}'] }
+    response:
+      parser: { type: regex, pattern: 'requests=(?<requests>\d+) errors=(?<errors>\d+) latency_ms=(?<latency>\d+)' }
+      transform: '{"requests": $number(data.requests), "errors": $number(data.errors), "latencyMs": $number(data.latency)}'

@@ -1,0 +1,42 @@
+<evaluation>
+  <qa_pair>
+    <question>En la muestra operativa, ¿cuántos requests suman los proyectos cuyo responsable es Ana?</question>
+    <answer>1500</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>¿Cuántos errores acumulan todos los proyectos de la muestra operativa?</question>
+    <answer>65</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>¿Cuál es el nombre del proyecto con mayor proporción de errores respecto de sus requests?</question>
+    <answer>Boreal</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>¿Cuál es el nombre del proyecto con la menor latencia de toda la muestra?</question>
+    <answer>Coral</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Agrupando los proyectos por responsable, ¿qué persona concentra la mayor cantidad de requests?</question>
+    <answer>Bruno</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>Si cada request sin error se considera exitoso, ¿cuántos requests exitosos suma toda la muestra?</question>
+    <answer>3435</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>¿Cuántos requests exitosos suman los proyectos de Ana, descontando sus errores?</question>
+    <answer>1485</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>¿Cuál es el porcentaje global de errores, ponderado por requests, con dos decimales y punto decimal, sin el signo de porcentaje?</question>
+    <answer>1.86</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>¿Cuántos requests suman los proyectos cuya latencia es menor a 100 milisegundos?</question>
+    <answer>1500</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>¿Cuál es el promedio aritmético no ponderado de las latencias de los proyectos de Ana, en milisegundos?</question>
+    <answer>70</answer>
+  </qa_pair>
+</evaluation>

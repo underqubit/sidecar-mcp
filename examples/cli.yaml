@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=../schema/config.schema.json
+version: 1
+tools:
+  - name: local_node_version
+    description: Obtiene la versión de Node.js instalada localmente.
+    inputSchema:
+      type: object
+      additionalProperties: false
+    outputSchema:
+      type: object
+      properties:
+        version: { type: string }
+      required: [version]
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
+    execution:
+      type: cli
+      command: node
+      args: [--version]
+    response:
+      parser:
+        type: regex
+        pattern: '^v(?<version>\d+\.\d+\.\d+)'
+  - name: local_echo
+    description: Devuelve un mensaje estructurado mediante un CLI local de ejemplo.
+    inputSchema:
+      type: object
+      properties:
+        message: { type: string, maxLength: 1024, description: Mensaje que se devolverá. }
+      required: [message]
+      additionalProperties: false
+    outputSchema:
+      type: object
+      properties:
+        message: { type: string }
+      required: [message]
+      additionalProperties: false
+    execution:
+      type: cli
+      command: node
+      args: [echo.mjs]
+      stdin:
+        message: '${input.message}'
+    response:
+      parser: { type: json }

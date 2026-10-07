@@ -1,0 +1,26 @@
+{
+  "$schema": "../schema/config.schema.json",
+  "version": 1,
+  "tools": [{
+    "name": "local_echo",
+    "description": "Devuelve un mensaje estructurado mediante un CLI local.",
+    "inputSchema": {
+      "type": "object",
+      "properties": { "message": { "type": "string", "maxLength": 1024 } },
+      "required": ["message"],
+      "additionalProperties": false
+    },
+    "outputSchema": {
+      "type": "object",
+      "properties": { "message": { "type": "string" } },
+      "required": ["message"],
+      "additionalProperties": false
+    },
+    "execution": {
+      "type": "cli",
+      "command": "node",
+      "args": ["echo.mjs"],
+      "stdin": { "message": "${input.message}" }
+    }
+  }]
+}

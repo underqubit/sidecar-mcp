@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=../schema/config.schema.json
+version: 1
+server:
+  transport: http
+  http: { host: 127.0.0.1, port: 3000 }
+auth:
+  service:
+    type: bearer
+    token: '${env.API_TOKEN}'
+tools:
+  - name: api_get_user
+    description: Consulta un usuario por ID en la API configurada.
+    inputSchema:
+      type: object
+      properties:
+        id: { type: string, minLength: 1, description: Identificador del usuario. }
+      required: [id]
+      additionalProperties: false
+    outputSchema:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+      required: [id, name]
+      additionalProperties: false
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true }
+    execution:
+      type: http
+      baseUrl: '${env.API_BASE_URL}'
+      path: /users/{id}
+      pathParams: { id: '${input.id}' }
+      headers: { Accept: application/json }
+      auth: service
+    response:
+      parser: { type: json }
+      transform: '{"id": $string(data.id), "name": data.name}'
