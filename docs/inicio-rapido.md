@@ -41,6 +41,41 @@ El ejemplo publica:
 
 La versión concreta de Node depende de la instalación local.
 
+## Probar con MCP Inspector
+
+El Inspector permite descubrir e invocar las tools desde una interfaz web. Desde la raíz del proyecto, con las dependencias instaladas, ejecutar:
+
+```sh
+npm run build
+npx -y @modelcontextprotocol/inspector node dist/cli.js -- \
+  serve --config examples/cli.yaml --transport stdio
+```
+
+El separador `--` hace que los argumentos posteriores se pasen al servidor. Es necesario porque el Inspector también reconoce `--config` y `--transport`: sin el separador, podría interpretar el YAML de tools como su propia configuración de cliente. Ver la [referencia oficial de argumentos del Inspector](https://modelcontextprotocol.io/docs/2026-07-28/tools/inspector/configuration#the--separator).
+
+El Inspector inicia el servidor como proceso hijo mediante stdio; no hace falta ejecutar `serve` previamente en otra terminal. `npx` obtiene el Inspector y este ejecuta la compilación local del proyecto. No requiere publicar Sidecar en npm.
+
+1. Abrir la URL completa que imprime el Inspector, incluido su token de sesión.
+2. Conectarse al servidor desde la interfaz y abrir **Tools**.
+3. Listar las tools e invocar `local_node_version` con `{}` o `local_echo` con `{"message":"hola"}`.
+4. Comprobar el resultado estructurado: la segunda tool debe devolver `{"message":"hola"}`.
+
+La URL impresa permite acceder a la sesión del Inspector; usarla completa en lugar de escribir solo el host y puerto. Ver la [guía oficial de la interfaz web](https://modelcontextprotocol.io/docs/2026-07-28/tools/inspector/web).
+
+### Probar tools de API REST con `.env`
+
+Crear `.env` a partir de `.env.example` y configurar `API_BASE_URL` y `API_TOKEN` con los datos del servicio real, como se explica en [Cargar variables de entorno](#cargar-variables-de-entorno). Después ejecutar:
+
+```sh
+npx -y @modelcontextprotocol/inspector node -- \
+  --env-file=.env dist/cli.js \
+  serve --config examples/http.yaml --transport stdio
+```
+
+En este comando, `--env-file` se pasa a Node antes del archivo JavaScript. `--transport stdio` define la conexión entre Inspector y MCP y sobrescribe el transporte HTTP declarado en el ejemplo. La tool `api_get_user` sigue llamando a la API REST mediante Axios; probarla con un argumento como `{"id":"42"}` que corresponda al servicio configurado.
+
+Después de cambiar código, volver a compilar. Después de cambiar configuración o variables, reiniciar la conexión/proceso del servidor desde el Inspector para cargar los nuevos valores.
+
 ## Conectar un cliente mediante stdio
 
 En clientes que utilizan un objeto `mcpServers`, la configuración tiene esta forma. Reemplazar las rutas por las rutas absolutas de la instalación; otros clientes pueden requerir una estructura distinta.

@@ -19,6 +19,8 @@ node dist/cli.js serve --config examples/cli.yaml
 
 The last command starts MCP over stdio: it waits for messages from an MCP client, not commands typed into the terminal. The example exposes `local_node_version` and `local_echo` without secrets or external services.
 
+To test tools through a web interface, follow the [MCP Inspector guide](docs/en/quick-start.md#test-with-mcp-inspector), covering local examples and REST APIs using `.env`.
+
 Configuration for an MCP client with stdio support (replace the paths):
 
 ```json

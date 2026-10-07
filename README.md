@@ -19,6 +19,8 @@ node dist/cli.js serve --config examples/cli.yaml
 
 El último comando inicia MCP por stdio: espera mensajes de un cliente MCP, no comandos escritos en la terminal. El ejemplo expone `local_node_version` y `local_echo` sin necesitar secretos ni servicios externos.
 
+Para probar las tools desde una interfaz web, seguir la guía de [MCP Inspector](docs/inicio-rapido.md#probar-con-mcp-inspector), con ejemplos locales y de API REST usando `.env`.
+
 Configuración de un cliente MCP con soporte de stdio (reemplazar las rutas):
 
 ```json
