@@ -7,10 +7,10 @@ import { startHttp, startStdio } from './mcp.js';
 
 const help = `underqubit-sidecar-mcp
 
-  serve --config <archivo.yaml|archivo.json> [--transport stdio|http]
-  validate --config <archivo.yaml|archivo.json>
+  serve --config <file.yaml|file.json> [--transport stdio|http]
+  validate --config <file.yaml|file.json>
 
-La configuración se carga al iniciar. Logs y diagnósticos se escriben en stderr.
+Configuration is loaded at startup. Logs and diagnostics are written to stderr.
 `;
 
 async function main(): Promise<void> {
@@ -22,11 +22,11 @@ async function main(): Promise<void> {
   if (!values.config || positionals.length !== 1 || !['serve', 'validate'].includes(command ?? '')) throw new Error('usage');
   if (values.transport && !['stdio', 'http'].includes(values.transport)) throw new Error('transport');
   const loaded = await loadConfig(values.config);
-  if (command === 'validate') { process.stderr.write(`Configuración válida: ${loaded.config.tools.length} tools.\n`); return; }
+  if (command === 'validate') { process.stderr.write(`Valid configuration: ${loaded.config.tools.length} tools.\n`); return; }
   const runtime = new Runtime(loaded);
   const transport = values.transport ?? loaded.config.server.transport;
   const handle = transport === 'http' ? await startHttp(runtime) : startStdio(runtime);
-  if ('url' in handle) process.stderr.write(`MCP escuchando en ${handle.url}\n`);
+  if ('url' in handle) process.stderr.write(`MCP listening at ${handle.url}\n`);
   let closing: Promise<void> | undefined;
   const close = (): void => {
     closing ??= (async () => {
@@ -40,6 +40,6 @@ async function main(): Promise<void> {
 
 main().catch(error => {
   const safe = safeError(error, 'config');
-  process.stderr.write(`[${safe.stage}] ${safe.message}\nUse --help para ver las opciones.\n`);
+  process.stderr.write(`[${safe.stage}] ${safe.message}\nUse --help to see available options.\n`);
   process.exitCode = 1;
 });

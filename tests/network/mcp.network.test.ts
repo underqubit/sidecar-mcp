@@ -20,9 +20,9 @@ describe('MCP transports', () => {
     expect(listed.tools.map(tool => tool.name)).toEqual(['local_echo']);
     expect(listed.tools[0]!.inputSchema).toMatchObject({ type: 'object', required: ['message'] });
     expect(listed.tools[0]!.outputSchema).toMatchObject({ type: 'object' });
-    const result = await client.callTool({ name: 'local_echo', arguments: { message: 'MCP funciona' } });
-    expect(result.structuredContent).toEqual({ message: 'MCP funciona' });
-    expect(result.content).toEqual([{ type: 'text', text: '{"message":"MCP funciona"}' }]);
+    const result = await client.callTool({ name: 'local_echo', arguments: { message: 'MCP works' } });
+    expect(result.structuredContent).toEqual({ message: 'MCP works' });
+    expect(result.content).toEqual([{ type: 'text', text: '{"message":"MCP works"}' }]);
     expect(await client.callTool({ name: 'local_echo', arguments: { message: 2 } })).toMatchObject({ isError: true });
   });
 

@@ -1,5 +1,7 @@
 # Tools HTTP: adaptar una API REST
 
+[English](en/tools-http.md)
+
 [Volver al índice](README.md) · [Configuración común](configuracion.md)
 
 Cada tool HTTP realiza un request mediante Axios. Los argumentos MCP se mapean explícitamente a ruta, query, headers o body. El servidor no descubre endpoints ni importa OpenAPI automáticamente.
@@ -137,7 +139,7 @@ Cuando hay body, el adaptador establece su Content-Type según `bodyEncoding`, r
 
 Axios captura la respuesta como texto. `response.parser` decide cómo interpretarla; no se selecciona automáticamente según Content-Type.
 
-Los estados fuera de `successStatuses` producen un error como `[execution] La API respondió HTTP 404.`. El body de error remoto no se publica ni pasa por la transformación. Para tratar un estado específico como un resultado estructurado, incluirlo explícitamente en `successStatuses` y adaptar parser/esquema al contrato real.
+Los estados fuera de `successStatuses` producen un error como `[execution] The API returned HTTP 404.`. El body de error remoto no se publica ni pasa por la transformación. Para tratar un estado específico como un resultado estructurado, incluirlo explícitamente en `successStatuses` y adaptar parser/esquema al contrato real.
 
 Una respuesta 204/HEAD puede tener body vacío: el parser JSON fallará. Si ese es el contrato esperado, usar este **fragmento** y un `outputSchema` con `ok: boolean`:
 

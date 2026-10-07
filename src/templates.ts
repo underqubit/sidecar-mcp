@@ -7,11 +7,11 @@ const forbidden = new Set(['__proto__', 'prototype', 'constructor']);
 export function references(value: string): { source: string; path: string }[] {
   const matches = [...value.matchAll(reference)].map(m => ({ source: m[1]!, path: m[2]! }));
   if (value.replace(reference, '').includes('${')) {
-    throw new SidecarError('config', 'Plantilla inválida; use ${input.campo} o ${env.VARIABLE}.');
+    throw new SidecarError('config', 'Invalid template; use ${input.field} or ${env.VARIABLE}.');
   }
   for (const ref of matches) {
     if (ref.path.split('.').some(part => forbidden.has(part))) {
-      throw new SidecarError('config', 'La plantilla contiene una propiedad no permitida.');
+      throw new SidecarError('config', 'The template contains a disallowed property.');
     }
   }
   return matches;
@@ -27,17 +27,17 @@ function lookup(source: string, path: string, input: unknown, env: Environment):
   let value: unknown = source === 'env' ? env : input;
   for (const key of path.split('.')) {
     if (forbidden.has(key) || !value || typeof value !== 'object' || !Object.hasOwn(value, key)) {
-      throw new SidecarError('parameters', `Referencia no disponible: ${source}.${path}.`);
+      throw new SidecarError('parameters', `Reference unavailable: ${source}.${path}.`);
     }
     value = (value as Record<string, unknown>)[key];
   }
-  if (value === undefined) throw new SidecarError('parameters', `Referencia no disponible: ${source}.${path}.`);
+  if (value === undefined) throw new SidecarError('parameters', `Reference unavailable: ${source}.${path}.`);
   return value;
 }
 
 export function scalar(value: unknown): string {
   if (typeof value === 'string' || typeof value === 'boolean' || (typeof value === 'number' && Number.isFinite(value))) return String(value);
-  throw new SidecarError('parameters', 'Se esperaba un valor escalar (string, number o boolean).');
+  throw new SidecarError('parameters', 'Expected a scalar value (string, number, or boolean).');
 }
 
 export function render(value: unknown, input: unknown, env: Environment): unknown {

@@ -9,9 +9,9 @@ export class SidecarError extends Error {
 }
 
 export function safeError(error: unknown, fallback: Stage): SidecarError {
-  return error instanceof SidecarError ? error : new SidecarError(fallback, 'La operación falló. Revise la configuración y el servicio.');
+  return error instanceof SidecarError ? error : new SidecarError(fallback, 'The operation failed. Check the configuration and service.');
 }
 
 export function checkAbort(signal: AbortSignal): void {
-  if (signal.aborted) throw new SidecarError('execution', 'Operación cancelada o tiempo máximo excedido.');
+  if (signal.aborted) throw new SidecarError('execution', 'Operation canceled or time limit exceeded.');
 }

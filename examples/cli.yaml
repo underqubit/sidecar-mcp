@@ -2,7 +2,7 @@
 version: 1
 tools:
   - name: local_node_version
-    description: Obtiene la versión de Node.js instalada localmente.
+    description: Gets the locally installed Node.js version.
     inputSchema:
       type: object
       additionalProperties: false
@@ -26,11 +26,11 @@ tools:
         type: regex
         pattern: '^v(?<version>\d+\.\d+\.\d+)'
   - name: local_echo
-    description: Devuelve un mensaje estructurado mediante un CLI local de ejemplo.
+    description: Returns a structured message using a local example CLI.
     inputSchema:
       type: object
       properties:
-        message: { type: string, maxLength: 1024, description: Mensaje que se devolverá. }
+        message: { type: string, maxLength: 1024, description: Message to return. }
       required: [message]
       additionalProperties: false
     outputSchema:

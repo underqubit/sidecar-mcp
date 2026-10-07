@@ -1,42 +1,42 @@
 <evaluation>
   <qa_pair>
-    <question>En la muestra operativa, ¿cuántos requests suman los proyectos cuyo responsable es Ana?</question>
+    <question>In the operations dataset, how many requests do the projects owned by Ana have in total?</question>
     <answer>1500</answer>
   </qa_pair>
   <qa_pair>
-    <question>¿Cuántos errores acumulan todos los proyectos de la muestra operativa?</question>
+    <question>How many errors do all projects in the operations dataset have in total?</question>
     <answer>65</answer>
   </qa_pair>
   <qa_pair>
-    <question>¿Cuál es el nombre del proyecto con mayor proporción de errores respecto de sus requests?</question>
+    <question>What is the name of the project with the highest ratio of errors to requests?</question>
     <answer>Boreal</answer>
   </qa_pair>
   <qa_pair>
-    <question>¿Cuál es el nombre del proyecto con la menor latencia de toda la muestra?</question>
+    <question>What is the name of the project with the lowest latency in the dataset?</question>
     <answer>Coral</answer>
   </qa_pair>
   <qa_pair>
-    <question>Agrupando los proyectos por responsable, ¿qué persona concentra la mayor cantidad de requests?</question>
+    <question>Grouping projects by owner, which person accounts for the most requests?</question>
     <answer>Bruno</answer>
   </qa_pair>
   <qa_pair>
-    <question>Si cada request sin error se considera exitoso, ¿cuántos requests exitosos suma toda la muestra?</question>
+    <question>If each request without an error is considered successful, how many successful requests are there in the entire dataset?</question>
     <answer>3435</answer>
   </qa_pair>
   <qa_pair>
-    <question>¿Cuántos requests exitosos suman los proyectos de Ana, descontando sus errores?</question>
+    <question>How many successful requests do Ana's projects have after subtracting their errors?</question>
     <answer>1485</answer>
   </qa_pair>
   <qa_pair>
-    <question>¿Cuál es el porcentaje global de errores, ponderado por requests, con dos decimales y punto decimal, sin el signo de porcentaje?</question>
+    <question>What is the overall error percentage, weighted by requests, with two decimal places and a decimal point, without the percent sign?</question>
     <answer>1.86</answer>
   </qa_pair>
   <qa_pair>
-    <question>¿Cuántos requests suman los proyectos cuya latencia es menor a 100 milisegundos?</question>
+    <question>How many requests do projects with a latency below 100 milliseconds have in total?</question>
     <answer>1500</answer>
   </qa_pair>
   <qa_pair>
-    <question>¿Cuál es el promedio aritmético no ponderado de las latencias de los proyectos de Ana, en milisegundos?</question>
+    <question>What is the unweighted arithmetic mean of the latencies of Ana's projects, in milliseconds?</question>
     <answer>70</answer>
   </qa_pair>
 </evaluation>

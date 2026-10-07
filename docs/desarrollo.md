@@ -1,5 +1,7 @@
 # Guía para desarrolladores
 
+[English](en/development.md)
+
 [Volver al índice](README.md) · [Arquitectura](arquitectura.md)
 
 ## Preparar el entorno

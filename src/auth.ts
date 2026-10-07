@@ -16,7 +16,7 @@ export class AuthManager {
     checkAbort(signal);
     if (!profileName) return;
     const profile = this.profiles[profileName];
-    if (!profile) throw new SidecarError('auth', 'Perfil de autenticación inexistente.');
+    if (!profile) throw new SidecarError('auth', 'Authentication profile not found.');
     const resolve = (value: string): string => renderString(value, {}, this.env);
     switch (profile.type) {
       case 'none': return;
@@ -67,7 +67,7 @@ export class AuthManager {
         }
         if (error) reject(error); else resolve(token!.value);
       };
-      const aborted = (): void => finish(new SidecarError('auth', 'Solicitud de credenciales cancelada.'));
+      const aborted = (): void => finish(new SidecarError('auth', 'Credential request canceled.'));
       signal.addEventListener('abort', aborted, { once: true });
       current.promise.then(token => finish(undefined, token), error => finish(error));
       if (signal.aborted) aborted();
@@ -97,6 +97,6 @@ export class AuthManager {
       if (typeof data.access_token !== 'string' || !data.access_token || typeof data.token_type !== 'string' || data.token_type.toLowerCase() !== 'bearer') throw new Error('invalid');
       const ttl = typeof data.expires_in === 'number' && Number.isFinite(data.expires_in) && data.expires_in > 0 ? data.expires_in * 1000 : 0;
       return { value: data.access_token, expiresAt: Date.now() + ttl - Math.min(30000, ttl * 0.1) };
-    } catch { throw new SidecarError('auth', 'No se pudo obtener un token OAuth2 válido. Revise credenciales, scopes y endpoint.'); }
+    } catch { throw new SidecarError('auth', 'Could not obtain a valid OAuth2 token. Check the credentials, scopes, and endpoint.'); }
   }
 }

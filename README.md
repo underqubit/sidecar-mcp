@@ -1,5 +1,7 @@
 # Underqubit Sidecar MCP
 
+[English](README.en.md) · [Documentación en español](docs/README.md)
+
 Servidor MCP en Node.js 24 y TypeScript que convierte APIs REST y CLIs existentes en tools declaradas en YAML o JSON. Agregar una tool no requiere programar ni recompilar: editar la configuración y reiniciar el proceso.
 
 Soporta stdio y Streamable HTTP, autenticación de servicio, JSON Schema de entrada/salida y transformación de respuestas con JSONata.

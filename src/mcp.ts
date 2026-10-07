@@ -13,7 +13,7 @@ const validator: jsonSchemaValidator = {
     const check = validate;
     return (input: unknown) => check(input)
       ? { valid: true, data: input as T, errorMessage: undefined }
-      : { valid: false, data: undefined, errorMessage: 'Los datos no cumplen el JSON Schema declarado.' };
+      : { valid: false, data: undefined, errorMessage: 'The data does not match the declared JSON Schema.' };
   },
 };
 
@@ -31,7 +31,7 @@ export function createMcpServer(runtime: Runtime, requestSignal?: AbortSignal): 
 }
 
 export function startStdio(runtime: Runtime): StdioServerHandle {
-  return serveStdio(() => createMcpServer(runtime), { onerror: () => process.stderr.write('Error de transporte MCP stdio.\n') });
+  return serveStdio(() => createMcpServer(runtime), { onerror: () => process.stderr.write('MCP stdio transport error.\n') });
 }
 
 export interface HttpHandle { server: HttpServer; url: string; close(): Promise<void> }
@@ -40,7 +40,7 @@ export function createHttpHandler(runtime: Runtime): ReturnType<typeof createMcp
   const config = runtime.loaded.config.server.http;
   const handler = createMcpHandler(ctx => createMcpServer(runtime, ctx.requestInfo?.signal), {
     responseMode: 'json', maxRequestBodySize: config.maxRequestBytes,
-    onerror: () => process.stderr.write('Error de transporte MCP HTTP.\n'),
+    onerror: () => process.stderr.write('MCP HTTP transport error.\n'),
   });
   return {
     close: () => handler.close(), notify: handler.notify, bus: handler.bus,

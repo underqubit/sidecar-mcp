@@ -9,11 +9,11 @@ auth:
     token: '${env.API_TOKEN}'
 tools:
   - name: api_get_user
-    description: Consulta un usuario por ID en la API configurada.
+    description: Looks up a user by ID in the configured API.
     inputSchema:
       type: object
       properties:
-        id: { type: string, minLength: 1, description: Identificador del usuario. }
+        id: { type: string, minLength: 1, description: User identifier. }
       required: [id]
       additionalProperties: false
     outputSchema:

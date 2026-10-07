@@ -3,7 +3,7 @@ import { z } from 'zod';
 const nonempty = z.string().min(1);
 const dictionary = z.record(z.string(), z.json());
 const stringMap = z.record(z.string(), z.string());
-const secret = z.string().regex(/^\$\{env\.[A-Za-z_][A-Za-z0-9_]*\}$/, 'Use una referencia ${env.VARIABLE}.');
+const secret = z.string().regex(/^\$\{env\.[A-Za-z_][A-Za-z0-9_]*\}$/, 'Use an ${env.VARIABLE} reference.');
 const objectSchema = z.looseObject({ type: z.literal('object') });
 const timeoutMs = z.number().int().positive().max(2_147_483_647);
 const maxOutputBytes = z.number().int().positive().max(64 * 1024 * 1024);

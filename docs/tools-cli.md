@@ -1,5 +1,7 @@
 # Tools CLI: adaptar un ejecutable local
 
+[English](en/tools-cli.md)
+
 [Volver al índice](README.md) · [Configuración común](configuracion.md)
 
 Una tool CLI inicia un proceso, envía argumentos y stdin, captura stdout y procesa su resultado. Funciona con programas que ya existan; cuando el CLI admite salida JSON, usarla suele simplificar el mapeo.

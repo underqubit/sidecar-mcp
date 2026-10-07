@@ -1,5 +1,7 @@
 # Operación y diagnóstico
 
+[English](en/operations-and-troubleshooting.md)
+
 [Volver al índice](README.md)
 
 ## Elegir cómo ejecutar el servidor

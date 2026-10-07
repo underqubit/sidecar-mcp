@@ -1,7 +1,7 @@
 {
   "name": "underqubit-sidecar-mcp",
   "version": "0.1.0",
-  "description": "Servidor MCP configurable para APIs REST y CLIs locales",
+  "description": "Configurable MCP server for REST APIs and local CLIs",
   "type": "module",
   "private": true,
   "engines": {

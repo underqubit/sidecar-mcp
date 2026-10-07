@@ -3,7 +3,7 @@
   "version": 1,
   "tools": [{
     "name": "local_echo",
-    "description": "Devuelve un mensaje estructurado mediante un CLI local.",
+    "description": "Returns a structured message using a local CLI.",
     "inputSchema": {
       "type": "object",
       "properties": { "message": { "type": "string", "maxLength": 1024 } },

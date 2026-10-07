@@ -21,7 +21,7 @@ describe('response pipeline', () => {
     await expect(parse({}, 'not-json')).rejects.toMatchObject({ stage: 'parse' });
   });
   it('terminates pathological regex and JSONata without blocking the main event loop', async () => {
-    await expect(parse({ parser: { type: 'regex', pattern: '^(?<n>a+)+$' }, workerTimeoutMs: 100 }, 'a'.repeat(40) + '!')).rejects.toThrow('tiempo máximo');
+    await expect(parse({ parser: { type: 'regex', pattern: '^(?<n>a+)+$' }, workerTimeoutMs: 100 }, 'a'.repeat(40) + '!')).rejects.toThrow('time limit');
     await expect(parse({ transform: '($f := function(){ $f() }; $f())', workerTimeoutMs: 100 }, '{}')).rejects.toMatchObject({ stage: 'transform' });
     expect(await parse({}, '{"ok":true}')).toEqual({ ok: true });
   });

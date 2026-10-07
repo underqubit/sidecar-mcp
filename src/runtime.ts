@@ -43,8 +43,8 @@ export class Runtime {
     let logEvent: LogEvent = { tool: name, durationMs: 0, ok: false };
     try {
       const tool = this.tools.get(name);
-      if (!tool) throw new SidecarError('input', 'Tool inexistente.');
-      if (!tool.input(input)) throw new SidecarError('input', 'La entrada no cumple inputSchema.');
+      if (!tool) throw new SidecarError('input', 'Tool not found.');
+      if (!tool.input(input)) throw new SidecarError('input', 'The input does not match inputSchema.');
       const timeoutMs = tool.config.execution.timeoutMs ?? this.loaded.config.server.timeoutMs;
       const maxOutputBytes = tool.config.execution.maxOutputBytes ?? this.loaded.config.server.maxOutputBytes;
       const deadline = new AbortController();
@@ -56,9 +56,9 @@ export class Runtime {
       const raw = execution.type === 'http' ? await executeHttp(execution, ctx, this.auth) : await executeCli(execution, ctx);
       const output = await processResponse(tool.config.response, raw, maxOutputBytes, signal);
       checkAbort(signal); stage = 'output';
-      if (!tool.output(output)) throw new SidecarError('output', 'El resultado no cumple outputSchema. Revise el parser o la transformación.');
+      if (!tool.output(output)) throw new SidecarError('output', 'The result does not match outputSchema. Check the parser or transformation.');
       const text = JSON.stringify(output);
-      if (Buffer.byteLength(text) > maxOutputBytes) throw new SidecarError('output', 'El resultado supera el límite de bytes.');
+      if (Buffer.byteLength(text) > maxOutputBytes) throw new SidecarError('output', 'The result exceeds the byte limit.');
       logEvent.ok = true;
       return { resultType: 'complete', content: [{ type: 'text', text }], structuredContent: output as Record<string, unknown> };
     } catch (error) {

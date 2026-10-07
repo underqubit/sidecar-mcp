@@ -1,7 +1,7 @@
 version: 1
 tools:
   - name: ops_list_projects
-    description: Lista proyectos de una muestra operativa fija con ID, nombre y responsable. Para métricas consultar ops_project_stats con cada ID.
+    description: Lists projects from a fixed operations dataset with their IDs, names, and owners. For metrics, call ops_project_stats with each ID.
     inputSchema: { type: object, additionalProperties: false }
     outputSchema:
       type: object
@@ -19,11 +19,11 @@ tools:
     execution: { type: cli, command: node, args: [evaluation-cli.mjs, list] }
     response: { parser: { type: json }, transform: '{"projects": data}' }
   - name: ops_project_stats
-    description: Obtiene requests, errores y latencia en milisegundos de un proyecto de la muestra fija. Los errores están incluidos dentro del total de requests.
+    description: Gets requests, errors, and latency in milliseconds for a project in the fixed dataset. Errors are included in the total request count.
     inputSchema:
       type: object
       properties:
-        id: { type: string, enum: [atlas, boreal, coral], description: ID obtenido de ops_list_projects. }
+        id: { type: string, enum: [atlas, boreal, coral], description: ID returned by ops_list_projects. }
       required: [id]
       additionalProperties: false
     outputSchema:

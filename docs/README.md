@@ -1,5 +1,7 @@
 # Documentación de Underqubit Sidecar MCP
 
+[English](en/README.md)
+
 Underqubit Sidecar MCP publica tools MCP a partir de un archivo YAML o JSON. Cada tool valida sus argumentos, ejecuta un request HTTP o un CLI local, estructura la respuesta y comprueba que cumpla el esquema de salida.
 
 El archivo de configuración es la integración: agregar una tool no requiere modificar TypeScript. Los cambios se aplican al reiniciar el servidor.

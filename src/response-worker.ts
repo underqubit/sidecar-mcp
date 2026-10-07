@@ -28,9 +28,9 @@ try {
     const result: unknown = expression ? await expression.evaluate({ data, metadata: raw.metadata }) : data;
     const serialized = JSON.stringify(result);
     if (serialized === undefined) throw new Error('empty');
-    if (Buffer.byteLength(serialized) > work.maxOutputBytes) parentPort!.postMessage({ ok: false, stage: 'output', message: 'La salida transformada supera el límite de bytes.' });
+    if (Buffer.byteLength(serialized) > work.maxOutputBytes) parentPort!.postMessage({ ok: false, stage: 'output', message: 'The transformed output exceeds the byte limit.' });
     else parentPort!.postMessage({ ok: true, result: JSON.parse(serialized) as unknown });
   }
 } catch {
-  parentPort!.postMessage({ ok: false, stage, message: stage === 'config' ? 'Parser regex o expresión JSONata inválidos.' : stage === 'parse' ? 'No se pudo parsear la salida o no hubo coincidencia regex.' : 'La transformación JSONata falló o no produjo un valor JSON.' });
+  parentPort!.postMessage({ ok: false, stage, message: stage === 'config' ? 'Invalid regex parser or JSONata expression.' : stage === 'parse' ? 'Could not parse the output or find a regex match.' : 'The JSONata transformation failed or did not produce a JSON value.' });
 }

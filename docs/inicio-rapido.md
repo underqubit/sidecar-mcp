@@ -1,5 +1,7 @@
 # Inicio rápido
 
+[English](en/quick-start.md)
+
 [Volver al índice](README.md)
 
 ## Requisitos

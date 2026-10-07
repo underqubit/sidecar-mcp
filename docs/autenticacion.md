@@ -1,5 +1,7 @@
 # Autenticación y variables de entorno
 
+[English](en/authentication.md)
+
 [Volver al índice](README.md)
 
 Hay dos direcciones de autenticación: **servidor MCP hacia servicios externos** y **cliente hacia el endpoint MCP**. Los perfiles de `auth` resuelven la primera. El acceso entrante HTTP se delega a una red privada o proxy; no lo protege declarar un perfil de API.

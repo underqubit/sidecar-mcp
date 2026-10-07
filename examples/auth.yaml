@@ -1,4 +1,4 @@
-# Ejemplos de perfiles reutilizables. Configuración completa para validate/serve.
+# Reusable profile examples. Complete configuration for validate/serve.
 version: 1
 auth:
   public: { type: none }
@@ -28,7 +28,7 @@ auth:
     scopes: [users.read]
 tools:
   - name: api_list_users
-    description: Lista usuarios y devuelve ID y nombre, con credenciales OAuth2 de servicio.
+    description: Lists users and returns their IDs and names using OAuth2 service credentials.
     inputSchema:
       type: object
       properties:

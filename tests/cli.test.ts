@@ -29,7 +29,7 @@ describe('CLI execution', () => {
   it('reports nonzero exit codes without stderr secrets', async () => {
     const r = await make(cliTool({ args: [fixture, 'exit', '7'] }));
     const result = await r.call('test_tool', {});
-    expect(JSON.stringify(result)).toContain('código 7');
+    expect(JSON.stringify(result)).toContain('code 7');
     expect(JSON.stringify(result)).not.toContain('private-secret');
   });
   it('accepts configured exit codes and text wrapping', async () => {
