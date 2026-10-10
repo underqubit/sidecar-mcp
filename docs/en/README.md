@@ -32,6 +32,7 @@ The configuration file defines the integration: adding a tool does not require c
 
 | Resource | Purpose |
 | --- | --- |
+| [AI agent skill](../../skills/underqubit-sidecar-mcp/SKILL.md) | English instructions for using, configuring, and troubleshooting server integrations. |
 | [YAML CLI example](../../examples/cli.yaml) | Two local tools with no external services or credentials. |
 | [JSON CLI example](../../examples/cli.json) | A tool that receives and returns a message. |
 | [HTTP example](../../examples/http.yaml) | User lookup with Bearer authentication and response transformation. |

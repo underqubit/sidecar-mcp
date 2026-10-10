@@ -32,6 +32,7 @@ El archivo de configuración es la integración: agregar una tool no requiere mo
 
 | Recurso | Uso |
 | --- | --- |
+| [Skill para agentes de IA](../skills/underqubit-sidecar-mcp/SKILL.md) | Guía en inglés para usar, configurar y diagnosticar las integraciones del servidor. |
 | [Ejemplo CLI en YAML](../examples/cli.yaml) | Dos tools locales, sin servicios externos ni credenciales. |
 | [Ejemplo CLI en JSON](../examples/cli.json) | Una tool que recibe y devuelve un mensaje. |
 | [Ejemplo HTTP](../examples/http.yaml) | Consulta de usuario con Bearer y transformación de respuesta. |

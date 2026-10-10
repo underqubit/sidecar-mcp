@@ -8,6 +8,8 @@ Supports stdio and Streamable HTTP, service authentication, input/output JSON Sc
 
 Complete documentation is available in [docs/en/README.md](docs/en/README.md): usage guides, configuration reference, authentication, responses, architecture, development, and operations.
 
+For AI agents, the usage skill is available in [skills/underqubit-sidecar-mcp/SKILL.md](skills/underqubit-sidecar-mcp/SKILL.md).
+
 ## Quick start
 
 ```sh

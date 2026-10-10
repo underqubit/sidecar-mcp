@@ -8,6 +8,8 @@ Soporta stdio y Streamable HTTP, autenticación de servicio, JSON Schema de entr
 
 La documentación completa está en [docs/README.md](docs/README.md): guías de uso, referencia de configuración, autenticación, respuestas, arquitectura, desarrollo y operación.
 
+Para agentes de IA, la skill de uso está en [skills/underqubit-sidecar-mcp/SKILL.md](skills/underqubit-sidecar-mcp/SKILL.md), en inglés.
+
 ## Inicio rápido
 
 ```sh

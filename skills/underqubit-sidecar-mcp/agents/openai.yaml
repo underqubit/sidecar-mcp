@@ -1,0 +1,3 @@
+interface:
+  display_name: "Underqubit Sidecar MCP"
+  short_description: "Configure and use dynamic REST and CLI MCP tools"
