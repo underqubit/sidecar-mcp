@@ -79,6 +79,55 @@ MCP arguments: `{"id":"42"}`. If the API returns `{"id":42,"name":"Ada","email":
 
 The repository also includes [examples/http.yaml](../../examples/http.yaml), configured to serve over HTTP.
 
+## Jira Cloud example
+
+[examples/jira.json](../../examples/jira.json) exposes four tools using GET requests to Jira Cloud REST API v3:
+
+| Tool | Purpose |
+| --- | --- |
+| `jira_search_issues` | Search issues with JQL and follow token-based pages. |
+| `jira_get_issue` | Read details, description, owners, status, and dates. |
+| `jira_list_issue_comments` | Read paginated comments. |
+| `jira_list_issue_changelog` | Review paginated field changes. |
+
+Set `JIRA_BASE_URL`, `JIRA_EMAIL`, and `JIRA_API_TOKEN` in `.env`, using [.env.example](../../.env.example) as a reference. Basic authentication uses the Atlassian email and an API token, not the account password. For tokens without scopes, use `https://your-domain.atlassian.net`; for scoped tokens, use `https://api.atlassian.com/ex/jira/YOUR_CLOUD_ID` with suitable read permissions. Example paths are relative to preserve that prefix. See [authentication](https://developer.atlassian.com/cloud/jira/platform/basic-auth-for-rest-apis/) and [Atlassian tokens](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/).
+
+From the project root, with dependencies installed:
+
+```sh
+npm run build
+node --env-file=.env dist/cli.js validate --config examples/jira.json
+npx -y @modelcontextprotocol/inspector node -- \
+  --env-file=.env dist/cli.js serve --config examples/jira.json --transport stdio
+```
+
+Example arguments for `jira_search_issues`:
+
+```json
+{"jql":"project = DEMO ORDER BY updated DESC","maxResults":25,"nextPageToken":null}
+```
+
+Replace `DEMO` with a real project. For the next page, send the returned token with the same JQL; stop when `isLast` is `true`. This uses [enhanced `search/jql`](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-search/#api-rest-api-3-search-jql-get), without inventing a total result count. Recent updates may take time to appear.
+
+For details, send `{"issueIdOrKey":"DEMO-42"}`. For comments or history, send `{"issueIdOrKey":"DEMO-42","startAt":0,"maxResults":25}` and continue with `nextStartAt` until it is `null`. All shown arguments are required: the runtime does not apply input schema defaults. Stop on an empty page even if the total changed during the query.
+
+Descriptions and comments retain their ADF structure. Transformations select useful fields and preserve empty or single-item arrays. Access depends on account permissions and issue/comment restrictions. This example targets Jira Cloud; Jira Data Center compatibility is not assumed. `validate` checks configuration, but does not verify real credentials or connectivity.
+
+### Diagnose Jira errors
+
+The runtime reports HTTP status without exposing the service's error body. To investigate a 400/404 locally, run diagnostics with a real issue key and its project; replace the `PROJECT-123` and `PROJECT` placeholders:
+
+```sh
+node --env-file=.env scripts/diagnose-jira.mjs \
+  --issue PROJECT-123 --jql 'project = PROJECT ORDER BY updated DESC'
+```
+
+Requires the build in `dist/`. It reads `examples/jira.json`, checks identity with `GET /rest/api/3/myself`, and reproduces issue/search requests with the same mapping and authentication. Diagnostic search requests the first page with at most one result. Without arguments, it checks identity only. It does not modify issues.
+
+Output includes statuses and Jira's `errorMessages`, `errors`, or `message` fields; it redacts credential values and does not print complete bodies, issues, or headers. It exits with code `1` if any check fails. The MCP runtime retains its usual messages.
+
+A 404 can mean the issue does not exist or is not visible to the account. A 400 requires reading Jira's message: for example, invalid JQL, an unknown/inaccessible project, or an invalid cursor. Use an issue the API token's account can open and replace the examples' `DEMO` values. A `/myself` failure may also reflect scopes specific to that endpoint; it does not by itself prove that all tools lack access. See [Atlassian HTTP troubleshooting](https://support.atlassian.com/jira/kb/webhooks-or-web-requests-fail-with-http-status-code-400-401-or-403-in-jira/).
+
 ## URL construction
 
 With `baseUrl: https://api.example.com/v1`:

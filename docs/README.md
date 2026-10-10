@@ -36,6 +36,7 @@ El archivo de configuración es la integración: agregar una tool no requiere mo
 | [Ejemplo CLI en YAML](../examples/cli.yaml) | Dos tools locales, sin servicios externos ni credenciales. |
 | [Ejemplo CLI en JSON](../examples/cli.json) | Una tool que recibe y devuelve un mensaje. |
 | [Ejemplo HTTP](../examples/http.yaml) | Consulta de usuario con Bearer y transformación de respuesta. |
+| [Ejemplo Jira Cloud](../examples/jira.json) | Cuatro tools de lectura de tickets, con autenticación y paginación. Ver [configuración de Jira](tools-http.md#ejemplo-jira-cloud). |
 | [Ejemplo de autenticación](../examples/auth.yaml) | Todos los perfiles admitidos y una tool con OAuth2. |
 | [Variables de ejemplo](../.env.example) | Nombres de variables usados por los ejemplos HTTP. |
 | [JSON Schema de configuración](../schema/config.schema.json) | Autocompletado y validación estructural en editores. |

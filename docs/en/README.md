@@ -36,6 +36,7 @@ The configuration file defines the integration: adding a tool does not require c
 | [YAML CLI example](../../examples/cli.yaml) | Two local tools with no external services or credentials. |
 | [JSON CLI example](../../examples/cli.json) | A tool that receives and returns a message. |
 | [HTTP example](../../examples/http.yaml) | User lookup with Bearer authentication and response transformation. |
+| [Jira Cloud example](../../examples/jira.json) | Four read-only issue tools with authentication and pagination. See [Jira setup](tools-http.md#jira-cloud-example). |
 | [Authentication example](../../examples/auth.yaml) | All supported profiles and a tool using OAuth2. |
 | [Example variables](../../.env.example) | Variable names used by the HTTP examples. |
 | [Configuration JSON Schema](../../schema/config.schema.json) | Editor completion and structural validation. |

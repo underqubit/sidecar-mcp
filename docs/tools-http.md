@@ -81,6 +81,55 @@ Argumentos MCP: `{"id":"42"}`. Si la API devuelve `{"id":42,"name":"Ada","email"
 
 El repositorio también incluye [examples/http.yaml](../examples/http.yaml), preparado para servir por HTTP.
 
+## Ejemplo Jira Cloud
+
+[examples/jira.json](../examples/jira.json) publica cuatro tools con requests GET a Jira Cloud REST API v3:
+
+| Tool | Uso |
+| --- | --- |
+| `jira_search_issues` | Buscar tickets con JQL y recorrer páginas por token. |
+| `jira_get_issue` | Consultar detalle, descripción, responsables, estado y fechas. |
+| `jira_list_issue_comments` | Leer comentarios paginados. |
+| `jira_list_issue_changelog` | Revisar cambios de campos paginados. |
+
+Configurar `JIRA_BASE_URL`, `JIRA_EMAIL` y `JIRA_API_TOKEN` en `.env`, usando [.env.example](../.env.example) como referencia. La autenticación Basic usa el correo de Atlassian y un API token, no la contraseña de la cuenta. Para tokens sin scopes, la base es `https://your-domain.atlassian.net`; para tokens con scopes, usar `https://api.atlassian.com/ex/jira/YOUR_CLOUD_ID` y permisos de lectura adecuados. Las rutas del ejemplo son relativas para preservar ese prefijo. Ver [autenticación](https://developer.atlassian.com/cloud/jira/platform/basic-auth-for-rest-apis/) y [tokens de Atlassian](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/).
+
+Desde la raíz del proyecto, con las dependencias instaladas:
+
+```sh
+npm run build
+node --env-file=.env dist/cli.js validate --config examples/jira.json
+npx -y @modelcontextprotocol/inspector node -- \
+  --env-file=.env dist/cli.js serve --config examples/jira.json --transport stdio
+```
+
+Argumentos de ejemplo para `jira_search_issues`:
+
+```json
+{"jql":"project = DEMO ORDER BY updated DESC","maxResults":25,"nextPageToken":null}
+```
+
+Reemplazar `DEMO` por un proyecto real. En la siguiente página enviar el token recibido con el mismo JQL; terminar cuando `isLast` sea `true`. Se usa la [búsqueda mejorada `search/jql`](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-search/#api-rest-api-3-search-jql-get), sin inventar un total de resultados. Los cambios recientes pueden tardar en aparecer.
+
+Para detalle, enviar `{"issueIdOrKey":"DEMO-42"}`. Para comentarios o historial, enviar `{"issueIdOrKey":"DEMO-42","startAt":0,"maxResults":25}` y continuar con `nextStartAt` hasta que sea `null`. Todos los argumentos mostrados son obligatorios: el runtime no aplica defaults de los esquemas de entrada. Si llega una página vacía, detenerse aunque el total haya cambiado durante la consulta.
+
+Las descripciones y los comentarios mantienen su estructura ADF. Las transformaciones seleccionan campos útiles y conservan listas vacías o de un elemento. El acceso depende de los permisos de la cuenta y las restricciones del ticket/comentario. El ejemplo está dirigido a Jira Cloud; no presupone compatibilidad con Jira Data Center. `validate` comprueba la configuración, pero no verifica credenciales ni conectividad reales.
+
+### Diagnosticar errores de Jira
+
+El runtime muestra el estado HTTP sin publicar el body de error del servicio. Para investigar un 400/404 localmente, ejecutar el diagnóstico con una clave real de ticket y su proyecto; `PROJECT-123` y `PROJECT` son marcadores a reemplazar:
+
+```sh
+node --env-file=.env scripts/diagnose-jira.mjs \
+  --issue PROJECT-123 --jql 'project = PROJECT ORDER BY updated DESC'
+```
+
+Requiere la compilación en `dist/`. Lee `examples/jira.json`, comprueba la identidad con `GET /rest/api/3/myself` y reproduce las consultas de detalle/búsqueda con el mismo mapeo y autenticación. La búsqueda diagnóstica usa la primera página con un máximo de un resultado. Sin argumentos, solo comprueba identidad. No modifica tickets.
+
+La salida incluye estados y los campos `errorMessages`, `errors` o `message` devueltos por Jira; oculta los valores de las credenciales y no imprime cuerpos completos, tickets ni headers. Termina con código `1` si alguna comprobación falla. El runtime MCP conserva sus mensajes habituales.
+
+Un 404 puede indicar ticket inexistente o no visible para la cuenta. Un 400 requiere leer el mensaje de Jira: por ejemplo, JQL inválido, proyecto desconocido/no accesible o cursor inválido. Usar un ticket que la cuenta del API token pueda abrir y reemplazar los valores `DEMO` de los ejemplos. Un fallo de `/myself` también puede deberse a los scopes específicos de ese endpoint; no demuestra por sí solo que todas las tools carezcan de acceso. Ver [diagnóstico HTTP de Atlassian](https://support.atlassian.com/jira/kb/webhooks-or-web-requests-fail-with-http-status-code-400-401-or-403-in-jira/).
+
 ## Construcción de la URL
 
 Con `baseUrl: https://api.example.com/v1`:
