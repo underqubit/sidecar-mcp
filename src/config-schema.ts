@@ -49,19 +49,21 @@ export const responseSchema = z.strictObject({
   transform: nonempty.optional(), workerTimeoutMs: timeoutMs.default(1000),
 });
 
+export const serverSchema = z.strictObject({
+  name: nonempty.default('underqubit-sidecar-mcp'), version: nonempty.default('0.1.0'),
+  transport: z.enum(['stdio', 'http']).default('stdio'),
+  timeoutMs: timeoutMs.default(30000), maxOutputBytes: maxOutputBytes.default(1048576),
+  http: z.strictObject({
+    host: nonempty.default('127.0.0.1'), port: z.number().int().min(0).max(65535).default(3000),
+    allowedHosts: z.array(nonempty).default(['127.0.0.1', 'localhost', '[::1]']),
+    allowedOrigins: z.array(z.url()).default([]), maxRequestBytes: maxOutputBytes.default(1048576),
+  }).default({ host: '127.0.0.1', port: 3000, allowedHosts: ['127.0.0.1', 'localhost', '[::1]'], allowedOrigins: [], maxRequestBytes: 1048576 }),
+}).default({ name: 'underqubit-sidecar-mcp', version: '0.1.0', transport: 'stdio', timeoutMs: 30000, maxOutputBytes: 1048576, http: { host: '127.0.0.1', port: 3000, allowedHosts: ['127.0.0.1', 'localhost', '[::1]'], allowedOrigins: [], maxRequestBytes: 1048576 } });
+
 export const configSchema = z.strictObject({
   $schema: z.string().optional(),
   version: z.literal(1),
-  server: z.strictObject({
-    name: nonempty.default('underqubit-sidecar-mcp'), version: nonempty.default('0.1.0'),
-    transport: z.enum(['stdio', 'http']).default('stdio'),
-    timeoutMs: timeoutMs.default(30000), maxOutputBytes: maxOutputBytes.default(1048576),
-    http: z.strictObject({
-      host: nonempty.default('127.0.0.1'), port: z.number().int().min(0).max(65535).default(3000),
-      allowedHosts: z.array(nonempty).default(['127.0.0.1', 'localhost', '[::1]']),
-      allowedOrigins: z.array(z.url()).default([]), maxRequestBytes: maxOutputBytes.default(1048576),
-    }).default({ host: '127.0.0.1', port: 3000, allowedHosts: ['127.0.0.1', 'localhost', '[::1]'], allowedOrigins: [], maxRequestBytes: 1048576 }),
-  }).default({ name: 'underqubit-sidecar-mcp', version: '0.1.0', transport: 'stdio', timeoutMs: 30000, maxOutputBytes: 1048576, http: { host: '127.0.0.1', port: 3000, allowedHosts: ['127.0.0.1', 'localhost', '[::1]'], allowedOrigins: [], maxRequestBytes: 1048576 } }),
+  server: serverSchema,
   auth: z.record(z.string(), authSchema).default({}),
   tools: z.array(z.strictObject({
     name: z.string().regex(/^[A-Za-z0-9_.-]{1,128}$/), title: nonempty.optional(), description: nonempty,
@@ -79,3 +81,20 @@ export type ToolConfig = Config['tools'][number];
 export type ExecutionConfig = ToolConfig['execution'];
 export type AuthConfig = z.infer<typeof authSchema>;
 export type ResponseConfig = z.infer<typeof responseSchema>;
+
+// Composition owns the listener; execution defaults remain local to each integration.
+export const compositionSchema = z.strictObject({
+  $schema: z.string().optional(),
+  version: z.literal(1),
+  kind: z.literal('composition'),
+  server: serverSchema.removeDefault().omit({ timeoutMs: true, maxOutputBytes: true }).prefault({}),
+  mode: z.enum(['unified', 'separate', 'both']),
+  groups: z.array(z.strictObject({
+    id: z.string().regex(/^[a-z0-9_-]+$/).max(126),
+    config: nonempty,
+  })).min(1),
+});
+
+export const configurationFileSchema = z.union([configSchema, compositionSchema]);
+export type CompositionConfig = z.infer<typeof compositionSchema>;
+export type ServerConfig = CompositionConfig['server'];

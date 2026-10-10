@@ -6,7 +6,7 @@
 
 ## Formato y validación
 
-Se carga un único archivo YAML o JSON, de hasta 4 MiB. No hay includes, mezcla de archivos ni recarga en caliente. YAML rechaza claves duplicadas y aliases. Los bloques de configuración son estrictos: una clave desconocida es un error, excepto dentro de los documentos JSON Schema de entrada/salida.
+Se carga un archivo de integración YAML/JSON o una composición que referencia varios archivos de integración. Cada archivo admite hasta 4 MiB. No hay mezcla de archivos ni recarga en caliente. Ver [Grupos de tools](grupos-de-tools.md) para el formato de composición y sus tres modos de publicación. YAML rechaza claves duplicadas y aliases. Los bloques de configuración son estrictos: una clave desconocida es un error, excepto dentro de los documentos JSON Schema de entrada/salida.
 
 Zod valida el archivo de configuración y aplica sus defaults. AJV valida los esquemas y los datos de las tools. Son dos niveles diferentes: los defaults de configuración sí se aplican; un `default` dentro de `inputSchema` no rellena automáticamente un argumento faltante.
 
@@ -18,7 +18,7 @@ Para asistencia en el editor, agregar el comentario siguiente a un YAML ubicado,
 
 En JSON se puede declarar `"$schema": "../schema/config.schema.json"`. Ajustar la ruta según la ubicación del archivo. El esquema generado ayuda al editor, pero no sustituye las comprobaciones semánticas del comando `validate`.
 
-## Raíz
+## Raíz de una integración
 
 | Campo | Tipo | Obligatorio / default |
 | --- | --- | --- |
@@ -47,7 +47,7 @@ En JSON se puede declarar `"$schema": "../schema/config.schema.json"`. Ajustar l
 | `allowedOrigins` | `[]` | Lista de orígenes completos permitidos, comparados exactamente. Sin Origin se permite continuar. |
 | `maxRequestBytes` | `1048576` | Tamaño máximo del body HTTP entrante a MCP. |
 
-La ruta MCP es fija: `/mcp`. No existen flags CLI para cambiar host o puerto; se editan en el archivo. `allowedHosts` no autentica usuarios. Ver [Operación HTTP](operacion-y-diagnostico.md).
+Una integración individual usa `/mcp`. Las composiciones también pueden publicar `/mcp/<grupo>` según su modo. No existen flags CLI para cambiar host o puerto; se editan en el archivo. `allowedHosts` no autentica usuarios. Ver [Operación HTTP](operacion-y-diagnostico.md).
 
 **Fragmento** de servidor HTTP:
 

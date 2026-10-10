@@ -1,0 +1,11 @@
+{
+  "$schema": "../schema/config.schema.json",
+  "version": 1,
+  "kind": "composition",
+  "server": { "name": "underqubit", "transport": "stdio" },
+  "mode": "unified",
+  "groups": [
+    { "id": "local", "config": "./cli.yaml" },
+    { "id": "echo", "config": "./cli.json" }
+  ]
+}

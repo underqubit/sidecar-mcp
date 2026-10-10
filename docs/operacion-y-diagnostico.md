@@ -115,7 +115,7 @@ Los mensajes genéricos evitan exponer detalles del servicio o credenciales. Rep
 | `Cannot find module .../dist/cli.js` o worker faltante | Compilar y conservar el directorio `dist/` completo. |
 | `node` o CLI no encontrado desde una app gráfica | Revisar PATH del proceso o utilizar ruta absoluta al ejecutable. |
 | HTTP 403 del endpoint MCP | Revisar Host/Origin y proxy antes de investigar auth del servicio remoto. |
-| HTTP 404 del endpoint MCP | Usar `/mcp`; no existen rutas por nombre de tool. |
+| HTTP 404 del endpoint MCP | Usar una ruta publicada por el modo: `/mcp` y/o `/mcp/<grupo>`. No existen rutas por nombre de tool. |
 | HTTP 413 | El body entrante supera `server.http.maxRequestBytes` o el límite del proxy. |
 | HTTP 400/405 o fallo de negociación | Usar cliente Streamable HTTP y mensajes MCP válidos; no invocar como endpoint REST. |
 | Puerto ocupado | Detener el proceso anterior o cambiar `server.http.port`. |
@@ -130,3 +130,9 @@ No hay recarga en caliente, importación de OpenAPI, configuración TypeScript e
 Las tools dinámicas son dinámicas **por configuración al iniciar**. Elegir manualmente sus contratos y transformaciones es parte de integrar una API o CLI existente.
 
 Ver [Desarrollo](desarrollo.md) para agregar capacidades y [Configuración](configuracion.md) para los límites ya disponibles.
+
+## Operar varios grupos
+
+Ver [Grupos de tools](grupos-de-tools.md) para `unified`, `separate` y `both`. Iniciar un proceso y usar los endpoints impresos por stderr. Todas las rutas comparten guards HTTP principales, puerto y ciclo de vida; las conexiones separadas no aportan control de acceso ni aislamiento de fallos. Configurar la autorización entrante en un proxy confiable para cada ruta publicada, incluyendo `/mcp` si publica el catálogo completo.
+
+La configuración se valida de forma completa al iniciar. Un archivo hijo o una variable requerida faltante impide iniciar todos los grupos. Reiniciar para aplicar cambios; no hay recarga en caliente. Los logs de llamadas incluyen `group` y el nombre original de la tool. Operaciones duplicadas en un cliente suelen indicar conexiones simultáneas al endpoint unificado y al de su grupo.

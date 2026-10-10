@@ -11,6 +11,7 @@ El archivo de configuración es la integración: agregar una tool no requiere mo
 | Documento | Qué explica |
 | --- | --- |
 | [Inicio rápido](inicio-rapido.md) | Instalación, primera ejecución, conexión desde un cliente y comandos disponibles. |
+| [Grupos de tools](grupos-de-tools.md) | Varios archivos en un proceso, catálogo unificado, endpoints separados e Inspector. |
 | [Configuración](configuracion.md) | Referencia de campos comunes, JSON Schema, variables, plantillas, defaults y límites. |
 | [Tools HTTP](tools-http.md) | Mapeo de argumentos a una API REST mediante Axios. |
 | [Tools CLI](tools-cli.md) | Ejecutables, argumentos, stdin, entorno, rutas y códigos de salida. |

@@ -158,3 +158,14 @@ For stdio clients, invoke `node` directly as shown above: npm script messages mu
 6. Restart the process after changing configuration or variables.
 
 Continue with [Configuration](configuration.md), [HTTP tools](tools-http.md), or [CLI tools](tools-cli.md).
+
+## Multiple integration files
+
+Use [tool groups](tool-groups.md) to load several files in one process. The examples require no API credentials:
+
+```sh
+node dist/cli.js validate --config examples/composition.json
+node dist/cli.js serve --config examples/composition.json
+```
+
+The JSON example exposes a unified stdio catalog. For HTTP with both the full catalog and separate group endpoints, run `node dist/cli.js serve --config examples/composition.yaml`. The guide includes Inspector connections and expected tool names. `--transport` changes transport, not publication mode; only `unified` supports stdio.

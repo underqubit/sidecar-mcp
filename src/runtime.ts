@@ -8,11 +8,19 @@ import { executeCli, executeHttp } from './executors.js';
 import { processResponse } from './response.js';
 
 interface CompiledTool { config: ToolConfig; input: ValidateFunction; output: ValidateFunction }
-export interface LogEvent { tool: string; durationMs: number; ok: boolean; stage?: string }
+export interface LogEvent { group?: string; tool: string; durationMs: number; ok: boolean; stage?: string }
 export type Logger = (event: LogEvent) => void;
 export const stderrLogger: Logger = event => { process.stderr.write(`${JSON.stringify(event)}\n`); };
 
-export class Runtime {
+export interface ToolCatalog {
+  readonly identity: { name: string; version: string };
+  readonly tools: ReadonlyMap<string, { config: ToolConfig }>;
+  call(name: string, input: unknown, callerSignal?: AbortSignal): Promise<CallToolResult>;
+}
+
+export class Runtime implements ToolCatalog {
+  get identity(): { name: string; version: string } { return this.loaded.config.server; }
+  private closing?: Promise<void>;
   readonly tools = new Map<string, CompiledTool>();
   private readonly auth: AuthManager;
   private readonly shutdown = new AbortController();
@@ -31,9 +39,11 @@ export class Runtime {
     try { return await task; } finally { this.active.delete(task); }
   }
 
-  async close(): Promise<void> {
-    this.shutdown.abort(); this.auth.close();
-    await Promise.allSettled(this.active);
+  close(): Promise<void> {
+    return this.closing ??= (async () => {
+      this.shutdown.abort(); this.auth.close();
+      await Promise.allSettled(this.active);
+    })();
   }
 
   private async run(name: string, input: unknown, callerSignal?: AbortSignal): Promise<CallToolResult> {

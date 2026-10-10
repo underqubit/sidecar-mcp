@@ -112,7 +112,7 @@ export async function prepareConfig(raw: unknown, directory: string, environment
   return { config, directory, env };
 }
 
-export async function loadConfig(file: string, env: Environment = process.env): Promise<LoadedConfig> {
+export async function readConfigFile(file: string): Promise<unknown> {
   let raw: unknown;
   try {
     const content = await readFile(file, 'utf8');
@@ -124,5 +124,9 @@ export async function loadConfig(file: string, env: Environment = process.env): 
       raw = doc.toJS({ maxAliasCount: 0 });
     } else throw new Error('extension');
   } catch { throw new SidecarError('config', 'Could not read a valid YAML/JSON file (maximum 4 MiB; YAML aliases are not allowed).'); }
-  return prepareConfig(raw, dirname(resolve(file)), env);
+  return raw;
+}
+
+export async function loadConfig(file: string, env: Environment = process.env): Promise<LoadedConfig> {
+  return prepareConfig(await readConfigFile(file), dirname(resolve(file)), env);
 }

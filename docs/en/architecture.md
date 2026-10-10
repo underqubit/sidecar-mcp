@@ -32,6 +32,7 @@ flowchart TD
 | [config-schema.ts](../../src/config-schema.ts) | Zod configuration schemas and inferred types. |
 | [config.ts](../../src/config.ts) | YAML/JSON loading, semantic checks, required environment, paths, and response prevalidation. |
 | [templates.ts](../../src/templates.ts) | Reference discovery and resolution, type preservation, and scalar conversion. |
+| [composition.ts](../../src/composition.ts) | Deployment loading, independent group runtimes, catalog views, routing, and shared lifecycle. |
 | [runtime.ts](../../src/runtime.ts) | Compiled tool registry, active calls, deadlines, data validation, results, and logging. |
 | [auth.ts](../../src/auth.ts) | HTTP profiles, token cache, and coordination of concurrent OAuth requests. |
 | [executors.ts](../../src/executors.ts) | Axios and CLI process adapters; produces text and metadata. |
@@ -43,10 +44,10 @@ flowchart TD
 ## Startup
 
 1. The CLI processes `serve` or `validate` and the `--config` path.
-2. `loadConfig` reads the file, determines the format from its extension, and parses it.
+2. `loadDeployment` reads the file through `readConfigFile`, detects an integration or composition, and loads the referenced files. `loadConfig` remains the single-integration API.
 3. `prepareConfig` validates with Zod, applies defaults, checks unique names, compiles JSON Schemas, and validates references, profiles, and URLs.
 4. It captures only referenced environment variables and normalizes executable/cwd paths for CLI tools. It checks regex and JSONata in workers without running the transformation.
-5. `validate` reports success and exits. `serve` builds a `Runtime` and enables the selected transport.
+5. The effective transport and mode are checked. `validate` reports success and exits. `serve` builds an `Application`, with one `Runtime` per group, and enables the transport.
 
 There is no automatic API discovery, advance CLI execution, token prefetching, or file watching. If startup fails, no partial set of tools becomes available.
 
@@ -100,3 +101,13 @@ Main-thread time limits are cooperative: a synchronous operation does not yield 
 The operator controls the file, executables, and server environment. The model supplies only declared arguments. TypeScript modules are not loaded from configuration, and templates do not evaluate JavaScript, but a configured executable retains its normal capabilities.
 
 MCP annotations describe effects; they do not provide authorization. The HTTP handler does not authenticate users. Output data is not automatically filtered for sensitivity: the parser, transformation, and `outputSchema` must expose the appropriate contract for each integration.
+
+## Composition and catalog views
+
+`LoadedDeployment` distinguishes a single integration from a validated composition. `Application` owns the group runtimes and a map of endpoint paths to `ToolCatalog` views. A catalog contains an MCP identity, tool definitions, and a call dispatcher; it does not copy execution state. Unified names map back to the original group tool. Separate endpoints publish original names and group identities.
+
+`createApplicationHttpHandler` dispatches exact paths to independent SDK handlers, after common Host/Origin checks. `startHttp` opens one listener and reports all published URLs (`urls`); `url` remains the first published URL for compatibility. `createHttpHandler(Runtime)` remains available for single-runtime embedded consumers.
+
+Both views share each group's runtime and OAuth cache. Profiles with identical names in different groups remain independent. Execution defaults and referenced environment variables belong to the integration; listener settings belong to the composition. These boundaries prevent accidental configuration mixing, but are not process isolation or per-group access control.
+
+`Application.close` and `Runtime.close` are idempotent. Shutdown cancels all group operations and closes all HTTP handlers; failed listener startup also closes runtimes. Composition logs add the group ID while keeping the original tool name. See [Tool groups](tool-groups.md) for configuration and compatibility rules.

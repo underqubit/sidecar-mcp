@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=../schema/config.schema.json
+version: 1
+kind: composition
+server:
+  name: underqubit
+  transport: http
+  http:
+    host: 127.0.0.1
+    port: 3000
+mode: both
+groups:
+  - id: local
+    config: ./cli.yaml
+  - id: echo
+    config: ./cli.json

@@ -10,6 +10,8 @@ Complete documentation is available in [docs/en/README.md](docs/en/README.md): u
 
 For AI agents, the usage skill is available in [skills/underqubit-sidecar-mcp/SKILL.md](skills/underqubit-sidecar-mcp/SKILL.md).
 
+Load multiple integration files in one process with [tool groups](docs/en/tool-groups.md): a unified catalog, separate HTTP servers, or both.
+
 ## Quick start
 
 ```sh

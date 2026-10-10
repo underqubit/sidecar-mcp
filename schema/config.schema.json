@@ -1,429 +1,142 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object",
-  "properties": {
-    "$schema": {
-      "type": "string"
-    },
-    "version": {
-      "type": "number",
-      "const": 1
-    },
-    "server": {
-      "default": {
-        "name": "underqubit-sidecar-mcp",
-        "version": "0.1.0",
-        "transport": "stdio",
-        "timeoutMs": 30000,
-        "maxOutputBytes": 1048576,
-        "http": {
-          "host": "127.0.0.1",
-          "port": 3000,
-          "allowedHosts": [
-            "127.0.0.1",
-            "localhost",
-            "[::1]"
-          ],
-          "allowedOrigins": [],
-          "maxRequestBytes": 1048576
-        }
-      },
+  "anyOf": [
+    {
       "type": "object",
       "properties": {
-        "name": {
-          "default": "underqubit-sidecar-mcp",
-          "type": "string",
-          "minLength": 1
+        "$schema": {
+          "type": "string"
         },
         "version": {
-          "default": "0.1.0",
-          "type": "string",
-          "minLength": 1
+          "type": "number",
+          "const": 1
         },
-        "transport": {
-          "default": "stdio",
-          "type": "string",
-          "enum": [
-            "stdio",
-            "http"
-          ]
-        },
-        "timeoutMs": {
-          "default": 30000,
-          "type": "integer",
-          "exclusiveMinimum": 0,
-          "maximum": 2147483647
-        },
-        "maxOutputBytes": {
-          "default": 1048576,
-          "type": "integer",
-          "exclusiveMinimum": 0,
-          "maximum": 67108864
-        },
-        "http": {
+        "server": {
           "default": {
-            "host": "127.0.0.1",
-            "port": 3000,
-            "allowedHosts": [
-              "127.0.0.1",
-              "localhost",
-              "[::1]"
-            ],
-            "allowedOrigins": [],
-            "maxRequestBytes": 1048576
-          },
-          "type": "object",
-          "properties": {
-            "host": {
-              "default": "127.0.0.1",
-              "type": "string",
-              "minLength": 1
-            },
-            "port": {
-              "default": 3000,
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 65535
-            },
-            "allowedHosts": {
-              "default": [
+            "name": "underqubit-sidecar-mcp",
+            "version": "0.1.0",
+            "transport": "stdio",
+            "timeoutMs": 30000,
+            "maxOutputBytes": 1048576,
+            "http": {
+              "host": "127.0.0.1",
+              "port": 3000,
+              "allowedHosts": [
                 "127.0.0.1",
                 "localhost",
                 "[::1]"
               ],
-              "type": "array",
-              "items": {
-                "type": "string",
-                "minLength": 1
-              }
+              "allowedOrigins": [],
+              "maxRequestBytes": 1048576
+            }
+          },
+          "type": "object",
+          "properties": {
+            "name": {
+              "default": "underqubit-sidecar-mcp",
+              "type": "string",
+              "minLength": 1
             },
-            "allowedOrigins": {
-              "default": [],
-              "type": "array",
-              "items": {
-                "type": "string",
-                "format": "uri"
-              }
+            "version": {
+              "default": "0.1.0",
+              "type": "string",
+              "minLength": 1
             },
-            "maxRequestBytes": {
+            "transport": {
+              "default": "stdio",
+              "type": "string",
+              "enum": [
+                "stdio",
+                "http"
+              ]
+            },
+            "timeoutMs": {
+              "default": 30000,
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 2147483647
+            },
+            "maxOutputBytes": {
               "default": 1048576,
               "type": "integer",
               "exclusiveMinimum": 0,
               "maximum": 67108864
+            },
+            "http": {
+              "default": {
+                "host": "127.0.0.1",
+                "port": 3000,
+                "allowedHosts": [
+                  "127.0.0.1",
+                  "localhost",
+                  "[::1]"
+                ],
+                "allowedOrigins": [],
+                "maxRequestBytes": 1048576
+              },
+              "type": "object",
+              "properties": {
+                "host": {
+                  "default": "127.0.0.1",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "port": {
+                  "default": 3000,
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 65535
+                },
+                "allowedHosts": {
+                  "default": [
+                    "127.0.0.1",
+                    "localhost",
+                    "[::1]"
+                  ],
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "allowedOrigins": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                },
+                "maxRequestBytes": {
+                  "default": 1048576,
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 67108864
+                }
+              },
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
-        }
-      },
-      "additionalProperties": false
-    },
-    "auth": {
-      "default": {},
-      "type": "object",
-      "propertyNames": {
-        "type": "string"
-      },
-      "additionalProperties": {
-        "oneOf": [
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "none"
-              }
-            },
-            "required": [
-              "type"
-            ],
-            "additionalProperties": false
+        },
+        "auth": {
+          "default": {},
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
           },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "apiKey"
-              },
-              "in": {
-                "type": "string",
-                "enum": [
-                  "header",
-                  "query"
-                ]
-              },
-              "name": {
-                "type": "string",
-                "minLength": 1
-              },
-              "value": {
-                "type": "string",
-                "pattern": "^\\$\\{env\\.[A-Za-z_][A-Za-z0-9_]*\\}$"
-              }
-            },
-            "required": [
-              "type",
-              "in",
-              "name",
-              "value"
-            ],
-            "additionalProperties": false
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "bearer"
-              },
-              "token": {
-                "type": "string",
-                "pattern": "^\\$\\{env\\.[A-Za-z_][A-Za-z0-9_]*\\}$"
-              }
-            },
-            "required": [
-              "type",
-              "token"
-            ],
-            "additionalProperties": false
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "basic"
-              },
-              "username": {
-                "type": "string",
-                "pattern": "^\\$\\{env\\.[A-Za-z_][A-Za-z0-9_]*\\}$"
-              },
-              "password": {
-                "type": "string",
-                "pattern": "^\\$\\{env\\.[A-Za-z_][A-Za-z0-9_]*\\}$"
-              }
-            },
-            "required": [
-              "type",
-              "username",
-              "password"
-            ],
-            "additionalProperties": false
-          },
-          {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "oauth2"
-              },
-              "tokenUrl": {
-                "type": "string",
-                "minLength": 1
-              },
-              "clientId": {
-                "type": "string",
-                "pattern": "^\\$\\{env\\.[A-Za-z_][A-Za-z0-9_]*\\}$"
-              },
-              "clientSecret": {
-                "type": "string",
-                "pattern": "^\\$\\{env\\.[A-Za-z_][A-Za-z0-9_]*\\}$"
-              },
-              "scopes": {
-                "default": [],
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "minLength": 1
-                }
-              },
-              "tokenAuthMethod": {
-                "default": "basic",
-                "type": "string",
-                "enum": [
-                  "basic",
-                  "body"
-                ]
-              },
-              "timeoutMs": {
-                "default": 10000,
-                "type": "integer",
-                "exclusiveMinimum": 0,
-                "maximum": 2147483647
-              }
-            },
-            "required": [
-              "type",
-              "tokenUrl",
-              "clientId",
-              "clientSecret"
-            ],
-            "additionalProperties": false
-          }
-        ]
-      }
-    },
-    "tools": {
-      "minItems": 1,
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "pattern": "^[A-Za-z0-9_.-]{1,128}$"
-          },
-          "title": {
-            "type": "string",
-            "minLength": 1
-          },
-          "description": {
-            "type": "string",
-            "minLength": 1
-          },
-          "inputSchema": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "object"
-              }
-            },
-            "required": [
-              "type"
-            ],
-            "additionalProperties": {}
-          },
-          "outputSchema": {
-            "type": "object",
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "object"
-              }
-            },
-            "required": [
-              "type"
-            ],
-            "additionalProperties": {}
-          },
-          "annotations": {
-            "type": "object",
-            "properties": {
-              "readOnlyHint": {
-                "type": "boolean"
-              },
-              "destructiveHint": {
-                "type": "boolean"
-              },
-              "idempotentHint": {
-                "type": "boolean"
-              },
-              "openWorldHint": {
-                "type": "boolean"
-              }
-            },
-            "additionalProperties": false
-          },
-          "execution": {
+          "additionalProperties": {
             "oneOf": [
               {
                 "type": "object",
                 "properties": {
                   "type": {
                     "type": "string",
-                    "const": "http"
-                  },
-                  "baseUrl": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "path": {
-                    "default": "",
-                    "type": "string"
-                  },
-                  "method": {
-                    "default": "GET",
-                    "type": "string",
-                    "enum": [
-                      "GET",
-                      "POST",
-                      "PUT",
-                      "PATCH",
-                      "DELETE",
-                      "HEAD",
-                      "OPTIONS"
-                    ]
-                  },
-                  "pathParams": {
-                    "default": {},
-                    "type": "object",
-                    "propertyNames": {
-                      "type": "string"
-                    },
-                    "additionalProperties": {
-                      "$ref": "#/$defs/__schema0"
-                    }
-                  },
-                  "query": {
-                    "default": {},
-                    "type": "object",
-                    "propertyNames": {
-                      "type": "string"
-                    },
-                    "additionalProperties": {
-                      "$ref": "#/$defs/__schema0"
-                    }
-                  },
-                  "headers": {
-                    "default": {},
-                    "type": "object",
-                    "propertyNames": {
-                      "type": "string"
-                    },
-                    "additionalProperties": {
-                      "type": "string"
-                    }
-                  },
-                  "body": {
-                    "$ref": "#/$defs/__schema1"
-                  },
-                  "bodyEncoding": {
-                    "default": "json",
-                    "type": "string",
-                    "enum": [
-                      "json",
-                      "form",
-                      "text"
-                    ]
-                  },
-                  "auth": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "successStatuses": {
-                    "minItems": 1,
-                    "type": "array",
-                    "items": {
-                      "type": "integer",
-                      "minimum": 100,
-                      "maximum": 599
-                    }
-                  },
-                  "timeoutMs": {
-                    "type": "integer",
-                    "exclusiveMinimum": 0,
-                    "maximum": 2147483647
-                  },
-                  "maxOutputBytes": {
-                    "type": "integer",
-                    "exclusiveMinimum": 0,
-                    "maximum": 67108864
+                    "const": "none"
                   }
                 },
                 "required": [
-                  "type",
-                  "baseUrl"
+                  "type"
                 ],
                 "additionalProperties": false
               },
@@ -432,170 +145,594 @@
                 "properties": {
                   "type": {
                     "type": "string",
-                    "const": "cli"
+                    "const": "apiKey"
                   },
-                  "command": {
+                  "in": {
+                    "type": "string",
+                    "enum": [
+                      "header",
+                      "query"
+                    ]
+                  },
+                  "name": {
                     "type": "string",
                     "minLength": 1
                   },
-                  "args": {
-                    "default": [],
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "cwd": {
+                  "value": {
                     "type": "string",
-                    "minLength": 1
-                  },
-                  "env": {
-                    "default": {},
-                    "type": "object",
-                    "propertyNames": {
-                      "type": "string"
-                    },
-                    "additionalProperties": {
-                      "type": "string"
-                    }
-                  },
-                  "stdin": {
-                    "$ref": "#/$defs/__schema2"
-                  },
-                  "successExitCodes": {
-                    "default": [
-                      0
-                    ],
-                    "minItems": 1,
-                    "type": "array",
-                    "items": {
-                      "type": "integer",
-                      "minimum": 0,
-                      "maximum": 255
-                    }
-                  },
-                  "timeoutMs": {
-                    "type": "integer",
-                    "exclusiveMinimum": 0,
-                    "maximum": 2147483647
-                  },
-                  "maxOutputBytes": {
-                    "type": "integer",
-                    "exclusiveMinimum": 0,
-                    "maximum": 67108864
+                    "pattern": "^\\$\\{env\\.[A-Za-z_][A-Za-z0-9_]*\\}$"
                   }
                 },
                 "required": [
                   "type",
-                  "command"
+                  "in",
+                  "name",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "bearer"
+                  },
+                  "token": {
+                    "type": "string",
+                    "pattern": "^\\$\\{env\\.[A-Za-z_][A-Za-z0-9_]*\\}$"
+                  }
+                },
+                "required": [
+                  "type",
+                  "token"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "basic"
+                  },
+                  "username": {
+                    "type": "string",
+                    "pattern": "^\\$\\{env\\.[A-Za-z_][A-Za-z0-9_]*\\}$"
+                  },
+                  "password": {
+                    "type": "string",
+                    "pattern": "^\\$\\{env\\.[A-Za-z_][A-Za-z0-9_]*\\}$"
+                  }
+                },
+                "required": [
+                  "type",
+                  "username",
+                  "password"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "oauth2"
+                  },
+                  "tokenUrl": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "clientId": {
+                    "type": "string",
+                    "pattern": "^\\$\\{env\\.[A-Za-z_][A-Za-z0-9_]*\\}$"
+                  },
+                  "clientSecret": {
+                    "type": "string",
+                    "pattern": "^\\$\\{env\\.[A-Za-z_][A-Za-z0-9_]*\\}$"
+                  },
+                  "scopes": {
+                    "default": [],
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "tokenAuthMethod": {
+                    "default": "basic",
+                    "type": "string",
+                    "enum": [
+                      "basic",
+                      "body"
+                    ]
+                  },
+                  "timeoutMs": {
+                    "default": 10000,
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 2147483647
+                  }
+                },
+                "required": [
+                  "type",
+                  "tokenUrl",
+                  "clientId",
+                  "clientSecret"
                 ],
                 "additionalProperties": false
               }
             ]
-          },
-          "response": {
-            "default": {
-              "parser": {
-                "type": "json"
-              },
-              "workerTimeoutMs": 1000
-            },
+          }
+        },
+        "tools": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
             "type": "object",
             "properties": {
-              "parser": {
-                "default": {
-                  "type": "json"
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_.-]{1,128}$"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              },
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "object"
+                  }
                 },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": {}
+              },
+              "outputSchema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "object"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "additionalProperties": {}
+              },
+              "annotations": {
+                "type": "object",
+                "properties": {
+                  "readOnlyHint": {
+                    "type": "boolean"
+                  },
+                  "destructiveHint": {
+                    "type": "boolean"
+                  },
+                  "idempotentHint": {
+                    "type": "boolean"
+                  },
+                  "openWorldHint": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "execution": {
                 "oneOf": [
                   {
                     "type": "object",
                     "properties": {
                       "type": {
                         "type": "string",
-                        "const": "json"
-                      }
-                    },
-                    "required": [
-                      "type"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "type": "string",
-                        "const": "text"
-                      }
-                    },
-                    "required": [
-                      "type"
-                    ],
-                    "additionalProperties": false
-                  },
-                  {
-                    "type": "object",
-                    "properties": {
-                      "type": {
-                        "type": "string",
-                        "const": "regex"
+                        "const": "http"
                       },
-                      "pattern": {
+                      "baseUrl": {
                         "type": "string",
                         "minLength": 1
                       },
-                      "flags": {
+                      "path": {
                         "default": "",
-                        "type": "string",
-                        "pattern": "^[imsu]*$"
+                        "type": "string"
                       },
-                      "mode": {
-                        "default": "first",
+                      "method": {
+                        "default": "GET",
                         "type": "string",
                         "enum": [
-                          "first",
-                          "all"
+                          "GET",
+                          "POST",
+                          "PUT",
+                          "PATCH",
+                          "DELETE",
+                          "HEAD",
+                          "OPTIONS"
                         ]
+                      },
+                      "pathParams": {
+                        "default": {},
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {
+                          "$ref": "#/$defs/__schema0"
+                        }
+                      },
+                      "query": {
+                        "default": {},
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {
+                          "$ref": "#/$defs/__schema0"
+                        }
+                      },
+                      "headers": {
+                        "default": {},
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
+                      "body": {
+                        "$ref": "#/$defs/__schema1"
+                      },
+                      "bodyEncoding": {
+                        "default": "json",
+                        "type": "string",
+                        "enum": [
+                          "json",
+                          "form",
+                          "text"
+                        ]
+                      },
+                      "auth": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "successStatuses": {
+                        "minItems": 1,
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "minimum": 100,
+                          "maximum": 599
+                        }
+                      },
+                      "timeoutMs": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 2147483647
+                      },
+                      "maxOutputBytes": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 67108864
                       }
                     },
                     "required": [
                       "type",
-                      "pattern"
+                      "baseUrl"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "const": "cli"
+                      },
+                      "command": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "args": {
+                        "default": [],
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "cwd": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "env": {
+                        "default": {},
+                        "type": "object",
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
+                      "stdin": {
+                        "$ref": "#/$defs/__schema2"
+                      },
+                      "successExitCodes": {
+                        "default": [
+                          0
+                        ],
+                        "minItems": 1,
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 255
+                        }
+                      },
+                      "timeoutMs": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 2147483647
+                      },
+                      "maxOutputBytes": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 67108864
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "command"
                     ],
                     "additionalProperties": false
                   }
                 ]
               },
-              "transform": {
-                "type": "string",
-                "minLength": 1
-              },
-              "workerTimeoutMs": {
-                "default": 1000,
-                "type": "integer",
-                "exclusiveMinimum": 0,
-                "maximum": 2147483647
+              "response": {
+                "default": {
+                  "parser": {
+                    "type": "json"
+                  },
+                  "workerTimeoutMs": 1000
+                },
+                "type": "object",
+                "properties": {
+                  "parser": {
+                    "default": {
+                      "type": "json"
+                    },
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "json"
+                          }
+                        },
+                        "required": [
+                          "type"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "text"
+                          }
+                        },
+                        "required": [
+                          "type"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "const": "regex"
+                          },
+                          "pattern": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "flags": {
+                            "default": "",
+                            "type": "string",
+                            "pattern": "^[imsu]*$"
+                          },
+                          "mode": {
+                            "default": "first",
+                            "type": "string",
+                            "enum": [
+                              "first",
+                              "all"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "pattern"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  "transform": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "workerTimeoutMs": {
+                    "default": 1000,
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 2147483647
+                  }
+                },
+                "additionalProperties": false
               }
             },
+            "required": [
+              "name",
+              "description",
+              "inputSchema",
+              "outputSchema",
+              "execution"
+            ],
             "additionalProperties": false
           }
+        }
+      },
+      "required": [
+        "version",
+        "tools"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "type": "string"
         },
-        "required": [
-          "name",
-          "description",
-          "inputSchema",
-          "outputSchema",
-          "execution"
-        ],
-        "additionalProperties": false
-      }
+        "version": {
+          "type": "number",
+          "const": 1
+        },
+        "kind": {
+          "type": "string",
+          "const": "composition"
+        },
+        "server": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "name": {
+              "default": "underqubit-sidecar-mcp",
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "default": "0.1.0",
+              "type": "string",
+              "minLength": 1
+            },
+            "transport": {
+              "default": "stdio",
+              "type": "string",
+              "enum": [
+                "stdio",
+                "http"
+              ]
+            },
+            "http": {
+              "default": {
+                "host": "127.0.0.1",
+                "port": 3000,
+                "allowedHosts": [
+                  "127.0.0.1",
+                  "localhost",
+                  "[::1]"
+                ],
+                "allowedOrigins": [],
+                "maxRequestBytes": 1048576
+              },
+              "type": "object",
+              "properties": {
+                "host": {
+                  "default": "127.0.0.1",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "port": {
+                  "default": 3000,
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 65535
+                },
+                "allowedHosts": {
+                  "default": [
+                    "127.0.0.1",
+                    "localhost",
+                    "[::1]"
+                  ],
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "allowedOrigins": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                },
+                "maxRequestBytes": {
+                  "default": 1048576,
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 67108864
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "unified",
+            "separate",
+            "both"
+          ]
+        },
+        "groups": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 126,
+                "pattern": "^[a-z0-9_-]+$"
+              },
+              "config": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "id",
+              "config"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "version",
+        "kind",
+        "mode",
+        "groups"
+      ],
+      "additionalProperties": false
     }
-  },
-  "required": [
-    "version",
-    "tools"
   ],
-  "additionalProperties": false,
   "$defs": {
     "__schema0": {
       "anyOf": [

@@ -10,6 +10,8 @@ La documentación completa está en [docs/README.md](docs/README.md): guías de 
 
 Para agentes de IA, la skill de uso está en [skills/underqubit-sidecar-mcp/SKILL.md](skills/underqubit-sidecar-mcp/SKILL.md), en inglés.
 
+Cargá varios archivos de integración en un proceso con [grupos de tools](docs/grupos-de-tools.md): un catálogo unificado, servidores HTTP separados o ambos.
+
 ## Inicio rápido
 
 ```sh

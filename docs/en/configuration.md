@@ -4,7 +4,7 @@
 
 ## Format and validation
 
-The server loads a single YAML or JSON file, up to 4 MiB. There are no includes, file merging, or hot reload. YAML rejects duplicate keys and aliases. Configuration blocks are strict: an unknown key is an error, except inside input/output JSON Schema documents.
+The server loads a YAML or JSON integration file, or a composition referencing multiple integration files. Each file is limited to 4 MiB. Files are not merged and there is no hot reload. See [Tool groups](tool-groups.md) for the composition format and its three publication modes. YAML rejects duplicate keys and aliases. Configuration blocks are strict: an unknown key is an error, except inside input/output JSON Schema documents.
 
 Zod validates the configuration file and applies its defaults. AJV validates tool schemas and data. These are separate layers: configuration defaults are applied; a `default` inside `inputSchema` does not automatically fill in a missing argument.
 
@@ -16,7 +16,7 @@ For editor assistance, add the following comment to a YAML file located, for exa
 
 In JSON, you can declare `"$schema": "../schema/config.schema.json"`. Adjust the path to the file's location. The generated schema helps the editor but does not replace the semantic checks performed by `validate`.
 
-## Root
+## Integration root
 
 | Field | Type | Required / default |
 | --- | --- | --- |
@@ -45,7 +45,7 @@ In JSON, you can declare `"$schema": "../schema/config.schema.json"`. Adjust the
 | `allowedOrigins` | `[]` | Allowed full origins, matched exactly. Requests without Origin can proceed. |
 | `maxRequestBytes` | `1048576` | Maximum incoming MCP HTTP body size. |
 
-The MCP path is fixed: `/mcp`. There are no CLI flags to change the host or port; edit the file. `allowedHosts` does not authenticate users. See [HTTP operations](operations-and-troubleshooting.md).
+A standalone integration uses `/mcp`. Compositions can also publish `/mcp/<group>` depending on their mode. There are no CLI flags to change the host or port; edit the file. `allowedHosts` does not authenticate users. See [HTTP operations](operations-and-troubleshooting.md).
 
 HTTP server **fragment**:
 

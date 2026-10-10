@@ -113,7 +113,7 @@ Generic messages avoid exposing service details or credentials. Reproducing the 
 | `Cannot find module .../dist/cli.js` or missing worker | Build and retain the complete `dist/` directory. |
 | `node` or CLI not found from a graphical app | Check the process PATH or use an absolute executable path. |
 | HTTP 403 from the MCP endpoint | Check Host/Origin and the proxy before investigating remote service auth. |
-| HTTP 404 from the MCP endpoint | Use `/mcp`; there are no routes named after tools. |
+| HTTP 404 from the MCP endpoint | Use a route published by the configured mode: `/mcp` and/or `/mcp/<group>`. There are no routes named after tools. |
 | HTTP 413 | The incoming body exceeds `server.http.maxRequestBytes` or the proxy limit. |
 | HTTP 400/405 or negotiation failure | Use a Streamable HTTP client and valid MCP messages; do not invoke it as a REST endpoint. |
 | Port already in use | Stop the previous process or change `server.http.port`. |
@@ -128,3 +128,9 @@ There is no hot reload, OpenAPI import, executable TypeScript configuration, ext
 Dynamic tools are dynamic **through configuration at startup**. Manually choosing their contracts and transformations is part of integrating an existing API or CLI.
 
 See [Development](development.md) to add capabilities and [Configuration](configuration.md) for existing limits.
+
+## Operating multiple groups
+
+See [Tool groups](tool-groups.md) for `unified`, `separate`, and `both`. Start one process and use the endpoints printed on stderr. All routes share the main HTTP guards, port, and process lifetime; separate connections do not provide access control or failure isolation. Configure any incoming authorization in your trusted proxy for every exposed route, including `/mcp` if it exposes the full catalog.
+
+Configuration is validated atomically at startup. A missing child file or required variable prevents all groups from starting. Restart to load changes; there is no hot reload. Call logs include `group` and the original tool name. Duplicate operations in a client usually mean it connected to both the unified and group-specific endpoints.

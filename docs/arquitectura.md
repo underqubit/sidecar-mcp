@@ -34,6 +34,7 @@ flowchart TD
 | [config-schema.ts](../src/config-schema.ts) | Esquemas Zod de configuración y tipos inferidos. |
 | [config.ts](../src/config.ts) | Lectura YAML/JSON, comprobaciones semánticas, entorno requerido, rutas y prevalidación de respuestas. |
 | [templates.ts](../src/templates.ts) | Descubrimiento y resolución de referencias, preservación de tipos y conversión de escalares. |
+| [composition.ts](../src/composition.ts) | Carga de composiciones, runtimes por grupo, vistas de catálogo, enrutamiento y ciclo de vida compartido. |
 | [runtime.ts](../src/runtime.ts) | Registro compilado de tools, llamadas activas, deadline, validación de datos, resultado y logging. |
 | [auth.ts](../src/auth.ts) | Perfiles HTTP, caché de tokens y coordinación de requests OAuth concurrentes. |
 | [executors.ts](../src/executors.ts) | Adaptadores Axios y procesos CLI; produce texto y metadata. |
@@ -45,10 +46,10 @@ flowchart TD
 ## Arranque
 
 1. La CLI procesa `serve` o `validate` y la ruta `--config`.
-2. `loadConfig` lee el archivo, determina el formato por extensión y lo parsea.
+2. `loadDeployment` lee el archivo mediante `readConfigFile`, distingue integración y composición, y carga los archivos referenciados. `loadConfig` conserva la API de carga de una integración.
 3. `prepareConfig` valida con Zod, aplica defaults, comprueba nombres únicos, compila JSON Schemas y valida referencias, perfiles y URLs.
 4. Captura solo variables de entorno referenciadas y normaliza ejecutable/cwd de tools CLI. Comprueba regex y JSONata en workers, sin ejecutar la transformación.
-5. `validate` informa éxito y termina. `serve` construye `Runtime` y habilita el transporte seleccionado.
+5. Se comprueban el transporte efectivo y el modo. `validate` informa éxito y termina. `serve` construye una `Application`, con un `Runtime` por grupo, y habilita el transporte.
 
 No hay descubrimiento automático de APIs, ejecución previa de CLIs, obtención anticipada de tokens ni observación del archivo. Si falla el arranque, ninguna tool queda disponible parcialmente.
 
@@ -102,3 +103,13 @@ Los límites de tiempo del hilo principal son cooperativos: una operación sínc
 El operador controla el archivo, los ejecutables y el entorno del servidor. El modelo solo entrega argumentos declarados. No se cargan módulos TypeScript desde la configuración, ni se evalúa JavaScript dentro de plantillas, pero un ejecutable configurado conserva sus capacidades normales.
 
 Las anotaciones MCP describen efectos; no constituyen autorización. El handler HTTP no autentica usuarios. Los datos de salida no se filtran automáticamente por sensibilidad: parser, transformación y `outputSchema` deben exponer el contrato apropiado para cada integración.
+
+## Composición y vistas de catálogo
+
+`LoadedDeployment` distingue una integración individual de una composición validada. `Application` mantiene los runtimes de los grupos y un mapa de rutas a vistas `ToolCatalog`. Cada catálogo contiene identidad MCP, definiciones de tools y un despachador de llamadas; no copia el estado de ejecución. Los nombres unificados se traducen al nombre original de la tool del grupo. Los endpoints separados publican nombres originales e identidades por grupo.
+
+`createApplicationHttpHandler` despacha rutas exactas a handlers SDK independientes, después de comprobar Host/Origin. `startHttp` abre un listener y comunica todas las URLs publicadas (`urls`); `url` conserva la primera URL publicada por compatibilidad. `createHttpHandler(Runtime)` sigue disponible para integraciones embebidas de un runtime.
+
+Ambas vistas comparten el runtime y la caché OAuth del grupo. Los perfiles homónimos de grupos diferentes son independientes. Los defaults de ejecución y variables referenciadas pertenecen a la integración; las opciones del listener pertenecen a la composición. Esto evita mezclar configuraciones, pero no constituye aislamiento de procesos ni control de acceso por grupo.
+
+`Application.close` y `Runtime.close` son idempotentes. El cierre cancela operaciones de todos los grupos y cierra los handlers HTTP; un fallo al abrir el listener también cierra los runtimes. Los logs de composición agregan el ID del grupo y conservan el nombre original de la tool. Ver [Grupos de tools](grupos-de-tools.md) para configuración y compatibilidad.

@@ -64,6 +64,7 @@ node_modules/.bin/vitest run tests/config.test.ts tests/mcp.test.ts
 | [cli.test.ts](../tests/cli.test.ts) | Argumentos literales, stdin, entorno, códigos de salida, límites, cancelación y procesos. |
 | [http.test.ts](../tests/http.test.ts) | Axios con Nock: URL, query, headers, body, errores y autenticaciones. |
 | [response.test.ts](../tests/response.test.ts) | Parsers, grupos regex, JSONata, timeout, bytes y cancelación de workers. |
+| [composition.test.ts](../tests/composition.test.ts) | Validación de varios archivos, rutas, modos, catálogos stdio/HTTP, autenticación, cachés, límites y cierre. |
 | [mcp.test.ts](../tests/mcp.test.ts) | Cliente real stdio y Streamable HTTP en memoria, schemas publicados, guards y tamaño de requests. |
 | [evaluation.test.ts](../tests/evaluation.test.ts) | Respuestas verificadas a través de tools MCP sobre datos fijos. |
 | [http.network.test.ts](../tests/network/http.network.test.ts) | API y endpoint OAuth locales con sockets reales. |
@@ -144,3 +145,9 @@ Antes de entregar un cambio, correr las suites afectadas, comprobar el esquema g
 El manifiesto declara un binario `underqubit-sidecar-mcp` apuntando a `dist/cli.js`, pero el paquete tiene `private: true`; no hay una publicación npm configurada. El uso documentado es desde el checkout compilado.
 
 Para una instalación de servicio, construir con dependencias de desarrollo y conservar en ejecución Node, dependencias de producción, `dist/`, configuración y los ejecutables/scripts referenciados. No alcanza con copiar `dist/cli.js` aislado.
+
+## Extender composiciones
+
+Mantener `configSchema` y `loadConfig` compatibles con archivos de integración. `compositionSchema` describe el archivo principal y `configurationFileSchema` es la unión exportada al JSON Schema del editor. Después de cambiar cualquiera de los formatos, ejecutar `npm run schema`. Las comprobaciones semánticas de IDs únicos, credenciales de los hijos y longitud final de nombres pertenecen a `loadDeployment`.
+
+Usar `ToolCatalog` para publicar una vista y delegar la ejecución al runtime existente. No fusionar mapas de autenticación ni sobrescribir directorios o snapshots de entorno de los hijos. Inyectar un logger en `Application` para capturar eventos con grupo. Para pruebas específicas, ejecutar `node_modules/.bin/vitest run tests/composition.test.ts` después de compilar; la suite de red verifica también el listener TCP compartido y el cierre ante fallos al abrir el puerto.

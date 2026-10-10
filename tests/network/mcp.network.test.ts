@@ -1,9 +1,10 @@
 import { resolve } from 'node:path';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { startHttp } from '../../dist/mcp.js';
 import { loadConfig } from '../../dist/config.js';
+import { Application, loadDeployment } from '../../dist/composition.js';
 import { Runtime } from '../../dist/runtime.js';
 import { cliTool, runtime } from '../helpers.js';
 
@@ -46,5 +47,42 @@ describe('MCP transports', () => {
     const http = await startHttp(r); cleanup.push(() => http.close());
     const response = await fetch(http.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ long: 'x'.repeat(200) }) });
     expect(response.status).toBe(413);
+  });
+});
+
+
+describe('composition HTTP listener', () => {
+  it('serves all views on one port and closes the listener idempotently', async () => {
+    const app = new Application(await loadDeployment('examples/composition.yaml'), () => {});
+    app.server.http.port = 0;
+    const http = await startHttp(app); cleanup.push(() => http.close());
+    expect(http.urls).toHaveLength(3);
+    expect(new Set(http.urls.map(url => new URL(url).port)).size).toBe(1);
+    const results = [];
+    for (const url of http.urls) {
+      const client = new Client({ name: 'group-client', version: '1' });
+      cleanup.push(() => client.close());
+      await client.connect(new StreamableHTTPClientTransport(new URL(url)));
+      const unified = new URL(url).pathname === '/mcp';
+      expect((await client.listTools()).tools.length).toBeGreaterThan(0);
+      results.push(await client.callTool({ name: unified ? 'echo.local_echo' : 'local_echo', arguments: { message: url } }));
+      expect((await fetch(url, { headers: { Host: 'untrusted.example' } })).status).toBe(403);
+    }
+    expect(results.map(result => result.structuredContent)).toEqual(http.urls.map(url => ({ message: url })));
+    await Promise.all([http.close(), http.close()]);
+    expect(http.server.listening).toBe(false);
+  });
+
+  it('closes every runtime when binding the shared port fails', async () => {
+    const occupying = new Application(await loadDeployment('examples/composition.yaml'), () => {});
+    occupying.server.http.port = 0;
+    const http = await startHttp(occupying); cleanup.push(() => http.close());
+    const app = new Application(await loadDeployment('examples/composition.yaml'), () => {});
+    cleanup.push(() => app.close());
+    app.server.http.port = Number(new URL(http.url).port);
+    const closes = app.runtimes.map(runtime => vi.spyOn(runtime, 'close'));
+    await expect(startHttp(app)).rejects.toMatchObject({ code: 'EADDRINUSE' });
+    expect(closes.every(close => close.mock.calls.length === 1)).toBe(true);
+    expect(await app.endpoints.get('/mcp')!.call('echo.local_echo', { message: 'closed' })).toMatchObject({ isError: true });
   });
 });

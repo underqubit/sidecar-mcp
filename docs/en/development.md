@@ -63,6 +63,7 @@ node_modules/.bin/vitest run tests/config.test.ts tests/mcp.test.ts
 | [cli.test.ts](../../tests/cli.test.ts) | Literal arguments, stdin, environment, exit codes, limits, cancellation, and processes. |
 | [http.test.ts](../../tests/http.test.ts) | Axios with Nock: URLs, query, headers, bodies, errors, and authentication. |
 | [response.test.ts](../../tests/response.test.ts) | Parsers, regex groups, JSONata, timeouts, bytes, and worker cancellation. |
+| [composition.test.ts](../../tests/composition.test.ts) | Multi-file validation, paths, modes, stdio/HTTP catalogs, auth/cache isolation, limits, and shutdown. |
 | [mcp.test.ts](../../tests/mcp.test.ts) | Real stdio client and in-memory Streamable HTTP, exposed schemas, guards, and request sizes. |
 | [evaluation.test.ts](../../tests/evaluation.test.ts) | Answers verified through MCP tools over fixed data. |
 | [http.network.test.ts](../../tests/network/http.network.test.ts) | Local API and OAuth endpoint using real sockets. |
@@ -143,3 +144,9 @@ Before delivering a change, run affected suites, check the generated schema if Z
 The manifest declares an `underqubit-sidecar-mcp` binary pointing to `dist/cli.js`, but the package has `private: true`; npm publishing is not configured. Documented usage is from a compiled checkout.
 
 For a service installation, build with development dependencies and retain Node, production dependencies, `dist/`, configuration, and referenced executables/scripts at runtime. Copying `dist/cli.js` alone is insufficient.
+
+## Extending compositions
+
+Keep `configSchema` and `loadConfig` compatible with integration files. `compositionSchema` describes the main file, and `configurationFileSchema` is the union exported to the editor JSON Schema. After changing either format, run `npm run schema`. Semantic checks such as unique group IDs, child credentials, and final tool-name lengths belong to `loadDeployment`.
+
+Use `ToolCatalog` to expose a view; delegate execution to its existing runtime. Never flatten auth maps or overwrite child directories/environment snapshots. Inject a logger into `Application` to capture group-tagged events. For targeted checks, run `node_modules/.bin/vitest run tests/composition.test.ts` after building; the network suite also verifies a shared TCP listener and cleanup on bind failure.

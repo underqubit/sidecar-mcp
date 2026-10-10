@@ -27,12 +27,20 @@ A CLI tool runs on the server host, which may be remote. It does not run on the 
 
 Identify the actual API endpoint or CLI argument contract and an example response before choosing a mapping. Reuse the active configuration's conventions and auth profiles. If required service details are missing, ask for those details rather than inventing an endpoint or credential.
 
-The configuration requires `version: 1` and a nonempty `tools` list. Each tool requires a unique `name`, a nonempty `description`, `inputSchema`, `outputSchema`, and `execution`. Write descriptions that explain when to use the operation and what it returns.
+An integration configuration requires `version: 1` and a nonempty `tools` list. Each tool requires a unique `name`, a nonempty `description`, `inputSchema`, `outputSchema`, and `execution`. Write descriptions that explain when to use the operation and what it returns.
 
 - Input and output schemas use JSON Schema draft 2020-12 with an object root. Zod validates the configuration internally; YAML/JSON cannot contain executable Zod expressions or import custom Zod modules.
 - Declare required properties and types explicitly. Use `additionalProperties: false` when extra properties should be rejected. AJV does not coerce types, insert defaults, or remove properties.
 - Use internal schema references such as `#/$defs/user`. Remote references and `$async` schemas are not supported.
 - Set annotations according to the operation's actual effects. Keep existing tool names and output contracts stable unless the task requires changing them.
+
+### Compose multiple integrations
+
+A main file with `version: 1`, `kind: composition`, required `mode`, and `groups: [{id, config}]` loads existing integration files. Modes are `unified` (stdio or HTTP), `separate` (HTTP), and `both` (HTTP). `--transport` overrides transport, not mode. Nested compositions are unsupported.
+
+Group file paths resolve against the main file; CLI paths still resolve against the child integration. Auth profiles, referenced environment variables, and execution limits remain local to each group; the main `server` controls identity and listener settings. Different credentials require different environment variable references.
+
+Discover names from the endpoint you actually connected to: `/mcp` exposes `<group>.<original-name>`, while `/mcp/<group>` exposes original names. Prefixes are always added, even to already-prefixed names. Do not assume clients render visual groups. Connecting both views duplicates available operations, and separate endpoints do not provide access control or process isolation. See [Tool groups](../../docs/en/tool-groups.md) for examples, validation, and Inspector commands.
 
 ### REST mapping
 

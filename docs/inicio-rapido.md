@@ -160,3 +160,14 @@ Para clientes stdio se recomienda invocar `node` directamente, como en el ejempl
 6. Reiniciar el proceso después de cambiar configuración o variables.
 
 Continuar con [Configuración](configuracion.md), [Tools HTTP](tools-http.md) o [Tools CLI](tools-cli.md).
+
+## Varios archivos de integración
+
+Usar [grupos de tools](grupos-de-tools.md) para cargar varios archivos en un proceso. Los ejemplos no requieren credenciales de APIs:
+
+```sh
+node dist/cli.js validate --config examples/composition.json
+node dist/cli.js serve --config examples/composition.json
+```
+
+El ejemplo JSON publica un catálogo unificado por stdio. Para HTTP con catálogo completo y endpoints por grupo, ejecutar `node dist/cli.js serve --config examples/composition.yaml`. La guía incluye conexiones con Inspector y nombres esperados de tools. `--transport` cambia el transporte, no el modo de publicación; solo `unified` admite stdio.
