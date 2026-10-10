@@ -1,0 +1,59 @@
+swagger: '2.0'
+info:
+  title: Catalog API
+  version: '1.0'
+schemes: [https]
+host: catalog.example.com
+basePath: /api/v2
+produces: [application/json]
+consumes: [application/json]
+securityDefinitions:
+  apiKey:
+    type: apiKey
+    in: header
+    name: X-API-Key
+security:
+  - apiKey: []
+paths:
+  /items/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        type: string
+    get:
+      operationId: get_item
+      summary: Gets a catalog item.
+      tags: [items]
+      parameters:
+        - name: fields
+          in: query
+          type: array
+          items: { type: string }
+          collectionFormat: multi
+      responses:
+        '200':
+          description: Catalog item.
+          schema: { $ref: '#/definitions/Item' }
+  /items:
+    post:
+      operationId: create_item
+      summary: Creates a catalog item.
+      tags: [items]
+      parameters:
+        - name: item
+          in: body
+          required: true
+          schema: { $ref: '#/definitions/Item' }
+      responses:
+        '201':
+          description: Created item.
+          schema: { $ref: '#/definitions/Item' }
+definitions:
+  Item:
+    type: object
+    properties:
+      id: { type: string, readOnly: true }
+      name: { type: string }
+    required: [id, name]
+    additionalProperties: false

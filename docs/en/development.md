@@ -63,6 +63,7 @@ node_modules/.bin/vitest run tests/config.test.ts tests/mcp.test.ts
 | [cli.test.ts](../../tests/cli.test.ts) | Literal arguments, stdin, environment, exit codes, limits, cancellation, and processes. |
 | [http.test.ts](../../tests/http.test.ts) | Axios with Nock: URLs, query, headers, bodies, errors, and authentication. |
 | [response.test.ts](../../tests/response.test.ts) | Parsers, regex groups, JSONata, timeouts, bytes, and worker cancellation. |
+| [openapi.test.ts](../../tests/openapi.test.ts) | Swagger/OpenAPI CLI generation, normalized schemas, auth, mapping, and execution of generated tools. |
 | [composition.test.ts](../../tests/composition.test.ts) | Multi-file validation, paths, modes, stdio/HTTP catalogs, auth/cache isolation, limits, and shutdown. |
 | [mcp.test.ts](../../tests/mcp.test.ts) | Real stdio client and in-memory Streamable HTTP, exposed schemas, guards, and request sizes. |
 | [evaluation.test.ts](../../tests/evaluation.test.ts) | Answers verified through MCP tools over fixed data. |

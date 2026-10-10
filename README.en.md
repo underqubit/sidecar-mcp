@@ -12,6 +12,8 @@ For AI agents, the usage skill is available in [skills/underqubit-sidecar-mcp/SK
 
 Load multiple integration files in one process with [tool groups](docs/en/tool-groups.md): a unified catalog, separate HTTP servers, or both.
 
+Generate integration files from Swagger 2.0 or OpenAPI 3.x with the [OpenAPI import scripts](docs/en/openapi-import.md).
+
 ## Quick start
 
 ```sh

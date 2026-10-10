@@ -12,6 +12,8 @@ Para agentes de IA, la skill de uso está en [skills/underqubit-sidecar-mcp/SKIL
 
 Cargá varios archivos de integración en un proceso con [grupos de tools](docs/grupos-de-tools.md): un catálogo unificado, servidores HTTP separados o ambos.
 
+Generá archivos de integración desde Swagger 2.0 u OpenAPI 3.x con los [scripts de importación OpenAPI](docs/importar-openapi.md).
+
 ## Inicio rápido
 
 ```sh
