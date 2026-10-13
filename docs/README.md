@@ -6,6 +6,8 @@ Underqubit Sidecar MCP publica tools MCP a partir de un archivo YAML o JSON. Cad
 
 El archivo de configuración es la integración: agregar una tool no requiere modificar TypeScript. Los cambios se aplican al reiniciar el servidor.
 
+Sidecar MCP está desarrollado por [Underqubit](https://underqubit.com).
+
 ## Instalación
 
 El paquete `underqubit-sidecar-mcp` está publicado en npm, requiere Node.js 24 o superior e instala el comando `underqubit-sidecar-mcp`. Se puede ejecutar sin instalarlo o agregarlo a un proyecto:

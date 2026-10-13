@@ -245,6 +245,6 @@ See [npm publishing](docs/en/npm-publishing.md) for production installation, pac
 
 ## License
 
-Licensed under the [Apache License, Version 2.0](LICENSE).
+Licensed under the [Apache License, Version 2.0](LICENSE). Sidecar MCP is developed by [Underqubit](https://underqubit.com).
 
 The [HTML documentation](docs/html/index.html) is available in Spanish and English. To rebuild it and configure GitHub Pages, see [HTML documentation site](docs/en/documentation-site.md).

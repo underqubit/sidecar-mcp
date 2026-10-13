@@ -43,6 +43,11 @@
     "vitest": "^5.0.3"
   },
   "license": "Apache-2.0",
+  "homepage": "https://underqubit.com",
+  "author": {
+    "name": "Underqubit",
+    "url": "https://underqubit.com"
+  },
   "keywords": [
     "mcp",
     "model-context-protocol",

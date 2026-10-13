@@ -239,7 +239,7 @@ node_modules/.bin/vitest run tests/config.test.ts tests/mcp.test.ts</code></pre>
 <h2 id="extending-compositions">Extending compositions<a class="heading-link" href="#extending-compositions" aria-label="Link to Extending compositions">#</a></h2>
 <p>Keep <code>configSchema</code> and <code>loadConfig</code> compatible with integration files. <code>compositionSchema</code> describes the main file, and <code>configurationFileSchema</code> is the union exported to the editor JSON Schema. After changing either format, run <code>npm run schema</code>. Semantic checks such as unique group IDs, child credentials, and final tool-name lengths belong to <code>loadDeployment</code>.</p>
 <p>Use <code>ToolCatalog</code> to expose a view; delegate execution to its existing runtime. Never flatten auth maps or overwrite child directories/environment snapshots. Inject a logger into <code>Application</code> to capture group-tagged events. For targeted checks, run <code>node_modules/.bin/vitest run tests/composition.test.ts</code> after building; the network suite also verifies a shared TCP listener and cleanup on bind failure.</p>
-</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../en/development.md">Markdown source</a></footer></main>
+</article><footer class="page-footer"><span><a href="https://underqubit.com">Underqubit</a> · Sidecar MCP</span><a href="../../en/development.md">Markdown source</a></footer></main>
 <aside class="toc" aria-label="On this page"><span class="nav-label">On this page</span><a class="depth-2" href="#prepare-the-environment">Prepare the environment</a>
 <a class="depth-2" href="#structure">Structure</a>
 <a class="depth-2" href="#development-commands">Development commands</a>

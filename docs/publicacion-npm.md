@@ -80,7 +80,7 @@ npm whoami
 
 Un error DNS o de conexión no confirma disponibilidad. Un nombre ya registrado requiere permisos de publicación. Si se elige un nombre con scope, actualizar `name` y sincronizar `package-lock.json`; el comando CLI puede seguir llamándose `underqubit-sidecar-mcp`.
 
-El repositorio puede declarar `repository`, `homepage` y `bugs` cuando exista una URL pública confirmada. No son obligatorios para npm y no se completan con URLs inventadas.
+El manifiesto declara `homepage` y `author` con el sitio de Underqubit (`https://underqubit.com`). `repository` y `bugs` se pueden agregar cuando exista una URL pública confirmada del repositorio; no son obligatorios para npm y no se completan con URLs inventadas.
 
 El manifiesto declara la versión `1.0.0`. Para versiones siguientes, incrementar la versión antes de volver a publicar; npm no permite reemplazar una versión existente. Por ejemplo, `npm version patch` actualiza manifiesto y lockfile, y normalmente crea un commit/tag: ejecutarlo con el estado de Git preparado para ese paso.
 

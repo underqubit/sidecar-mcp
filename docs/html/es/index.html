@@ -33,6 +33,7 @@
 <p><a href="../en/index.html">English</a></p>
 <p>Underqubit Sidecar MCP publica tools MCP a partir de un archivo YAML o JSON. Cada tool valida sus argumentos, ejecuta un request HTTP o un CLI local, estructura la respuesta y comprueba que cumpla el esquema de salida.</p>
 <p>El archivo de configuración es la integración: agregar una tool no requiere modificar TypeScript. Los cambios se aplican al reiniciar el servidor.</p>
+<p>Sidecar MCP está desarrollado por <a href="https://underqubit.com">Underqubit</a>.</p>
 <h2 id="instalación">Instalación<a class="heading-link" href="#instalación" aria-label="Enlace a Instalación">#</a></h2>
 <p>El paquete <code>underqubit-sidecar-mcp</code> está publicado en npm, requiere Node.js 24 o superior e instala el comando <code>underqubit-sidecar-mcp</code>. Se puede ejecutar sin instalarlo o agregarlo a un proyecto:</p>
 <div class="table-wrap"><table>
@@ -177,7 +178,7 @@
 <p>Describe el formato de configuración <code>version: 1</code> del paquete publicado en npm. El <a href="inicio-rapido.html">Inicio rápido</a> usa el comando instalado por el paquete. Las demás guías muestran <code>node dist/cli.js</code>, la forma equivalente desde un checkout del código fuente; con el paquete instalado, reemplazarlo por <code>npx underqubit-sidecar-mcp</code> (o <code>pnpm exec</code> / <code>yarn</code> según el gestor). Los ejemplos que esas guías ubican en <code>examples/</code> se encuentran en <code>node_modules/underqubit-sidecar-mcp/examples/</code>, salvo el ejemplo de Jira, que solo está en el repositorio.</p>
 <p>Los comandos con rutas relativas se ejecutan desde la raíz del proyecto salvo indicación contraria. Los bloques rotulados como <strong>fragmento</strong> se incorporan a una configuración completa; no son archivos ejecutables por sí solos. Las URLs <code>example.com</code> y <code>example.org</code> representan servicios a reemplazar.</p>
 <p>La fuente de verdad de los campos es <a href="../../../src/config-schema.ts">src/config-schema.ts</a>. Las reglas que requieren lógica adicional —referencias, URLs, entorno y compilación de parsers— están en <a href="../../../src/config.ts">src/config.ts</a>.</p>
-</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../README.md">Fuente Markdown</a></footer></main>
+</article><footer class="page-footer"><span><a href="https://underqubit.com">Underqubit</a> · Sidecar MCP</span><a href="../../README.md">Fuente Markdown</a></footer></main>
 <aside class="toc" aria-label="En esta página"><span class="nav-label">En esta página</span><a class="depth-2" href="#instalación">Instalación</a>
 <a class="depth-2" href="#guías">Guías</a>
 <a class="depth-2" href="#por-dónde-empezar">Por dónde empezar</a>

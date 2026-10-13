@@ -216,7 +216,7 @@
 <h2 id="operating-multiple-groups">Operating multiple groups<a class="heading-link" href="#operating-multiple-groups" aria-label="Link to Operating multiple groups">#</a></h2>
 <p>See <a href="tool-groups.html">Tool groups</a> for <code>unified</code>, <code>separate</code>, and <code>both</code>. Start one process and use the endpoints printed on stderr. All routes share the main HTTP guards, port, and process lifetime; separate connections do not provide access control or failure isolation. Configure any incoming authorization in your trusted proxy for every exposed route, including <code>/mcp</code> if it exposes the full catalog.</p>
 <p>Configuration is validated atomically at startup. A missing child file or required variable prevents all groups from starting. Restart to load changes; there is no hot reload. Call logs include <code>group</code> and the original tool name. Duplicate operations in a client usually mean it connected to both the unified and group-specific endpoints.</p>
-</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../en/operations-and-troubleshooting.md">Markdown source</a></footer></main>
+</article><footer class="page-footer"><span><a href="https://underqubit.com">Underqubit</a> · Sidecar MCP</span><a href="../../en/operations-and-troubleshooting.md">Markdown source</a></footer></main>
 <aside class="toc" aria-label="On this page"><span class="nav-label">On this page</span><a class="depth-2" href="#choose-how-to-run-the-server">Choose how to run the server</a>
 <a class="depth-2" href="#prepare-a-service-deployment">Prepare a service deployment</a>
 <a class="depth-2" href="#http-proxies-and-access-controls">HTTP, proxies, and access controls</a>

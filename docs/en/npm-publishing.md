@@ -80,7 +80,7 @@ npm whoami
 
 DNS or connection failures do not establish availability. An existing name requires publication permissions. If choosing a scoped name, update `name` and synchronize `package-lock.json`; the CLI command can remain `underqubit-sidecar-mcp`.
 
-Set `repository`, `homepage`, and `bugs` once a confirmed public URL exists. npm does not require them, and they are not filled with invented URLs.
+The manifest declares `homepage` and `author` with the Underqubit website (`https://underqubit.com`). Add `repository` and `bugs` once a confirmed public repository URL exists; npm does not require them, and they are not filled with invented URLs.
 
 The manifest declares version `1.0.0`. Increment the version for subsequent releases; npm does not allow replacing an existing version. For example, `npm version patch` updates the manifest and lockfile and normally creates a commit/tag: run it with Git in the intended state for that step.
 
