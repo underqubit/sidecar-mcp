@@ -31,7 +31,7 @@ En JSON se puede declarar `"$schema": "../schema/config.schema.json"`. Ajustar l
 | Campo en `server` | Tipo | Default | Significado |
 | --- | --- | --- | --- |
 | `name` | String no vacío | `underqubit-sidecar-mcp` | Identidad publicada al cliente MCP. |
-| `version` | String no vacío | `0.1.0` | Versión publicada del servidor. |
+| `version` | String no vacío | Versión del paquete (`{{version}}`) | Versión publicada del servidor. |
 | `transport` | `stdio` o `http` | `stdio` | Puede sobrescribirse con `--transport`. |
 | `timeoutMs` | Entero positivo | `30000` | Deadline de ejecución por tool, salvo override. |
 | `maxOutputBytes` | Entero positivo | `1048576` | Límite de bytes por tool, salvo override. |

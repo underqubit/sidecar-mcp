@@ -14,7 +14,7 @@
         "server": {
           "default": {
             "name": "underqubit-sidecar-mcp",
-            "version": "0.1.0",
+            "version": "1.0.0",
             "transport": "stdio",
             "timeoutMs": 30000,
             "maxOutputBytes": 1048576,
@@ -38,7 +38,7 @@
               "minLength": 1
             },
             "version": {
-              "default": "0.1.0",
+              "default": "1.0.0",
               "type": "string",
               "minLength": 1
             },
@@ -623,7 +623,7 @@
               "minLength": 1
             },
             "version": {
-              "default": "0.1.0",
+              "default": "1.0.0",
               "type": "string",
               "minLength": 1
             },

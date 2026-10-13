@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { mkdtemp, writeFile, mkdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -90,7 +91,8 @@ describe('composition loading', () => {
     expect(deploymentTransport(loaded)).toBe('stdio');
     const app = new Application(loaded, () => {}); cleanup.push(() => app.close());
     expect(app.server.http.port).toBe(3000);
-    expect(app.stdioCatalog().identity).toMatchObject({ name: 'underqubit-sidecar-mcp', version: '0.1.0' });
+    const { version } = JSON.parse(readFileSync(resolve('package.json'), 'utf8')) as { version: string };
+    expect(app.stdioCatalog().identity).toMatchObject({ name: 'underqubit-sidecar-mcp', version });
     expect([...app.stdioCatalog().tools.keys()][0]).toHaveLength(128);
     if (loaded.kind !== 'composition') throw new Error('Expected composition');
     loaded.config.mode = 'separate';

@@ -31,7 +31,7 @@ In JSON, you can declare `"$schema": "../schema/config.schema.json"`. Adjust the
 | Field in `server` | Type | Default | Meaning |
 | --- | --- | --- | --- |
 | `name` | Nonempty string | `underqubit-sidecar-mcp` | Identity exposed to the MCP client. |
-| `version` | Nonempty string | `0.1.0` | Exposed server version. |
+| `version` | Nonempty string | Package version (`{{version}}`) | Exposed server version. |
 | `transport` | `stdio` or `http` | `stdio` | Can be overridden with `--transport`. |
 | `timeoutMs` | Positive integer | `30000` | Execution deadline per tool, unless overridden. |
 | `maxOutputBytes` | Positive integer | `1048576` | Byte limit per tool, unless overridden. |

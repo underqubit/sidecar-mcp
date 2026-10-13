@@ -60,7 +60,7 @@ The complete editor definition is in [schema/config.schema.json](schema/config.s
 version: 1
 server:
   name: underqubit-sidecar-mcp
-  version: 0.1.0
+  version: 1.0.0
   transport: stdio
   timeoutMs: 30000
   maxOutputBytes: 1048576

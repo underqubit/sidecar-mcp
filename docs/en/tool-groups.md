@@ -40,7 +40,7 @@ groups:
 
 `version`, `kind`, `mode`, and a nonempty `groups` array are required. Each group contains only `id` and `config`. IDs must be unique, between 1 and 126 characters, and contain lowercase ASCII letters, digits, `_`, or `-`. Paths are literal: no variable interpolation or globbing.
 
-`server` accepts `name`, `version`, `transport`, and `http`, with the same defaults as an integration: name `underqubit-sidecar-mcp`, version `0.1.0`, transport `stdio`, and HTTP at `127.0.0.1:3000`. A composition does not accept `timeoutMs` or `maxOutputBytes`: these belong to each integration. For `separate` or `both`, select HTTP in the file or pass `--transport http`.
+`server` accepts `name`, `version`, `transport`, and `http`, with the same defaults as an integration: name `underqubit-sidecar-mcp`, version matching the package (`{{version}}`), transport `stdio`, and HTTP at `127.0.0.1:3000`. A composition does not accept `timeoutMs` or `maxOutputBytes`: these belong to each integration. For `separate` or `both`, select HTTP in the file or pass `--transport http`.
 
 `config` paths resolve relative to the main file. Within each integration, relative `command` and `cwd` paths still resolve against that integration's file. Nested compositions are not supported. Each file has a 4 MiB limit and the existing YAML/JSON restrictions.
 

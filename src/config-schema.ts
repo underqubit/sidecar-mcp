@@ -1,4 +1,8 @@
+import { createRequire } from 'node:module';
 import { z } from 'zod';
+
+// The default MCP identity version follows the package version; package.json sits next to dist/ when installed.
+export const packageVersion = (createRequire(import.meta.url)('../package.json') as { version: string }).version;
 
 const nonempty = z.string().min(1);
 const dictionary = z.record(z.string(), z.json());
@@ -50,7 +54,7 @@ export const responseSchema = z.strictObject({
 });
 
 export const serverSchema = z.strictObject({
-  name: nonempty.default('underqubit-sidecar-mcp'), version: nonempty.default('0.1.0'),
+  name: nonempty.default('underqubit-sidecar-mcp'), version: nonempty.default(packageVersion),
   transport: z.enum(['stdio', 'http']).default('stdio'),
   timeoutMs: timeoutMs.default(30000), maxOutputBytes: maxOutputBytes.default(1048576),
   http: z.strictObject({
@@ -58,7 +62,7 @@ export const serverSchema = z.strictObject({
     allowedHosts: z.array(nonempty).default(['127.0.0.1', 'localhost', '[::1]']),
     allowedOrigins: z.array(z.url()).default([]), maxRequestBytes: maxOutputBytes.default(1048576),
   }).default({ host: '127.0.0.1', port: 3000, allowedHosts: ['127.0.0.1', 'localhost', '[::1]'], allowedOrigins: [], maxRequestBytes: 1048576 }),
-}).default({ name: 'underqubit-sidecar-mcp', version: '0.1.0', transport: 'stdio', timeoutMs: 30000, maxOutputBytes: 1048576, http: { host: '127.0.0.1', port: 3000, allowedHosts: ['127.0.0.1', 'localhost', '[::1]'], allowedOrigins: [], maxRequestBytes: 1048576 } });
+}).default({ name: 'underqubit-sidecar-mcp', version: packageVersion, transport: 'stdio', timeoutMs: 30000, maxOutputBytes: 1048576, http: { host: '127.0.0.1', port: 3000, allowedHosts: ['127.0.0.1', 'localhost', '[::1]'], allowedOrigins: [], maxRequestBytes: 1048576 } });
 
 export const configSchema = z.strictObject({
   $schema: z.string().optional(),

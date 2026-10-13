@@ -40,7 +40,7 @@ groups:
 
 `version`, `kind`, `mode` y una lista `groups` no vacía son obligatorios. Cada grupo tiene únicamente `id` y `config`. Los IDs son únicos, de 1 a 126 caracteres, y admiten letras minúsculas ASCII, números, `_` y `-`. Las rutas son literales, sin interpolación de variables ni globbing.
 
-`server` admite `name`, `version`, `transport` y `http`, con los mismos defaults que una integración: nombre `underqubit-sidecar-mcp`, versión `0.1.0`, transporte `stdio` y HTTP en `127.0.0.1:3000`. No admite `timeoutMs` ni `maxOutputBytes` en la composición: esos valores pertenecen a cada integración. Para `separate` o `both`, declarar HTTP o pasar `--transport http`.
+`server` admite `name`, `version`, `transport` y `http`, con los mismos defaults que una integración: nombre `underqubit-sidecar-mcp`, versión igual a la del paquete (`{{version}}`), transporte `stdio` y HTTP en `127.0.0.1:3000`. No admite `timeoutMs` ni `maxOutputBytes` en la composición: esos valores pertenecen a cada integración. Para `separate` o `both`, declarar HTTP o pasar `--transport http`.
 
 Las rutas `config` se resuelven respecto del archivo principal. Dentro de cada integración, `command` y `cwd` relativos siguen resolviéndose respecto de su propio archivo. No se admiten composiciones anidadas. Cada archivo tiene un límite de 4 MiB y las mismas restricciones de YAML/JSON que una integración individual.
 
