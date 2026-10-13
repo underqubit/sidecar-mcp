@@ -10,6 +10,7 @@ The configuration file defines the integration: adding a tool does not require c
 
 | Document | What it covers |
 | --- | --- |
+| [npm publishing and license](npm-publishing.md) | Apache 2.0, package verification, npx usage, and release steps. |
 | [Quick start](quick-start.md) | Installation, first run, client connections, and available commands. |
 | [Import OpenAPI](openapi-import.md) | Generate integration files from Swagger 2.0 and OpenAPI 3.x. |
 | [Tool groups](tool-groups.md) | Multiple files in one process, unified catalog, separate endpoints, and Inspector. |

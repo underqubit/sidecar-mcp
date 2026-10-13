@@ -4,6 +4,9 @@
 
 [Volver al índice](README.md)
 
+Para una versión publicada en npm, ver [instalación npm y npx](publicacion-npm.md). Los comandos siguientes usan un checkout del código fuente.
+
+
 ## Requisitos
 
 - Node.js 24 o superior y npm.

@@ -7,3 +7,6 @@ coverage/
 *.log
 .idea
 .junie
+
+# Local npm package artifacts
+*.tgz

@@ -123,7 +123,7 @@ The 18 network tests that depend on listeners were blocked by `EPERM` during loc
 
 ## Current functional limits
 
-There is no hot reload, OpenAPI import, executable TypeScript configuration, external Zod modules, multi-request workflows, automatic pagination, CSV/XML parsers, binary/multipart uploads, per-user OAuth login, per-tool authorization, or built-in incoming authentication.
+OpenAPI import is available through [offline generation scripts](openapi-import.md). There is no hot reload, executable TypeScript configuration, external Zod modules, multi-request workflows, automatic pagination, CSV/XML parsers, binary/multipart uploads, per-user OAuth login, per-tool authorization, or built-in incoming authentication.
 
 Dynamic tools are dynamic **through configuration at startup**. Manually choosing their contracts and transformations is part of integrating an existing API or CLI.
 

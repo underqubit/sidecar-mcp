@@ -13,3 +13,4 @@ jobs:
       - run: npm run check
       - run: npm run test:network
       - run: npm run schema && git diff --exit-code -- schema/config.schema.json
+      - run: npm run check:package

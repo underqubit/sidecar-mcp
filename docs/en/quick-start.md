@@ -2,6 +2,9 @@
 
 [Back to index](README.md) · [Español](../inicio-rapido.md)
 
+For a published npm version, see [npm installation and npx](npm-publishing.md). The commands below use a source checkout.
+
+
 ## Requirements
 
 - Node.js 24 or later and npm.

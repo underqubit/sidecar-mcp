@@ -104,7 +104,7 @@ node dist/cli.js serve --config config.yaml --transport stdio
 
 If it needs `.env`, put `--env-file=.env` before `dist/cli.js`. Validation checks configuration, schemas, required variables, and parser/expression syntax. It does not test credentials, connectivity, executable availability, or real response compatibility.
 
-For MCP clients, launch `node` directly with absolute paths to the compiled CLI and configuration. Reserve stdout for MCP and use stderr for diagnostics. The package is currently private; do not assume Sidecar itself can be fetched from npm with `npx`.
+For MCP clients, launch `node` directly with absolute paths to the compiled CLI and configuration. Reserve stdout for MCP and use stderr for diagnostics. The package is configured for public npm distribution; verify the desired version exists before using `npx`. Published installations contain a prebuilt CLI and do not need a local build. See [npm distribution](../../docs/en/npm-publishing.md) for installation and release checks.
 
 To inspect the bundled local tools from the project root:
 

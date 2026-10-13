@@ -232,3 +232,17 @@ Modules in `src` separate configuration, templates, authentication, adapters, re
 Outside this version's scope: hot reload, OpenAPI import, per-user OAuth, multi-execution pipelines, CSV/XML, multipart, and binary files.
 
 References: [MCP SDK v2](https://ts.sdk.modelcontextprotocol.io/v2/), [JSON Schema](https://json-schema.org/draft/2020-12), [JSONata](https://docs.jsonata.org/overview), [Axios](https://axios-http.com/docs/req_config).
+
+## npm distribution
+
+The package is configured for public npm distribution. Once version `0.1.0` is published:
+
+```sh
+npx -y underqubit-sidecar-mcp@0.1.0 serve --config /absolute/path/config.yaml
+```
+
+See [npm publishing](docs/en/npm-publishing.md) for production installation, package verification, and release steps. Publication is a separate action.
+
+## License
+
+Licensed under the [Apache License, Version 2.0](LICENSE).

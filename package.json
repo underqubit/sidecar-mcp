@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "description": "Configurable MCP server for REST APIs and local CLIs",
   "type": "module",
-  "private": true,
   "engines": {
     "node": ">=24"
   },
@@ -18,7 +17,10 @@
     "test": "npm run build && vitest run",
     "test:network": "npm run build && vitest run --config vitest.network.config.ts",
     "schema": "npm run build && node scripts/generate-schema.mjs",
-    "check": "npm run build && tsc --noEmit && vitest run"
+    "check": "npm run build && tsc --noEmit && vitest run",
+    "prepack": "node scripts/prepare-package.mjs",
+    "prepublishOnly": "npm run check",
+    "check:package": "node scripts/check-package.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/node": "^2.1.0",
@@ -36,5 +38,42 @@
     "nock": "^14.0.16",
     "typescript": "^5.9.3",
     "vitest": "^5.0.3"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "rest",
+    "cli",
+    "openapi",
+    "tools",
+    "typescript"
+  ],
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "src/**/*.ts",
+    "schema/config.schema.json",
+    "README.en.md",
+    "docs/**/*.md",
+    "skills/underqubit-sidecar-mcp/SKILL.md",
+    "skills/underqubit-sidecar-mcp/agents/openai.yaml",
+    "examples/auth.yaml",
+    "examples/cli.json",
+    "examples/cli.yaml",
+    "examples/composition.json",
+    "examples/composition.yaml",
+    "examples/echo.mjs",
+    "examples/http.yaml",
+    "examples/openapi/*.yaml",
+    "scripts/openapi-to-config.mjs",
+    "scripts/openapi2-to-config.mjs",
+    "scripts/openapi3-to-config.mjs",
+    "scripts/lib/openapi-*.mjs"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }

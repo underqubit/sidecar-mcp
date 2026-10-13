@@ -232,3 +232,17 @@ Los módulos de `src` separan configuración, plantillas, autenticación, adapta
 Fuera de esta versión: recarga en caliente, importación OpenAPI, OAuth por usuario, pipelines de múltiples ejecuciones, CSV/XML, multipart y archivos binarios.
 
 Referencias: [SDK MCP v2](https://ts.sdk.modelcontextprotocol.io/v2/), [JSON Schema](https://json-schema.org/draft/2020-12), [JSONata](https://docs.jsonata.org/overview), [Axios](https://axios-http.com/docs/req_config).
+
+## Distribución npm
+
+El paquete está configurado para distribución pública en npm. Una vez publicada la versión `0.1.0`:
+
+```sh
+npx -y underqubit-sidecar-mcp@0.1.0 serve --config /ruta/absoluta/config.yaml
+```
+
+Ver [Publicación npm](docs/publicacion-npm.md) para instalación en producción, verificación del paquete y pasos de lanzamiento. La publicación es una acción separada.
+
+## Licencia
+
+Distribuido bajo la [licencia Apache, versión 2.0](LICENSE).

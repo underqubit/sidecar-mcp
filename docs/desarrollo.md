@@ -43,6 +43,7 @@ El mapa de responsabilidades de cada módulo está en [Arquitectura](arquitectur
 | `npm test` | Compila y ejecuta `tests/*.test.ts`. |
 | `npm run test:network` | Compila y ejecuta `tests/network/*.test.ts`. |
 | `npm run check` | Build, typecheck y suite sin TCP. |
+| `npm run check:package` | Construye e instala el tarball con dependencias de producción y verifica CLI, tools MCP, worker e importador OpenAPI. |
 | `npm run schema` | Compila y regenera `schema/config.schema.json` desde Zod. |
 
 Para un cliente MCP stdio, iniciar `node dist/cli.js` directamente. Los scripts npm son útiles en terminal, pero sus mensajes pueden contaminar stdout si se usan como comando de protocolo.
@@ -136,6 +137,7 @@ La prueba automática verifica las respuestas esperadas usando llamadas MCP y c�
 2. `npm run check`.
 3. `npm run test:network`.
 4. Regeneración del esquema y comprobación de diferencias con Git.
+5. `npm run check:package`.
 
 El workflow se ejecutará cuando el repositorio esté en GitHub y Actions esté habilitado; que el archivo exista no significa que una ejecución remota ya haya pasado.
 
@@ -143,7 +145,7 @@ Antes de entregar un cambio, correr las suites afectadas, comprobar el esquema g
 
 ## Distribución
 
-El manifiesto declara un binario `underqubit-sidecar-mcp` apuntando a `dist/cli.js`, pero el paquete tiene `private: true`; no hay una publicación npm configurada. El uso documentado es desde el checkout compilado.
+El paquete CLI público usa Apache-2.0 y expone `underqubit-sidecar-mcp` mediante `dist/cli.js`. `prepack` construye una distribución limpia y `prepublishOnly` ejecuta las verificaciones. Ver [Publicación npm](publicacion-npm.md) para la lista de archivos, la prueba de instalación en producción y los pasos de lanzamiento.
 
 Para una instalación de servicio, construir con dependencias de desarrollo y conservar en ejecución Node, dependencias de producción, `dist/`, configuración y los ejecutables/scripts referenciados. No alcanza con copiar `dist/cli.js` aislado.
 

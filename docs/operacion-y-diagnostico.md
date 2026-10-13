@@ -125,7 +125,7 @@ Las 18 pruebas de red que dependen de listeners quedaron bloqueadas por `EPERM` 
 
 ## Límites funcionales actuales
 
-No hay recarga en caliente, importación de OpenAPI, configuración TypeScript ejecutable, módulos Zod externos, workflows de múltiples requests, paginación automática, parsers CSV/XML, carga binaria/multipart, login OAuth por usuario, autorización por tool ni autenticación entrante propia.
+La importación de OpenAPI está disponible mediante [scripts de generación](importar-openapi.md). No hay recarga en caliente, configuración TypeScript ejecutable, módulos Zod externos, workflows de múltiples requests, paginación automática, parsers CSV/XML, carga binaria/multipart, login OAuth por usuario, autorización por tool ni autenticación entrante propia.
 
 Las tools dinámicas son dinámicas **por configuración al iniciar**. Elegir manualmente sus contratos y transformaciones es parte de integrar una API o CLI existente.
 
