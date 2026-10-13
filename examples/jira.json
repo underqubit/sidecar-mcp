@@ -1,0 +1,709 @@
+{
+  "$schema": "../schema/config.schema.json",
+  "version": 1,
+  "server": {
+    "name": "underqubit-jira-mcp",
+    "transport": "stdio",
+    "timeoutMs": 30000,
+    "maxOutputBytes": 2097152
+  },
+  "auth": {
+    "jira": {
+      "type": "basic",
+      "username": "${env.JIRA_EMAIL}",
+      "password": "${env.JIRA_API_TOKEN}"
+    }
+  },
+  "tools": [
+    {
+      "name": "jira_search_issues",
+      "title": "Search Jira issues",
+      "description": "Search visible Jira Cloud issues using bounded JQL, for example project = DEMO ORDER BY updated DESC. Returns a page of summaries, not a total count. Supply nextPageToken=null for the first page; reuse the returned token with the same JQL and page size until isLast=true. Recent updates may not appear immediately. Read-only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "jql": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000,
+            "description": "Bounded JQL, for example project = DEMO AND statusCategory != Done ORDER BY updated DESC."
+          },
+          "maxResults": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum items to request for this page (1-100); use 25 initially. Jira may return fewer."
+          },
+          "nextPageToken": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "description": "Required. Use null for the first page; otherwise use the token returned by the previous page."
+          }
+        },
+        "required": [
+          "jql",
+          "maxResults",
+          "nextPageToken"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "summary": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "issueType": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "priority": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "assignee": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "properties": {
+                    "accountId": {
+                      "type": "string"
+                    },
+                    "displayName": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "additionalProperties": false
+                },
+                "updated": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "key",
+                "summary",
+                "status",
+                "issueType",
+                "priority",
+                "assignee",
+                "updated"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "isLast": {
+            "type": "boolean"
+          },
+          "nextPageToken": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "issues",
+          "isLast",
+          "nextPageToken"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "type": "http",
+        "baseUrl": "${env.JIRA_BASE_URL}",
+        "method": "GET",
+        "path": "rest/api/3/search/jql",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "auth": "jira",
+        "successStatuses": [
+          200
+        ],
+        "query": {
+          "jql": "${input.jql}",
+          "maxResults": "${input.maxResults}",
+          "nextPageToken": "${input.nextPageToken}",
+          "fields": "summary,status,issuetype,priority,assignee,updated"
+        }
+      },
+      "response": {
+        "parser": {
+          "type": "json"
+        },
+        "transform": "{\"issues\": [data.issues.{\"id\": id, \"key\": key, \"summary\": fields.summary, \"status\": $exists(fields.status.name) ? fields.status.name : null, \"issueType\": $exists(fields.issuetype.name) ? fields.issuetype.name : null, \"priority\": $exists(fields.priority.name) ? fields.priority.name : null, \"assignee\": fields.assignee ? {\"accountId\": fields.assignee.accountId, \"displayName\": fields.assignee.displayName} : null, \"updated\": $exists(fields.updated) ? fields.updated : null}], \"isLast\": data.isLast, \"nextPageToken\": $exists(data.nextPageToken) ? data.nextPageToken : null}"
+      }
+    },
+    {
+      "name": "jira_get_issue",
+      "title": "Get Jira issue",
+      "description": "Read a Jira Cloud issue by key or ID. Returns summary, ADF description, status, type, priority, assignee, reporter, project, dates, resolution, and labels. Use jira_list_issue_comments and jira_list_issue_changelog for discussion and history. Does not update the viewed-issue history. Read-only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "issueIdOrKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Issue key such as DEMO-42, or its numeric ID as a string."
+          }
+        },
+        "required": [
+          "issueIdOrKey"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "status": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "issueType": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "priority": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "assignee": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "accountId": {
+                "type": "string"
+              },
+              "displayName": {
+                "type": "string"
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "updated": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Atlassian Document Format (ADF), preserved without flattening.",
+            "additionalProperties": true
+          },
+          "reporter": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "accountId": {
+                "type": "string"
+              },
+              "displayName": {
+                "type": "string"
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "project": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "key": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "key",
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "created": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dueDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resolution": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "summary",
+          "status",
+          "issueType",
+          "priority",
+          "assignee",
+          "updated",
+          "description",
+          "reporter",
+          "project",
+          "created",
+          "dueDate",
+          "resolution",
+          "labels"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "type": "http",
+        "baseUrl": "${env.JIRA_BASE_URL}",
+        "method": "GET",
+        "path": "rest/api/3/issue/{issueIdOrKey}",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "auth": "jira",
+        "successStatuses": [
+          200
+        ],
+        "pathParams": {
+          "issueIdOrKey": "${input.issueIdOrKey}"
+        },
+        "query": {
+          "fields": "summary,description,status,issuetype,priority,assignee,reporter,project,created,updated,duedate,resolution,labels",
+          "updateHistory": false
+        }
+      },
+      "response": {
+        "parser": {
+          "type": "json"
+        },
+        "transform": "$merge([data.{\"id\": id, \"key\": key, \"summary\": fields.summary, \"status\": $exists(fields.status.name) ? fields.status.name : null, \"issueType\": $exists(fields.issuetype.name) ? fields.issuetype.name : null, \"priority\": $exists(fields.priority.name) ? fields.priority.name : null, \"assignee\": fields.assignee ? {\"accountId\": fields.assignee.accountId, \"displayName\": fields.assignee.displayName} : null, \"updated\": $exists(fields.updated) ? fields.updated : null}, {\"description\": $exists(data.fields.description) ? data.fields.description : null, \"reporter\": data.fields.reporter ? {\"accountId\": data.fields.reporter.accountId, \"displayName\": data.fields.reporter.displayName} : null, \"project\": {\"id\": data.fields.project.id, \"key\": data.fields.project.key, \"name\": data.fields.project.name}, \"created\": $exists(data.fields.created) ? data.fields.created : null, \"dueDate\": $exists(data.fields.duedate) ? data.fields.duedate : null, \"resolution\": $exists(data.fields.resolution.name) ? data.fields.resolution.name : null, \"labels\": [data.fields.labels]}])"
+      }
+    },
+    {
+      "name": "jira_list_issue_comments",
+      "title": "List Jira issue comments",
+      "description": "Read one page of visible comments for a Jira Cloud issue, oldest first. Bodies remain in Atlassian Document Format (ADF). Supply startAt=0 initially and follow nextStartAt until null. Restricted comments are subject to the authenticated account permissions. Read-only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "issueIdOrKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Issue key such as DEMO-42, or its numeric ID as a string."
+          },
+          "startAt": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based offset. Use 0 initially, then the returned nextStartAt."
+          },
+          "maxResults": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum items to request for this page (1-100); use 25 initially. Jira may return fewer."
+          }
+        },
+        "required": [
+          "issueIdOrKey",
+          "startAt",
+          "maxResults"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "startAt": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "maxResults": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "isLast": {
+            "type": "boolean"
+          },
+          "nextStartAt": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "body": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "description": "Atlassian Document Format (ADF), preserved without flattening.",
+                  "additionalProperties": true
+                },
+                "author": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "properties": {
+                    "accountId": {
+                      "type": "string"
+                    },
+                    "displayName": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "additionalProperties": false
+                },
+                "created": {
+                  "type": "string"
+                },
+                "updated": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "body",
+                "author",
+                "created",
+                "updated"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "startAt",
+          "maxResults",
+          "total",
+          "isLast",
+          "nextStartAt",
+          "comments"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "type": "http",
+        "baseUrl": "${env.JIRA_BASE_URL}",
+        "method": "GET",
+        "path": "rest/api/3/issue/{issueIdOrKey}/comment",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "auth": "jira",
+        "successStatuses": [
+          200
+        ],
+        "pathParams": {
+          "issueIdOrKey": "${input.issueIdOrKey}"
+        },
+        "query": {
+          "startAt": "${input.startAt}",
+          "maxResults": "${input.maxResults}",
+          "orderBy": "created"
+        }
+      },
+      "response": {
+        "parser": {
+          "type": "json"
+        },
+        "transform": "($next := data.startAt + $count(data.comments); {\"startAt\": data.startAt, \"maxResults\": data.maxResults, \"total\": data.total, \"isLast\": $next >= data.total, \"nextStartAt\": $count(data.comments) > 0 and $next < data.total ? $next : null, \"comments\": [data.comments.{\"id\": id, \"body\": $exists(body) ? body : null, \"author\": author ? {\"accountId\": author.accountId, \"displayName\": author.displayName} : null, \"created\": created, \"updated\": updated}]})"
+      }
+    },
+    {
+      "name": "jira_list_issue_changelog",
+      "title": "List Jira issue changelog",
+      "description": "Read one page of change history for a Jira Cloud issue, oldest first. Returns who changed each field, when, and the previous/new IDs and display values. Supply startAt=0 initially and follow nextStartAt until null. Read-only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "issueIdOrKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Issue key such as DEMO-42, or its numeric ID as a string."
+          },
+          "startAt": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based offset. Use 0 initially, then the returned nextStartAt."
+          },
+          "maxResults": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum items to request for this page (1-100); use 25 initially. Jira may return fewer."
+          }
+        },
+        "required": [
+          "issueIdOrKey",
+          "startAt",
+          "maxResults"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "startAt": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "maxResults": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "isLast": {
+            "type": "boolean"
+          },
+          "nextStartAt": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "histories": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "author": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "properties": {
+                    "accountId": {
+                      "type": "string"
+                    },
+                    "displayName": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [],
+                  "additionalProperties": false
+                },
+                "created": {
+                  "type": "string"
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "field": {
+                        "type": "string"
+                      },
+                      "fieldtype": {
+                        "type": "string"
+                      },
+                      "fieldId": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "from": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "fromString": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "to": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "toString": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "field",
+                      "fieldtype",
+                      "fieldId",
+                      "from",
+                      "fromString",
+                      "to",
+                      "toString"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "author",
+                "created",
+                "items"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "startAt",
+          "maxResults",
+          "total",
+          "isLast",
+          "nextStartAt",
+          "histories"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "type": "http",
+        "baseUrl": "${env.JIRA_BASE_URL}",
+        "method": "GET",
+        "path": "rest/api/3/issue/{issueIdOrKey}/changelog",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "auth": "jira",
+        "successStatuses": [
+          200
+        ],
+        "pathParams": {
+          "issueIdOrKey": "${input.issueIdOrKey}"
+        },
+        "query": {
+          "startAt": "${input.startAt}",
+          "maxResults": "${input.maxResults}"
+        }
+      },
+      "response": {
+        "parser": {
+          "type": "json"
+        },
+        "transform": "($next := data.startAt + $count(data.values); {\"startAt\": data.startAt, \"maxResults\": data.maxResults, \"total\": data.total, \"isLast\": data.isLast, \"nextStartAt\": data.isLast = false and $count(data.values) > 0 ? $next : null, \"histories\": [data.values.{\"id\": id, \"author\": author ? {\"accountId\": author.accountId, \"displayName\": author.displayName} : null, \"created\": created, \"items\": [items.{\"field\": field, \"fieldtype\": fieldtype, \"fieldId\": $exists(fieldId) ? fieldId : null, \"from\": $exists(from) ? from : null, \"fromString\": $exists(fromString) ? fromString : null, \"to\": $exists(to) ? to : null, \"toString\": $exists(toString) ? toString : null}]}]})"
+      }
+    }
+  ]
+}
