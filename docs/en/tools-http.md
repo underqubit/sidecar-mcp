@@ -1,8 +1,8 @@
 # HTTP tools: adapt a REST API
 
-[Back to index](README.md) · [Common configuration](configuration.md) · [Español](../tools-http.md)
+[Español](../tools-http.md) · [Back to index](README.md) · [Common configuration](configuration.md)
 
-Each HTTP tool performs one request using Axios. MCP arguments are explicitly mapped to the path, query, headers, or body. The server does not discover endpoints or import OpenAPI automatically.
+Each HTTP tool performs one request using Axios. MCP arguments are explicitly mapped to the path, query, headers, or body. The server does not discover endpoints on its own; to generate tools from a specification, see [Import OpenAPI](openapi-import.md).
 
 ## `execution` reference
 

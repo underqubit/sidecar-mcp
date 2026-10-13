@@ -1,6 +1,6 @@
 # CLI tools: adapt a local executable
 
-[Back to index](README.md) · [Common configuration](configuration.md) · [Español](../tools-cli.md)
+[Español](../tools-cli.md) · [Back to index](README.md) · [Common configuration](configuration.md)
 
 A CLI tool starts a process, sends arguments and stdin, captures stdout, and processes its result. It works with existing programs; when a CLI supports JSON output, using it usually simplifies mapping.
 

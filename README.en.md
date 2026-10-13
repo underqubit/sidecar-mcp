@@ -235,10 +235,10 @@ References: [MCP SDK v2](https://ts.sdk.modelcontextprotocol.io/v2/), [JSON Sche
 
 ## npm distribution
 
-The package is configured for public npm distribution. Once version `0.1.0` is published:
+The package is distributed publicly on npm:
 
 ```sh
-npx -y underqubit-sidecar-mcp@0.1.0 serve --config /absolute/path/config.yaml
+npx -y underqubit-sidecar-mcp@1.0.0 serve --config /absolute/path/config.yaml
 ```
 
 See [npm publishing](docs/en/npm-publishing.md) for production installation, package verification, and release steps. Publication is a separate action.

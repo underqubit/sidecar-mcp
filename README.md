@@ -235,10 +235,10 @@ Referencias: [SDK MCP v2](https://ts.sdk.modelcontextprotocol.io/v2/), [JSON Sch
 
 ## Distribución npm
 
-El paquete está configurado para distribución pública en npm. Una vez publicada la versión `0.1.0`:
+El paquete se distribuye públicamente en npm:
 
 ```sh
-npx -y underqubit-sidecar-mcp@0.1.0 serve --config /ruta/absoluta/config.yaml
+npx -y underqubit-sidecar-mcp@1.0.0 serve --config /ruta/absoluta/config.yaml
 ```
 
 Ver [Publicación npm](docs/publicacion-npm.md) para instalación en producción, verificación del paquete y pasos de lanzamiento. La publicación es una acción separada.

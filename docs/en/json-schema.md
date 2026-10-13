@@ -1,6 +1,6 @@
 # JSON Schema reference for tools
 
-[Español](../json-schema.md) · [Index](README.md) · [Configuration](configuration.md)
+[Español](../json-schema.md) · [Back to index](README.md) · [Configuration](configuration.md)
 
 This guide explains JSON Schema draft 2020-12 keywords and how they work in this project's `inputSchema` and `outputSchema`. It includes the installed validator's extensions, options without validation effects, and incompatibilities. These keywords are separate from server configuration fields such as `execution`, `auth`, and `response`, documented in [Configuration](configuration.md).
 

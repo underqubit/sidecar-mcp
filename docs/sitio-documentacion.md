@@ -22,8 +22,12 @@ Para generar HTML no hace falta compilar el servidor MCP. La verificación adici
 ## Editar contenido y navegación
 
 1. Editar la guía en español y su equivalente en `docs/en/`.
-2. Si se agrega una guía, registrar ambas rutas en `docs/site/pages.json`. El orden define la navegación. Todas las guías de ambos directorios deben estar registradas.
+2. Si se agrega una guía, registrar ambas rutas en `pages` de `docs/site/pages.json`. El orden define la navegación. Todas las guías de ambos directorios deben estar registradas en `pages` o en `markdownOnly`.
+
+Las guías de `markdownOnly` se mantienen solo como Markdown: no generan HTML ni aparecen en la navegación, y los enlaces desde otras guías apuntan a su fuente Markdown, igual que los enlaces a ejemplos o código. Esta guía y [Publicación npm](publicacion-npm.md) están en esa lista.
 3. Ejecutar `npm run docs:build` y revisar ambas versiones, también con una ventana estrecha.
+
+Para mencionar la versión del paquete en las guías publicadas en HTML, escribir `{{version}}`: el generador lo reemplaza por la versión de `package.json` y falla si encuentra otro marcador `{{...}}`. En GitHub y en el paquete npm el Markdown muestra el marcador sin reemplazar, y las guías de `markdownOnly` no se procesan, así que en ellas se escribe la versión literal.
 
 El título y el índice de cada página se extraen de los encabezados Markdown. Los enlaces entre guías se convierten a `.html`, conservando las anclas. Los bloques de código tienen un botón de copia cuando el navegador permite acceso al portapapeles.
 

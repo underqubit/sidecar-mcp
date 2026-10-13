@@ -1,8 +1,6 @@
 # Parseo, transformación y salida MCP
 
-[English](en/responses.md)
-
-[Volver al índice](README.md)
+[English](en/responses.md) · [Volver al índice](README.md)
 
 La respuesta de una API o CLI pasa por tres pasos: **parsear el texto**, **transformar el dato si se configuró JSONata** y **validar contra `outputSchema`**. El esquema describe el resultado final, no necesariamente la respuesta original del servicio.
 

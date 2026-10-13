@@ -6,7 +6,7 @@ import { Marked } from 'marked';
 const root = resolve(fileURLToPath(new URL('../', import.meta.url)));
 const docs = resolve(root, 'docs');
 const output = resolve(docs, 'html');
-const pairs = JSON.parse(await readFile(resolve(docs, 'site/pages.json'), 'utf8'));
+const { pages: pairs, markdownOnly: hiddenPairs = [] } = JSON.parse(await readFile(resolve(docs, 'site/pages.json'), 'utf8'));
 const manifest = JSON.parse(await readFile(resolve(root, 'package.json'), 'utf8'));
 const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 const slash = value => value.split(sep).join('/');
@@ -19,7 +19,10 @@ for (const pair of pairs) {
     const source = resolve(docs, name);
     if (!source.startsWith(docs + sep) || !name.endsWith('.md')) throw new Error(`Invalid page: ${name}`);
     if (pages.has(source)) throw new Error(`Duplicate page: ${name}`);
-    const content = await readFile(source, 'utf8');
+    // Placeholders keep release-specific values in sync with package.json.
+    const content = (await readFile(source, 'utf8')).replaceAll('{{version}}', manifest.version);
+    const unknown = content.match(/\{\{\s*[\w.-]+\s*\}\}/);
+    if (unknown) throw new Error(`Unknown placeholder in ${name}: ${unknown[0]}`);
     const title = content.match(/^# (.+)$/m)?.[1];
     if (!title) throw new Error(`Missing page title: ${name}`);
     const language = index === 0 ? 'es' : 'en';
@@ -27,10 +30,23 @@ for (const pair of pairs) {
     pages.set(source, { source, name, content, title, language, destination: resolve(output, language, filename), translation: resolve(docs, pair[1 - index]) });
   }
 }
-// Fail if a new guide has not been added to the bilingual navigation.
+// Guides kept only as Markdown: excluded from the site, linked as repository files.
+const markdownOnly = new Set();
+for (const pair of hiddenPairs) {
+  if (pair.length !== 2) throw new Error(`Invalid markdownOnly entry: ${JSON.stringify(pair)}`);
+  for (const name of pair) {
+    const source = resolve(docs, name);
+    if (!source.startsWith(docs + sep) || !name.endsWith('.md')) throw new Error(`Invalid markdownOnly page: ${name}`);
+    if (pages.has(source) || markdownOnly.has(source)) throw new Error(`Duplicate page: ${name}`);
+    await readFile(source, 'utf8');
+    markdownOnly.add(source);
+  }
+}
+// Fail if a new guide has not been added to the bilingual navigation or explicitly excluded.
 for (const directory of [docs, resolve(docs, 'en')]) {
   for (const name of await readdir(directory)) {
-    if (name.endsWith('.md') && !pages.has(resolve(directory, name))) throw new Error(`Add ${relative(docs, resolve(directory, name))} to docs/site/pages.json.`);
+    const source = resolve(directory, name);
+    if (name.endsWith('.md') && !pages.has(source) && !markdownOnly.has(source)) throw new Error(`Add ${relative(docs, source)} to docs/site/pages.json.`);
   }
 }
 const repository = process.env.DOCS_REPOSITORY_URL || (process.env.GITHUB_REPOSITORY ? `${process.env.GITHUB_SERVER_URL || 'https://github.com'}/${process.env.GITHUB_REPOSITORY}` : '');
@@ -64,7 +80,7 @@ for (const page of pages.values()) {
     const [path, suffix = ''] = href.split(/(?=[?#])/s, 2);
     const target = resolve(dirname(page.source), decodeURIComponent(path));
     if (pages.has(target)) return relativeUrl(page.destination, pages.get(target).destination) + suffix;
-    if (target.startsWith(docs + sep) && target.endsWith('.md')) throw new Error(`Unregistered guide in ${page.name}: ${href}`);
+    if (target.startsWith(docs + sep) && target.endsWith('.md') && !markdownOnly.has(target)) throw new Error(`Unregistered guide in ${page.name}: ${href}`);
     if (!target.startsWith(root + sep)) throw new Error(`Link escapes repository in ${page.name}: ${href}`);
     // A local integration may be documented but absent from the public checkout.
     // Preserve its label without publishing a dead download link.

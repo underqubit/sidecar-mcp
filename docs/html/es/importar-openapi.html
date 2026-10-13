@@ -16,9 +16,7 @@
 <a href="importar-openapi.html" aria-current="page">Generar configuraciones desde Swagger y OpenAPI</a>
 <a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
 <a href="desarrollo.html">Guía para desarrolladores</a>
-<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
-<a href="publicacion-npm.html">Licencia y publicación en npm</a>
-<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a></nav><small>v1.0.0 · Node.js 24+<br>Apache License 2.0</small></aside>
 <main id="main"><details class="mobile-nav"><summary>Explorar guías</summary><nav aria-label="Documentación"><a href="index.html">Introducción</a>
 <a href="inicio-rapido.html">Inicio rápido</a>
 <a href="configuracion.html">Referencia de configuración</a>
@@ -31,9 +29,7 @@
 <a href="importar-openapi.html" aria-current="page">Generar configuraciones desde Swagger y OpenAPI</a>
 <a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
 <a href="desarrollo.html">Guía para desarrolladores</a>
-<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
-<a href="publicacion-npm.html">Licencia y publicación en npm</a>
-<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="generar-configuraciones-desde-swagger-y-openapi">Generar configuraciones desde Swagger y OpenAPI</h1>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="generar-configuraciones-desde-swagger-y-openapi">Generar configuraciones desde Swagger y OpenAPI</h1>
 <p><a href="../en/openapi-import.html">English</a> · <a href="index.html">Volver al índice</a></p>
 <p>Los scripts convierten una especificación local JSON/YAML en un archivo de integración Sidecar. Generan una tool HTTP por operación seleccionada, con descripción, esquemas, parámetros, autenticación y transformación de respuesta. El resultado se puede ejecutar directamente o referenciar desde una <a href="grupos-de-tools.html">composición de grupos</a>.</p>
 <h2 id="uso">Uso<a class="heading-link" href="#uso" aria-label="Enlace a Uso">#</a></h2>
@@ -58,7 +54,7 @@
 <td>Solo OpenAPI 3.0.x, 3.1.x y 3.2.x.</td>
 </tr>
 </tbody></table></div>
-<p>Versiones futuras no reconocidas se rechazan explícitamente; no se asume compatibilidad automática con una futura versión mayor. Requiere las dependencias instaladas y el proyecto compilado:</p>
+<p>Las versiones futuras no reconocidas se rechazan explícitamente; no se asume compatibilidad automática con una futura versión mayor. Los scripts requieren las dependencias instaladas y el proyecto compilado:</p>
 <div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm ci
 npm run build
 node scripts/openapi-to-config.mjs --help</code></pre></div>
@@ -70,7 +66,7 @@ node scripts/openapi-to-config.mjs --help</code></pre></div>
 node scripts/openapi3-to-config.mjs \
   --input examples/openapi/openapi3.yaml \
   --output examples/catalog-v3.yaml</code></pre></div>
-<p>Para importar tu propia especificación y solo las operaciones de lectura:</p>
+<p>Para importar una especificación propia con solo las operaciones de lectura:</p>
 <div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node scripts/openapi-to-config.mjs \
   --input ./api.yaml \
   --output ./tools.json \
@@ -152,7 +148,7 @@ node --env-file=.env dist/cli.js serve --config examples/catalog-v3.yaml</code><
   - id: catalog
     config: ./catalog-v3.yaml</code></pre></div>
 <h2 id="límites-y-desarrollo">Límites y desarrollo<a class="heading-link" href="#límites-y-desarrollo" aria-label="Enlace a Límites y desarrollo">#</a></h2>
-<p>Se rechazan: referencias externas o anchors, métodos no soportados por el ejecutor (TRACE, QUERY, COPY, etc.), cookies, multipart/archivos/binarios, serializaciones como <code>deepObject</code>, arrays CSV y arrays de path/header, <code>allowReserved: true</code>, parámetros por <code>content</code>, esquemas/dialectos incompatibles, OAuth interactivo, OpenID Connect y autenticación combinada. Las arrays query/form deben ser escalares y usar <code>collectionFormat: multi</code> en Swagger o <code>style: form</code>, <code>explode: true</code> en OpenAPI 3. Los parámetros escalares de path/header usan <code>simple</code>.</p>
+<p>Se rechazan: referencias externas o anchors, métodos no soportados por el ejecutor (TRACE, QUERY, COPY, etc.), cookies, multipart/archivos/binarios, serializaciones como <code>deepObject</code>, arrays CSV y arrays de path/header, <code>allowReserved: true</code>, parámetros por <code>content</code>, esquemas/dialectos incompatibles, OAuth interactivo, OpenID Connect y autenticación combinada. Los arrays de query/formulario deben contener escalares y usar <code>collectionFormat: multi</code> en Swagger o <code>style: form</code>, <code>explode: true</code> en OpenAPI 3. Los parámetros escalares de path/header usan <code>simple</code>.</p>
 <p>Callbacks y webhooks se reportan como no generados. Las funciones específicas de OpenAPI 3.2 que no encajan en el ejecutor actual requieren mapeo manual. No es un validador completo de la especificación ni un generador universal de clientes.</p>
 <p>El código compartido está en <code>scripts/lib</code>: <code>openapi-cli.mjs</code> maneja archivos/opciones, <code>openapi-converter.mjs</code> traduce operaciones y <code>openapi-schema.mjs</code> normaliza esquemas y referencias. Las tres entradas evitan duplicar la lógica por versión. No se cambia el runtime ni el formato de configuración.</p>
 <p>Pruebas: <code>npm run check</code>. <code>tests/openapi.test.ts</code> genera archivos mediante los scripts y ejecuta las tools resultantes contra HTTP interceptado, incluyendo autenticación, URLs, parámetros, formularios, schemas, respuestas y errores de conversión.</p>

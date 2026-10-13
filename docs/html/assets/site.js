@@ -10,7 +10,7 @@ for (const block of document.querySelectorAll('.code-block:not(.diagram-source)'
       await navigator.clipboard.writeText(block.querySelector('code').textContent);
       button.textContent = english ? 'Copied' : 'Copiado';
     } catch {
-      button.textContent = english ? 'Select the code' : 'Seleccioná el código';
+      button.textContent = english ? 'Select the code' : 'Seleccionar el código';
     }
     setTimeout(() => { button.textContent = english ? 'Copy' : 'Copiar'; }, 2000);
   });

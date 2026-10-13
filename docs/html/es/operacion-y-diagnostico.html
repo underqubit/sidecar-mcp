@@ -16,9 +16,7 @@
 <a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
 <a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
 <a href="desarrollo.html">Guía para desarrolladores</a>
-<a href="operacion-y-diagnostico.html" aria-current="page">Operación y diagnóstico</a>
-<a href="publicacion-npm.html">Licencia y publicación en npm</a>
-<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<a href="operacion-y-diagnostico.html" aria-current="page">Operación y diagnóstico</a></nav><small>v1.0.0 · Node.js 24+<br>Apache License 2.0</small></aside>
 <main id="main"><details class="mobile-nav"><summary>Explorar guías</summary><nav aria-label="Documentación"><a href="index.html">Introducción</a>
 <a href="inicio-rapido.html">Inicio rápido</a>
 <a href="configuracion.html">Referencia de configuración</a>
@@ -31,11 +29,8 @@
 <a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
 <a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
 <a href="desarrollo.html">Guía para desarrolladores</a>
-<a href="operacion-y-diagnostico.html" aria-current="page">Operación y diagnóstico</a>
-<a href="publicacion-npm.html">Licencia y publicación en npm</a>
-<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="operación-y-diagnóstico">Operación y diagnóstico</h1>
-<p><a href="../en/operations-and-troubleshooting.html">English</a></p>
-<p><a href="index.html">Volver al índice</a></p>
+<a href="operacion-y-diagnostico.html" aria-current="page">Operación y diagnóstico</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="operación-y-diagnóstico">Operación y diagnóstico</h1>
+<p><a href="../en/operations-and-troubleshooting.html">English</a> · <a href="index.html">Volver al índice</a></p>
 <h2 id="elegir-cómo-ejecutar-el-servidor">Elegir cómo ejecutar el servidor<a class="heading-link" href="#elegir-cómo-ejecutar-el-servidor" aria-label="Enlace a Elegir cómo ejecutar el servidor">#</a></h2>
 <div class="table-wrap"><table>
 <thead>
@@ -72,7 +67,7 @@
 <p>No se requiere que el directorio de trabajo del supervisor sea el del proyecto si se usan rutas absolutas. Las rutas CLI relativas se resuelven según el archivo de configuración y su <code>cwd</code>, como se explica en <a href="tools-cli.html">Tools CLI</a>.</p>
 <p>El repositorio no instala un servicio del sistema ni contiene un despliegue Docker/Kubernetes preconfigurado. El servidor tampoco recarga automáticamente código o configuración.</p>
 <h2 id="http-proxy-y-controles-de-acceso">HTTP, proxy y controles de acceso<a class="heading-link" href="#http-proxy-y-controles-de-acceso" aria-label="Enlace a HTTP, proxy y controles de acceso">#</a></h2>
-<p>Defaults: escucha en <code>127.0.0.1:3000</code>, ruta <code>/mcp</code>, hosts locales permitidos y ninguna Origin explícita permitida.</p>
+<p>Valores predeterminados: escucha en <code>127.0.0.1:3000</code>, ruta <code>/mcp</code>, hosts locales permitidos y ningún Origin explícito permitido.</p>
 <p>Para publicar detrás de un proxy:</p>
 <ul>
 <li>Mantener loopback si proxy y backend están en el mismo host. En otra topología, configurar el bind y restringir por red el acceso directo al backend.</li>
@@ -82,7 +77,7 @@
 <li>Preservar método, body y headers MCP. El protocolo puede utilizar streaming; configurar el proxy según el transporte del cliente, sin asumir que todo intercambio es una respuesta REST simple.</li>
 <li>Ajustar timeout y límite de body del proxy para que sean coherentes con los del servidor.</li>
 </ul>
-<p><code>allowedHosts</code> protege la selección del host y <code>allowedOrigins</code> restringe orígenes presentes, pero no autentican al cliente. Una Origin ausente se acepta; presente pero vacía, <code>null</code> o no incluida produce 403. La lista de Origins no habilita automáticamente CORS ni respuestas a preflight de navegador.</p>
+<p><code>allowedHosts</code> protege la selección del host y <code>allowedOrigins</code> restringe orígenes presentes, pero no autentican al cliente. Un Origin ausente se acepta; uno presente pero vacío, <code>null</code> o no incluido produce 403. La lista de Origins no habilita automáticamente CORS ni respuestas a preflight de navegador.</p>
 <p>El servidor tiene un límite configurable de body entrante (<code>maxRequestBytes</code>). El listener Node usa 30 segundos para recepción del request y 10 segundos para headers; esos valores del listener no son el deadline de ejecución de la tool y no tienen campos de configuración propios.</p>
 <p>No existe una ruta <code>/health</code> implementada. Para comprobar disponibilidad funcional, conectar un cliente MCP y listar tools; para comprobar una integración, invocar una tool adecuada de solo lectura.</p>
 <h2 id="cambios-y-apagado">Cambios y apagado<a class="heading-link" href="#cambios-y-apagado" aria-label="Enlace a Cambios y apagado">#</a></h2>
@@ -213,7 +208,7 @@
 <td>El entorno prohíbe abrir sockets. Ejecutar la suite en una terminal/CI donde esté permitido.</td>
 </tr>
 </tbody></table></div>
-<p>Las 18 pruebas de red que dependen de listeners quedaron bloqueadas por <code>EPERM</code> durante la verificación local en este entorno. El workflow incluye su ejecución en CI, pero no se considera que hayan pasado aquí. La suite en memoria permite verificar protocolo y guards sin abrir un puerto.</p>
+<p>La suite en memoria verifica protocolo y guards sin abrir un puerto, pero no reemplaza a <code>npm run test:network</code>, que la CI ejecuta en cada cambio.</p>
 <h2 id="límites-funcionales-actuales">Límites funcionales actuales<a class="heading-link" href="#límites-funcionales-actuales" aria-label="Enlace a Límites funcionales actuales">#</a></h2>
 <p>La importación de OpenAPI está disponible mediante <a href="importar-openapi.html">scripts de generación</a>. No hay recarga en caliente, configuración TypeScript ejecutable, módulos Zod externos, workflows de múltiples requests, paginación automática, parsers CSV/XML, carga binaria/multipart, login OAuth por usuario, autorización por tool ni autenticación entrante propia.</p>
 <p>Las tools dinámicas son dinámicas <strong>por configuración al iniciar</strong>. Elegir manualmente sus contratos y transformaciones es parte de integrar una API o CLI existente.</p>

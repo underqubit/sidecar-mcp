@@ -1,6 +1,6 @@
 # Operations and troubleshooting
 
-[Back to index](README.md) · [Español](../operacion-y-diagnostico.md)
+[Español](../operacion-y-diagnostico.md) · [Back to index](README.md)
 
 ## Choose how to run the server
 
@@ -119,7 +119,7 @@ Generic messages avoid exposing service details or credentials. Reproducing the 
 | Port already in use | Stop the previous process or change `server.http.port`. |
 | `listen EPERM` in TCP tests | The environment prohibits opening sockets. Run the suite in a terminal/CI where this is allowed. |
 
-The 18 network tests that depend on listeners were blocked by `EPERM` during local verification in this environment. The workflow includes them in CI, but they are not considered to have passed here. The in-memory suite verifies the protocol and guards without opening a port.
+The in-memory suite verifies the protocol and guards without opening a port, but it does not replace `npm run test:network`, which CI runs on every change.
 
 ## Current functional limits
 

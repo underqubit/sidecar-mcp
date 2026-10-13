@@ -1,6 +1,6 @@
 {
   "name": "underqubit-sidecar-mcp",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Configurable MCP server for REST APIs and local CLIs",
   "type": "module",
   "engines": {

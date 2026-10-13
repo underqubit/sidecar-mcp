@@ -14,7 +14,7 @@ La carpeta `scripts` incluye tres entradas que comparten el mismo conversor:
 | `scripts/openapi2-to-config.mjs` | Solo Swagger/OpenAPI 2.0. |
 | `scripts/openapi3-to-config.mjs` | Solo OpenAPI 3.0.x, 3.1.x y 3.2.x. |
 
-Versiones futuras no reconocidas se rechazan explícitamente; no se asume compatibilidad automática con una futura versión mayor. Requiere las dependencias instaladas y el proyecto compilado:
+Las versiones futuras no reconocidas se rechazan explícitamente; no se asume compatibilidad automática con una futura versión mayor. Los scripts requieren las dependencias instaladas y el proyecto compilado:
 
 ```sh
 npm ci
@@ -34,7 +34,7 @@ node scripts/openapi3-to-config.mjs \
   --output examples/catalog-v3.yaml
 ```
 
-Para importar tu propia especificación y solo las operaciones de lectura:
+Para importar una especificación propia con solo las operaciones de lectura:
 
 ```sh
 node scripts/openapi-to-config.mjs \
@@ -115,7 +115,7 @@ groups:
 
 ## Límites y desarrollo
 
-Se rechazan: referencias externas o anchors, métodos no soportados por el ejecutor (TRACE, QUERY, COPY, etc.), cookies, multipart/archivos/binarios, serializaciones como `deepObject`, arrays CSV y arrays de path/header, `allowReserved: true`, parámetros por `content`, esquemas/dialectos incompatibles, OAuth interactivo, OpenID Connect y autenticación combinada. Las arrays query/form deben ser escalares y usar `collectionFormat: multi` en Swagger o `style: form`, `explode: true` en OpenAPI 3. Los parámetros escalares de path/header usan `simple`.
+Se rechazan: referencias externas o anchors, métodos no soportados por el ejecutor (TRACE, QUERY, COPY, etc.), cookies, multipart/archivos/binarios, serializaciones como `deepObject`, arrays CSV y arrays de path/header, `allowReserved: true`, parámetros por `content`, esquemas/dialectos incompatibles, OAuth interactivo, OpenID Connect y autenticación combinada. Los arrays de query/formulario deben contener escalares y usar `collectionFormat: multi` en Swagger o `style: form`, `explode: true` en OpenAPI 3. Los parámetros escalares de path/header usan `simple`.
 
 Callbacks y webhooks se reportan como no generados. Las funciones específicas de OpenAPI 3.2 que no encajan en el ejecutor actual requieren mapeo manual. No es un validador completo de la especificación ni un generador universal de clientes.
 

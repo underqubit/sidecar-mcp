@@ -9,14 +9,14 @@ El proyecto se distribuye bajo [Apache License 2.0](../LICENSE). El manifiesto d
 Requiere Node.js 24 o superior. Una vez publicada la versión indicada:
 
 ```sh
-npx -y underqubit-sidecar-mcp@0.1.0 serve \
+npx -y underqubit-sidecar-mcp@1.0.0 serve \
   --config /ruta/absoluta/config.yaml --transport stdio
 ```
 
 También se puede instalar como dependencia local:
 
 ```sh
-npm install underqubit-sidecar-mcp@0.1.0
+npm install underqubit-sidecar-mcp@1.0.0
 npx underqubit-sidecar-mcp validate --config ./config.yaml
 ```
 
@@ -40,9 +40,9 @@ Es un paquete de línea de comandos: no se declara una API JavaScript pública m
 
 ## Qué se publica
 
-`package.json.files` permite únicamente el código compilado y sus mapas/declaraciones, fuentes TypeScript para esos mapas, licencia, README, documentación, esquema, skill, ejemplos seleccionados y scripts OpenAPI. npm añade automáticamente `package.json`, README y LICENSE al paquete.
+`package.json.files` permite únicamente el código compilado y sus mapas/declaraciones, fuentes TypeScript para esos mapas, licencia, READMEs, documentación, esquema, skill, ejemplos seleccionados y scripts OpenAPI. npm añade automáticamente `package.json`, README y LICENSE al paquete.
 
-No se incluyen `.env`, `node_modules`, tests, cachés ni archivos `.tgz`. Los archivos locales de Jira que no están incorporados al paquete (`examples/jira.json` y `scripts/diagnose-jira.mjs`) quedan fuera. Algunas guías para desarrolladores enlazan archivos disponibles solo en el checkout.
+No se incluyen `.env`, `node_modules`, tests, cachés ni archivos `.tgz`. El ejemplo de Jira (`examples/jira.json`) y su script de diagnóstico (`scripts/diagnose-jira.mjs`) tampoco se publican: están disponibles solo en el repositorio. Algunas guías enlazan archivos que existen únicamente en el checkout.
 
 - `prepack` limpia `dist`, compila, regenera el esquema y da permisos de ejecución a la CLI. Se ejecuta al usar `npm pack` o publicar desde el checkout.
 - `prepublishOnly` ejecuta `npm run check` antes de publicar desde el checkout.
@@ -82,7 +82,7 @@ Un error DNS o de conexión no confirma disponibilidad. Un nombre ya registrado 
 
 El repositorio puede declarar `repository`, `homepage` y `bugs` cuando exista una URL pública confirmada. No son obligatorios para npm y no se completan con URLs inventadas.
 
-Para la primera versión, el manifiesto declara `0.1.0`. Para versiones siguientes, incrementar la versión antes de volver a publicar; npm no permite reemplazar una versión existente. Por ejemplo, `npm version patch` actualiza manifiesto y lockfile, y normalmente crea un commit/tag: ejecutarlo con el estado de Git preparado para ese paso.
+El manifiesto declara la versión `1.0.0`. Para versiones siguientes, incrementar la versión antes de volver a publicar; npm no permite reemplazar una versión existente. Por ejemplo, `npm version patch` actualiza manifiesto y lockfile, y normalmente crea un commit/tag: ejecutarlo con el estado de Git preparado para ese paso.
 
 ```sh
 npm publish --dry-run

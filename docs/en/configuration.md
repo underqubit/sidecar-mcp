@@ -1,6 +1,6 @@
 # Configuration reference
 
-[Back to index](README.md) · [Español](../configuracion.md)
+[Español](../configuracion.md) · [Back to index](README.md)
 
 ## Format and validation
 

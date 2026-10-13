@@ -16,9 +16,7 @@
 <a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
 <a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
 <a href="desarrollo.html">Guía para desarrolladores</a>
-<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
-<a href="publicacion-npm.html">Licencia y publicación en npm</a>
-<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a></nav><small>v1.0.0 · Node.js 24+<br>Apache License 2.0</small></aside>
 <main id="main"><details class="mobile-nav"><summary>Explorar guías</summary><nav aria-label="Documentación"><a href="index.html">Introducción</a>
 <a href="inicio-rapido.html">Inicio rápido</a>
 <a href="configuracion.html">Referencia de configuración</a>
@@ -31,11 +29,8 @@
 <a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
 <a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
 <a href="desarrollo.html">Guía para desarrolladores</a>
-<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
-<a href="publicacion-npm.html">Licencia y publicación en npm</a>
-<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="autenticación-y-variables-de-entorno">Autenticación y variables de entorno</h1>
-<p><a href="../en/authentication.html">English</a></p>
-<p><a href="index.html">Volver al índice</a></p>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="autenticación-y-variables-de-entorno">Autenticación y variables de entorno</h1>
+<p><a href="../en/authentication.html">English</a> · <a href="index.html">Volver al índice</a></p>
 <p>Hay dos direcciones de autenticación: <strong>servidor MCP hacia servicios externos</strong> y <strong>cliente hacia el endpoint MCP</strong>. Los perfiles de <code>auth</code> resuelven la primera. El acceso entrante HTTP se delega a una red privada o proxy; no lo protege declarar un perfil de API.</p>
 <h2 id="declarar-y-seleccionar-perfiles">Declarar y seleccionar perfiles<a class="heading-link" href="#declarar-y-seleccionar-perfiles" aria-label="Enlace a Declarar y seleccionar perfiles">#</a></h2>
 <p><strong>Fragmento</strong> de configuración:</p>
@@ -159,7 +154,7 @@
     HOME: &#39;${env.HOME}&#39;</code></pre></div>
 <p>Si el programa lee un objeto JSON por stdin, el body podría ser <code>stdin: {token: &#39;${env.SERVICE_TOKEN}&#39;}</code>. Esto solo funciona si el CLI documenta ese protocolo. No se inyecta automáticamente un formato de login.</p>
 <h2 id="cargar-y-rotar-secretos">Cargar y rotar secretos<a class="heading-link" href="#cargar-y-rotar-secretos" aria-label="Enlace a Cargar y rotar secretos">#</a></h2>
-<p>El proceso puede recibir variables de su supervisor, del cliente stdio o de Node con <code>--env-file</code>. No existe carga automática de <code>.env</code> ni resolución contra un gestor de secretos externo.</p>
+<p>El proceso puede recibir variables de su supervisor, del cliente stdio o de Node con <code>--env-file</code>. Ver <a href="inicio-rapido.html#conectar-un-cliente-mediante-stdio">Conectar un cliente mediante stdio</a> para declararlas en Claude Desktop, Claude Code y otros clientes. No existe carga automática de <code>.env</code> ni resolución contra un gestor de secretos externo.</p>
 <div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node --env-file=.env dist/cli.js validate --config examples/auth.yaml
 node --env-file=.env dist/cli.js serve --config examples/auth.yaml</code></pre></div>
 <p><a href="../../../examples/auth.yaml">examples/auth.yaml</a> incluye todos los perfiles, por lo que requiere todas sus variables, incluso si una tool solo usa OAuth. <a href="../../../.env.example">.env.example</a> contiene nombres y valores de muestra, no credenciales operativas.</p>

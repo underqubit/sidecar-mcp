@@ -1,10 +1,8 @@
 # Tools HTTP: adaptar una API REST
 
-[English](en/tools-http.md)
+[English](en/tools-http.md) · [Volver al índice](README.md) · [Configuración común](configuracion.md)
 
-[Volver al índice](README.md) · [Configuración común](configuracion.md)
-
-Cada tool HTTP realiza un request mediante Axios. Los argumentos MCP se mapean explícitamente a ruta, query, headers o body. El servidor no descubre endpoints ni importa OpenAPI automáticamente.
+Cada tool HTTP realiza un request mediante Axios. Los argumentos MCP se mapean explícitamente a ruta, query, headers o body. El servidor no descubre endpoints por sí solo; para generar tools a partir de una especificación, ver [Importar OpenAPI](importar-openapi.md).
 
 ## Referencia de `execution`
 

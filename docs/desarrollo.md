@@ -1,8 +1,6 @@
 # Guía para desarrolladores
 
-[English](en/development.md)
-
-[Volver al índice](README.md) · [Arquitectura](arquitectura.md)
+[English](en/development.md) · [Volver al índice](README.md) · [Arquitectura](arquitectura.md)
 
 ## Preparar el entorno
 
@@ -21,12 +19,13 @@ Se requiere Node.js 24 o superior. El proyecto usa npm con lockfile, TypeScript 
 src/                    Código del servidor y worker
 examples/               Configuraciones utilizables y CLI de ejemplo
 schema/                 JSON Schema generado para configuración
-scripts/                Generador del esquema
+scripts/                Esquema, importadores OpenAPI, empaquetado, documentación y diagnóstico de Jira
 tests/                  Pruebas sin listeners TCP
 tests/network/          Pruebas con sockets HTTP locales
 tests/fixtures/         CLIs y configuraciones deterministas
 evaluations/            Preguntas de evaluación del uso de tools
-docs/                   Documentación de usuario y desarrollo
+docs/                   Documentación de usuario y desarrollo en español
+docs/en/                Documentación de usuario y desarrollo en inglés
 .github/workflows/      Verificación en GitHub Actions
 ```
 
@@ -68,6 +67,7 @@ node_modules/.bin/vitest run tests/config.test.ts tests/mcp.test.ts
 | [http.test.ts](../tests/http.test.ts) | Axios con Nock: URL, query, headers, body, errores y autenticaciones. |
 | [response.test.ts](../tests/response.test.ts) | Parsers, grupos regex, JSONata, timeout, bytes y cancelación de workers. |
 | [openapi.test.ts](../tests/openapi.test.ts) | Generación CLI desde Swagger/OpenAPI, esquemas, autenticación, mapeo y ejecución de tools generadas. |
+| [jira.test.ts](../tests/jira.test.ts) | Ejemplo Jira Cloud con HTTP interceptado: autenticación, cursores y paginación, prefijo de tokens con scopes, arrays de cero/uno/varios elementos, campos nulos y argumentos faltantes. |
 | [composition.test.ts](../tests/composition.test.ts) | Validación de varios archivos, rutas, modos, catálogos stdio/HTTP, autenticación, cachés, límites y cierre. |
 | [mcp.test.ts](../tests/mcp.test.ts) | Cliente real stdio y Streamable HTTP en memoria, schemas publicados, guards y tamaño de requests. |
 | [evaluation.test.ts](../tests/evaluation.test.ts) | Respuestas verificadas a través de tools MCP sobre datos fijos. |
@@ -94,7 +94,7 @@ Solo hace falta desarrollar TypeScript si el comportamiento requerido no existe 
 2. Incorporar comprobaciones semánticas en `prepareConfig` cuando Zod no alcance: perfiles, referencias, URLs o restricciones de plantilla.
 3. Aplicar el campo en el módulo que lo consume; validar un campo no significa que se resuelva o ejecute automáticamente.
 4. Agregar casos de aceptación/rechazo y pruebas del comportamiento.
-5. Ejecutar `npm run schema` y actualizar [Configuración](configuracion.md) y los ejemplos afectados.
+5. Ejecutar `npm run schema` y actualizar [Configuración](configuracion.md), su [versión en inglés](en/configuration.md) y los ejemplos afectados.
 
 El JSON Schema generado describe forma y defaults. Algunas reglas —por ejemplo, la existencia de una variable de entorno— solo se comprueban al cargar. No editar el artefacto generado como fuente principal.
 
@@ -115,7 +115,7 @@ La ruta directa y la ruta worker de respuestas deben permanecer coherentes. Si u
 
 ## Errores y logging
 
-Usar `SidecarError(stage, message)` para fallos esperados con mensajes aptos para el cliente. No copiar `error.message` de Axios, cuerpos de autenticación o stderr del CLI sin revisar su contenido. `safeError` reemplaza errores desconocidos con un mensaje genérico.
+Usar `SidecarError(stage, message)` para fallos esperados con mensajes aptos para el cliente. No copiar `error.message` de Axios, cuerpos de autenticación o stderr del CLI sin revisar su contenido. `safeError` reemplaza errores desconocidos con un mensaje genérico. Mantener en inglés los comentarios del código, los diagnósticos y las descripciones de las tools de ejemplo.
 
 El logger recibe un `LogEvent` y por defecto escribe una línea JSON en stderr. Se puede inyectar un logger en el constructor de `Runtime`, como hacen las pruebas. No agregar `console.log` a rutas ejecutadas durante MCP stdio.
 
@@ -145,7 +145,7 @@ El workflow documental publica los cambios de `docs` en GitHub Pages. Ver [Sitio
 
 El workflow se ejecutará cuando el repositorio esté en GitHub y Actions esté habilitado; que el archivo exista no significa que una ejecución remota ya haya pasado.
 
-Antes de entregar un cambio, correr las suites afectadas, comprobar el esquema generado si cambió Zod y actualizar las guías correspondientes. Para cambios solo documentales, validar enlaces y ejemplos suele ser más útil que repetir toda la suite funcional.
+Antes de entregar un cambio, correr las suites afectadas, comprobar el esquema generado si cambió Zod y actualizar las guías correspondientes en ambos idiomas. Para cambios solo documentales, validar enlaces y ejemplos suele ser más útil que repetir toda la suite funcional.
 
 ## Distribución
 

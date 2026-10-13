@@ -6,21 +6,39 @@ Underqubit Sidecar MCP publica tools MCP a partir de un archivo YAML o JSON. Cad
 
 El archivo de configuración es la integración: agregar una tool no requiere modificar TypeScript. Los cambios se aplican al reiniciar el servidor.
 
+## Instalación
+
+El paquete `underqubit-sidecar-mcp` está publicado en npm, requiere Node.js 24 o superior e instala el comando `underqubit-sidecar-mcp`. Se puede ejecutar sin instalarlo o agregarlo a un proyecto:
+
+| Gestor | Ejecutar sin instalar | Instalar en un proyecto | Ejecutar la versión instalada |
+| --- | --- | --- | --- |
+| npm | `npx -y underqubit-sidecar-mcp <comando>` | `npm install underqubit-sidecar-mcp` | `npx underqubit-sidecar-mcp <comando>` |
+| pnpm | `pnpm dlx underqubit-sidecar-mcp <comando>` | `pnpm add underqubit-sidecar-mcp` | `pnpm exec underqubit-sidecar-mcp <comando>` |
+| Yarn | No admitido | `yarn add underqubit-sidecar-mcp` | `yarn underqubit-sidecar-mcp <comando>` |
+
+`<comando>` es `serve`, `validate` o `--help`. Por ejemplo:
+
+```sh
+npx -y underqubit-sidecar-mcp validate --config ./config.yaml
+```
+
+Yarn 2 o superior requiere `nodeLinker: node-modules` en `.yarnrc.yml`: con Plug'n'Play, el worker que procesa regex y JSONata no puede cargar sus dependencias y la configuración falla al validarse. Por el mismo motivo, `yarn dlx` no está admitido. Yarn 1 instala en `node_modules` y no requiere cambios.
+
+El [Inicio rápido](inicio-rapido.md) explica cómo conectar un cliente MCP, fijar la versión, cargar variables de entorno y usar los ejemplos incluidos en el paquete.
+
 ## Guías
 
 | Documento | Qué explica |
 | --- | --- |
-| [Referencia JSON Schema](json-schema.md) | Palabras clave, campos adicionales, formatos, ejemplos y límites reales del validador. |
-| [Sitio HTML y despliegue](sitio-documentacion.md) | Generar el sitio bilingüe, actualizar estilos y publicar en GitHub Pages. |
-| [Publicación npm y licencia](publicacion-npm.md) | Apache 2.0, verificación del paquete, uso con npx y publicación. |
 | [Inicio rápido](inicio-rapido.md) | Instalación, primera ejecución, conexión desde un cliente y comandos disponibles. |
-| [Importar OpenAPI](importar-openapi.md) | Generar integraciones desde Swagger 2.0 y OpenAPI 3.x. |
-| [Grupos de tools](grupos-de-tools.md) | Varios archivos en un proceso, catálogo unificado, endpoints separados e Inspector. |
 | [Configuración](configuracion.md) | Referencia de campos comunes, JSON Schema, variables, plantillas, defaults y límites. |
+| [Referencia JSON Schema](json-schema.md) | Palabras clave, campos adicionales, formatos, ejemplos y límites reales del validador. |
+| [Grupos de tools](grupos-de-tools.md) | Varios archivos en un proceso, catálogo unificado, endpoints separados e Inspector. |
 | [Tools HTTP](tools-http.md) | Mapeo de argumentos a una API REST mediante Axios. |
 | [Tools CLI](tools-cli.md) | Ejecutables, argumentos, stdin, entorno, rutas y códigos de salida. |
 | [Autenticación](autenticacion.md) | API key, Bearer, Basic, OAuth2 y credenciales para CLIs. |
 | [Respuestas](respuestas.md) | Parsers JSON/texto/regex, transformaciones JSONata y respuestas MCP. |
+| [Importar OpenAPI](importar-openapi.md) | Generar integraciones desde Swagger 2.0 y OpenAPI 3.x. |
 | [Arquitectura](arquitectura.md) | Módulos, flujo de datos, estado compartido y cancelación. |
 | [Desarrollo](desarrollo.md) | Entorno de trabajo, pruebas, extensiones, generación de esquemas y CI. |
 | [Operación y diagnóstico](operacion-y-diagnostico.md) | Despliegue HTTP, logs, mantenimiento, errores y limitaciones. |
@@ -49,8 +67,8 @@ El archivo de configuración es la integración: agregar una tool no requiere mo
 
 ## Alcance de esta documentación
 
-Describe el formato de configuración `version: 1` y la implementación presente en el repositorio. No presupone que el paquete esté publicado en npm: los comandos usan la compilación local en `dist/`.
+Describe el formato de configuración `version: 1` del paquete publicado en npm. El [Inicio rápido](inicio-rapido.md) usa el comando instalado por el paquete. Las demás guías muestran `node dist/cli.js`, la forma equivalente desde un checkout del código fuente; con el paquete instalado, reemplazarlo por `npx underqubit-sidecar-mcp` (o `pnpm exec` / `yarn` según el gestor). Los ejemplos que esas guías ubican en `examples/` se encuentran en `node_modules/underqubit-sidecar-mcp/examples/`, salvo el ejemplo de Jira, que solo está en el repositorio.
 
-Todos los comandos se ejecutan desde la raíz del proyecto salvo indicación contraria. Los bloques rotulados como **fragmento** se incorporan a una configuración completa; no son archivos ejecutables por sí solos. Las URLs `example.com` y `example.org` representan servicios a reemplazar.
+Los comandos con rutas relativas se ejecutan desde la raíz del proyecto salvo indicación contraria. Los bloques rotulados como **fragmento** se incorporan a una configuración completa; no son archivos ejecutables por sí solos. Las URLs `example.com` y `example.org` representan servicios a reemplazar.
 
 La fuente de verdad de los campos es [src/config-schema.ts](../src/config-schema.ts). Las reglas que requieren lógica adicional —referencias, URLs, entorno y compilación de parsers— están en [src/config.ts](../src/config.ts).

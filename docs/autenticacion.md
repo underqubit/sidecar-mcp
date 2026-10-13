@@ -1,8 +1,6 @@
 # Autenticación y variables de entorno
 
-[English](en/authentication.md)
-
-[Volver al índice](README.md)
+[English](en/authentication.md) · [Volver al índice](README.md)
 
 Hay dos direcciones de autenticación: **servidor MCP hacia servicios externos** y **cliente hacia el endpoint MCP**. Los perfiles de `auth` resuelven la primera. El acceso entrante HTTP se delega a una red privada o proxy; no lo protege declarar un perfil de API.
 
@@ -112,7 +110,7 @@ Si el programa lee un objeto JSON por stdin, el body podría ser `stdin: {token:
 
 ## Cargar y rotar secretos
 
-El proceso puede recibir variables de su supervisor, del cliente stdio o de Node con `--env-file`. No existe carga automática de `.env` ni resolución contra un gestor de secretos externo.
+El proceso puede recibir variables de su supervisor, del cliente stdio o de Node con `--env-file`. Ver [Conectar un cliente mediante stdio](inicio-rapido.md#conectar-un-cliente-mediante-stdio) para declararlas en Claude Desktop, Claude Code y otros clientes. No existe carga automática de `.env` ni resolución contra un gestor de secretos externo.
 
 ```sh
 node --env-file=.env dist/cli.js validate --config examples/auth.yaml

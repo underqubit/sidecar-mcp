@@ -22,8 +22,12 @@ Building HTML does not require compiling the MCP server. The additional `npm run
 ## Edit content and navigation
 
 1. Edit the Spanish guide and its counterpart in `docs/en/`.
-2. For a new guide, register both paths in `docs/site/pages.json`. Their order defines the navigation. Every guide in both directories must be registered.
+2. For a new guide, register both paths under `pages` in `docs/site/pages.json`. Their order defines the navigation. Every guide in both directories must be registered under `pages` or `markdownOnly`.
+
+Guides under `markdownOnly` stay Markdown only: they produce no HTML and do not appear in the navigation, and links from other guides point to their Markdown source, like links to examples or code. This guide and [npm publishing](npm-publishing.md) are on that list.
 3. Run `npm run docs:build` and review both languages, including a narrow viewport.
+
+To mention the package version in guides published as HTML, write `{{version}}`: the generator replaces it with the `package.json` version and fails on any other `{{...}}` placeholder. On GitHub and in the npm package, the Markdown shows the placeholder unreplaced, and `markdownOnly` guides are not processed, so they use the literal version.
 
 Page titles and section indexes come from Markdown headings. Guide links become `.html` links while preserving fragments. Code blocks include a copy button when the browser provides clipboard access.
 

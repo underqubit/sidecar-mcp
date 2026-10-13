@@ -1,8 +1,6 @@
 # Referencia de configuración
 
-[English](en/configuration.md)
-
-[Volver al índice](README.md)
+[English](en/configuration.md) · [Volver al índice](README.md)
 
 ## Formato y validación
 

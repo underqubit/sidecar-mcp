@@ -9,14 +9,14 @@ The project is distributed under the [Apache License 2.0](../../LICENSE). The ma
 Requires Node.js 24 or later. Once the specified version has been published:
 
 ```sh
-npx -y underqubit-sidecar-mcp@0.1.0 serve \
+npx -y underqubit-sidecar-mcp@1.0.0 serve \
   --config /absolute/path/config.yaml --transport stdio
 ```
 
 You can also install it locally:
 
 ```sh
-npm install underqubit-sidecar-mcp@0.1.0
+npm install underqubit-sidecar-mcp@1.0.0
 npx underqubit-sidecar-mcp validate --config ./config.yaml
 ```
 
@@ -42,7 +42,7 @@ This is a CLI package: it does not declare a public JavaScript API through `main
 
 `package.json.files` allows only compiled code and its maps/declarations, TypeScript sources for those maps, license, READMEs, documentation, schema, skill, selected examples, and OpenAPI scripts. npm automatically includes `package.json`, README, and LICENSE.
 
-The package excludes `.env`, `node_modules`, tests, caches, and `.tgz` files. Local Jira files not incorporated into the package (`examples/jira.json` and `scripts/diagnose-jira.mjs`) remain excluded. Some developer guides link to files available only in the checkout.
+The package excludes `.env`, `node_modules`, tests, caches, and `.tgz` files. The Jira example (`examples/jira.json`) and its diagnostic script (`scripts/diagnose-jira.mjs`) are not published either: they are available only in the repository. Some guides link to files that exist only in the checkout.
 
 - `prepack` cleans `dist`, builds, regenerates the schema, and makes the CLI executable. It runs when using `npm pack` or publishing from the checkout.
 - `prepublishOnly` runs `npm run check` before publishing from the checkout.
@@ -82,7 +82,7 @@ DNS or connection failures do not establish availability. An existing name requi
 
 Set `repository`, `homepage`, and `bugs` once a confirmed public URL exists. npm does not require them, and they are not filled with invented URLs.
 
-The manifest declares `0.1.0` for the first version. Increment the version for subsequent releases; npm does not allow replacing an existing version. For example, `npm version patch` updates the manifest and lockfile and normally creates a commit/tag: run it with Git in the intended state for that step.
+The manifest declares version `1.0.0`. Increment the version for subsequent releases; npm does not allow replacing an existing version. For example, `npm version patch` updates the manifest and lockfile and normally creates a commit/tag: run it with Git in the intended state for that step.
 
 ```sh
 npm publish --dry-run

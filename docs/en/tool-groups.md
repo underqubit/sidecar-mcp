@@ -86,7 +86,7 @@ Inspector starts the stdio process; do not start it separately. If integrations 
 
 ## Credentials, operation, and troubleshooting
 
-Each group has its own snapshot of referenced variables and its own authentication manager. Both catalogs use the same group runtime and share its OAuth cache. There are no global profiles or per-group environment overrides: reference different variable names in each file when credentials must differ. Node loads `.env`; the project does not load it automatically.
+Each group has its own snapshot of referenced variables and its own authentication manager. In `both` mode, the unified catalog and the group endpoint use the same group runtime and share its OAuth cache. There are no global profiles or per-group environment overrides: reference different variable names in each file when credentials must differ. Node loads `.env`; the project does not load it automatically.
 
 All files are validated before opening the listener. A missing file, missing required variable, or invalid integration aborts the entire startup and identifies the group. `validate` checks the composition and its integrations without calling APIs or executing tools. There is no hot reload: restart after changing configuration or credentials.
 

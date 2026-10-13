@@ -16,9 +16,7 @@
 <a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
 <a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
 <a href="desarrollo.html">Guía para desarrolladores</a>
-<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
-<a href="publicacion-npm.html">Licencia y publicación en npm</a>
-<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a></nav><small>v1.0.0 · Node.js 24+<br>Apache License 2.0</small></aside>
 <main id="main"><details class="mobile-nav"><summary>Explorar guías</summary><nav aria-label="Documentación"><a href="index.html">Introducción</a>
 <a href="inicio-rapido.html">Inicio rápido</a>
 <a href="configuracion.html" aria-current="page">Referencia de configuración</a>
@@ -31,11 +29,8 @@
 <a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
 <a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
 <a href="desarrollo.html">Guía para desarrolladores</a>
-<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
-<a href="publicacion-npm.html">Licencia y publicación en npm</a>
-<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="referencia-de-configuración">Referencia de configuración</h1>
-<p><a href="../en/configuration.html">English</a></p>
-<p><a href="index.html">Volver al índice</a></p>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="referencia-de-configuración">Referencia de configuración</h1>
+<p><a href="../en/configuration.html">English</a> · <a href="index.html">Volver al índice</a></p>
 <h2 id="formato-y-validación">Formato y validación<a class="heading-link" href="#formato-y-validación" aria-label="Enlace a Formato y validación">#</a></h2>
 <p>Se carga un archivo de integración YAML/JSON o una composición que referencia varios archivos de integración. Cada archivo admite hasta 4 MiB. No hay mezcla de archivos ni recarga en caliente. Ver <a href="grupos-de-tools.html">Grupos de tools</a> para el formato de composición y sus tres modos de publicación. YAML rechaza claves duplicadas y aliases. Los bloques de configuración son estrictos: una clave desconocida es un error, excepto dentro de los documentos JSON Schema de entrada/salida.</p>
 <p>Zod valida el archivo de configuración y aplica sus defaults. AJV valida los esquemas y los datos de las tools. Son dos niveles diferentes: los defaults de configuración sí se aplican; un <code>default</code> dentro de <code>inputSchema</code> no rellena automáticamente un argumento faltante.</p>

@@ -1,8 +1,6 @@
 # Arquitectura y funcionamiento interno
 
-[English](en/architecture.md)
-
-[Volver al índice](README.md) · [Guía de desarrollo](desarrollo.md)
+[English](en/architecture.md) · [Volver al índice](README.md) · [Guía de desarrollo](desarrollo.md)
 
 El proyecto separa el protocolo MCP de la ejecución de integraciones. Las tools se describen en configuración; el runtime aplica el mismo flujo a todas, independientemente del transporte o del servicio invocado.
 

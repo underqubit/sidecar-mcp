@@ -42,7 +42,7 @@ groups:
 
 `server` admite `name`, `version`, `transport` y `http`, con los mismos defaults que una integración: nombre `underqubit-sidecar-mcp`, versión `0.1.0`, transporte `stdio` y HTTP en `127.0.0.1:3000`. No admite `timeoutMs` ni `maxOutputBytes` en la composición: esos valores pertenecen a cada integración. Para `separate` o `both`, declarar HTTP o pasar `--transport http`.
 
-Las rutas `config` se resuelven respecto del archivo principal. Dentro de cada integración, `command` y `cwd` relativos siguen resolviéndose respecto de su propio archivo. No se admiten composiciones anidadas. Cada archivo tiene un límite de 4 MiB y las mismas restricciones de YAML/JSON que antes.
+Las rutas `config` se resuelven respecto del archivo principal. Dentro de cada integración, `command` y `cwd` relativos siguen resolviéndose respecto de su propio archivo. No se admiten composiciones anidadas. Cada archivo tiene un límite de 4 MiB y las mismas restricciones de YAML/JSON que una integración individual.
 
 El servidor unificado toma su identidad del archivo principal. Cada endpoint separado usa el ID del grupo como nombre MCP y `server.version` de la integración como versión. El nombre, transporte y opciones HTTP de las integraciones no crean listeners adicionales.
 
@@ -70,7 +70,7 @@ En otra terminal, iniciar Inspector:
 npx -y @modelcontextprotocol/inspector
 ```
 
-Abrir la URL que imprime Inspector, seleccionar **Streamable HTTP** y conectarse a uno de los endpoints. En `/mcp`, llamar `echo.local_echo` con `{"message":"hello"}`. En `/mcp/echo`, llamar `local_echo` con los mismos argumentos. Ambas llamadas devuelven `{"message":"hello"}`. `/mcp/local` también ofrece `local_node_version`.
+Abrir la URL que imprime Inspector, seleccionar **Streamable HTTP** y conectarse a uno de los endpoints. En `/mcp`, llamar `echo.local_echo` con `{"message":"hola"}`. En `/mcp/echo`, llamar `local_echo` con los mismos argumentos. Ambas llamadas devuelven `{"message":"hola"}`. `/mcp/local` también ofrece `local_node_version`.
 
 Para stdio, usar el [ejemplo JSON unificado](../examples/composition.json):
 
@@ -86,7 +86,7 @@ Inspector inicia el proceso stdio; no iniciarlo por separado. Si las integracion
 
 ## Credenciales, operación y diagnóstico
 
-Cada grupo tiene su propio snapshot de variables referenciadas y su propio administrador de autenticación. Ambos catálogos usan el mismo runtime del grupo, por lo que comparten su caché OAuth. No hay perfiles globales ni overrides de entorno por grupo: para usar credenciales diferentes, referenciar nombres de variables diferentes en cada archivo. `.env` se carga mediante Node, no automáticamente por el proyecto.
+Cada grupo tiene su propio snapshot de variables referenciadas y su propio administrador de autenticación. En modo `both`, el catálogo unificado y el endpoint del grupo usan el mismo runtime, por lo que comparten su caché OAuth. No hay perfiles globales ni overrides de entorno por grupo: para usar credenciales diferentes, referenciar nombres de variables diferentes en cada archivo. `.env` se carga mediante Node, no automáticamente por el proyecto.
 
 Los archivos se validan por completo antes de abrir el listener. Un archivo ausente, una variable requerida faltante o una integración inválida aborta todo el arranque, indicando el grupo. `validate` comprueba la composición y sus integraciones, sin conectarse a APIs ni ejecutar tools. No hay recarga en caliente: reiniciar después de cambiar configuración o credenciales.
 

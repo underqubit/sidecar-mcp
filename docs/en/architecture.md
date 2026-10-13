@@ -1,6 +1,6 @@
 # Architecture and internals
 
-[Back to index](README.md) · [Development guide](development.md) · [Español](../arquitectura.md)
+[Español](../arquitectura.md) · [Back to index](README.md) · [Development guide](development.md)
 
 The project separates the MCP protocol from integration execution. Tools are described in configuration; the runtime applies the same flow to all of them, regardless of transport or target service.
 

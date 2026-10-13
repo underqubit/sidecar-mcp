@@ -16,9 +16,7 @@
 <a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
 <a href="architecture.html">Architecture and internals</a>
 <a href="development.html">Developer guide</a>
-<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
-<a href="npm-publishing.html">License and npm publishing</a>
-<a href="documentation-site.html">HTML documentation site</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a></nav><small>v1.0.0 · Node.js 24+<br>Apache License 2.0</small></aside>
 <main id="main"><details class="mobile-nav"><summary>Browse guides</summary><nav aria-label="Documentation"><a href="index.html" aria-current="page">Overview</a>
 <a href="quick-start.html">Quick start</a>
 <a href="configuration.html">Configuration reference</a>
@@ -31,12 +29,44 @@
 <a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
 <a href="architecture.html">Architecture and internals</a>
 <a href="development.html">Developer guide</a>
-<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
-<a href="npm-publishing.html">License and npm publishing</a>
-<a href="documentation-site.html">HTML documentation site</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="underqubit-sidecar-mcp-documentation">Underqubit Sidecar MCP documentation</h1>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="underqubit-sidecar-mcp-documentation">Underqubit Sidecar MCP documentation</h1>
 <p><a href="../es/index.html">Español</a></p>
 <p>Underqubit Sidecar MCP exposes MCP tools from a YAML or JSON file. Each tool validates its arguments, performs an HTTP request or runs a local CLI, structures the response, and checks it against the output schema.</p>
 <p>The configuration file defines the integration: adding a tool does not require changing TypeScript. Changes take effect when the server restarts.</p>
+<h2 id="installation">Installation<a class="heading-link" href="#installation" aria-label="Link to Installation">#</a></h2>
+<p>The <code>underqubit-sidecar-mcp</code> package is published on npm, requires Node.js 24 or later, and installs the <code>underqubit-sidecar-mcp</code> command. You can run it without installing it or add it to a project:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Package manager</th>
+<th>Run without installing</th>
+<th>Install in a project</th>
+<th>Run the installed version</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>npm</td>
+<td><code>npx -y underqubit-sidecar-mcp &lt;command&gt;</code></td>
+<td><code>npm install underqubit-sidecar-mcp</code></td>
+<td><code>npx underqubit-sidecar-mcp &lt;command&gt;</code></td>
+</tr>
+<tr>
+<td>pnpm</td>
+<td><code>pnpm dlx underqubit-sidecar-mcp &lt;command&gt;</code></td>
+<td><code>pnpm add underqubit-sidecar-mcp</code></td>
+<td><code>pnpm exec underqubit-sidecar-mcp &lt;command&gt;</code></td>
+</tr>
+<tr>
+<td>Yarn</td>
+<td>Not supported</td>
+<td><code>yarn add underqubit-sidecar-mcp</code></td>
+<td><code>yarn underqubit-sidecar-mcp &lt;command&gt;</code></td>
+</tr>
+</tbody></table></div>
+<p><code>&lt;command&gt;</code> is <code>serve</code>, <code>validate</code>, or <code>--help</code>. For example:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npx -y underqubit-sidecar-mcp validate --config ./config.yaml</code></pre></div>
+<p>Yarn 2 or later requires <code>nodeLinker: node-modules</code> in <code>.yarnrc.yml</code>: with Plug&#39;n&#39;Play, the worker that processes regex and JSONata cannot load its dependencies, and configuration validation fails. For the same reason, <code>yarn dlx</code> is not supported. Yarn 1 installs into <code>node_modules</code> and needs no changes.</p>
+<p>The <a href="quick-start.html">Quick start</a> explains how to connect an MCP client, pin the version, load environment variables, and use the examples included in the package.</p>
 <h2 id="guides">Guides<a class="heading-link" href="#guides" aria-label="Link to Guides">#</a></h2>
 <div class="table-wrap"><table>
 <thead>
@@ -46,32 +76,20 @@
 </tr>
 </thead>
 <tbody><tr>
-<td><a href="json-schema.html">JSON Schema reference</a></td>
-<td>Keywords, extra fields, formats, examples, and actual validator limitations.</td>
-</tr>
-<tr>
-<td><a href="documentation-site.html">HTML site and deployment</a></td>
-<td>Build the bilingual site, maintain styles, and publish to GitHub Pages.</td>
-</tr>
-<tr>
-<td><a href="npm-publishing.html">npm publishing and license</a></td>
-<td>Apache 2.0, package verification, npx usage, and release steps.</td>
-</tr>
-<tr>
 <td><a href="quick-start.html">Quick start</a></td>
 <td>Installation, first run, client connections, and available commands.</td>
 </tr>
 <tr>
-<td><a href="openapi-import.html">Import OpenAPI</a></td>
-<td>Generate integration files from Swagger 2.0 and OpenAPI 3.x.</td>
+<td><a href="configuration.html">Configuration</a></td>
+<td>Common fields, JSON Schema, variables, templates, defaults, and limits.</td>
+</tr>
+<tr>
+<td><a href="json-schema.html">JSON Schema reference</a></td>
+<td>Keywords, extra fields, formats, examples, and actual validator limitations.</td>
 </tr>
 <tr>
 <td><a href="tool-groups.html">Tool groups</a></td>
 <td>Multiple files in one process, unified catalog, separate endpoints, and Inspector.</td>
-</tr>
-<tr>
-<td><a href="configuration.html">Configuration</a></td>
-<td>Common fields, JSON Schema, variables, templates, defaults, and limits.</td>
 </tr>
 <tr>
 <td><a href="tools-http.html">HTTP tools</a></td>
@@ -88,6 +106,10 @@
 <tr>
 <td><a href="responses.html">Responses</a></td>
 <td>JSON/text/regex parsers, JSONata transformations, and MCP responses.</td>
+</tr>
+<tr>
+<td><a href="openapi-import.html">Import OpenAPI</a></td>
+<td>Generate integration files from Swagger 2.0 and OpenAPI 3.x.</td>
 </tr>
 <tr>
 <td><a href="architecture.html">Architecture</a></td>
@@ -152,11 +174,12 @@
 </tr>
 </tbody></table></div>
 <h2 id="scope-of-this-documentation">Scope of this documentation<a class="heading-link" href="#scope-of-this-documentation" aria-label="Link to Scope of this documentation">#</a></h2>
-<p>This documentation describes configuration format <code>version: 1</code> and the implementation in this repository. It does not assume the package is published on npm: commands use the local build in <code>dist/</code>.</p>
-<p>Run all commands from the project root unless stated otherwise. Blocks labeled <strong>fragment</strong> belong inside a complete configuration; they are not standalone executable files. URLs using <code>example.com</code> and <code>example.org</code> represent services you must replace.</p>
+<p>This documentation describes configuration format <code>version: 1</code> of the package published on npm. The <a href="quick-start.html">Quick start</a> uses the command installed by the package. The other guides show <code>node dist/cli.js</code>, the equivalent form from a source checkout; with the package installed, replace it with <code>npx underqubit-sidecar-mcp</code> (or <code>pnpm exec</code> / <code>yarn</code>, depending on the package manager). Examples those guides place in <code>examples/</code> are in <code>node_modules/underqubit-sidecar-mcp/examples/</code>, except the Jira example, which is only in the repository.</p>
+<p>Run commands with relative paths from the project root unless stated otherwise. Blocks labeled <strong>fragment</strong> belong inside a complete configuration; they are not standalone executable files. URLs using <code>example.com</code> and <code>example.org</code> represent services you must replace.</p>
 <p>The source of truth for fields is <a href="../../../src/config-schema.ts">src/config-schema.ts</a>. Rules that require additional logic—references, URLs, environment variables, and parser compilation—are in <a href="../../../src/config.ts">src/config.ts</a>.</p>
 </article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../en/README.md">Markdown source</a></footer></main>
-<aside class="toc" aria-label="On this page"><span class="nav-label">On this page</span><a class="depth-2" href="#guides">Guides</a>
+<aside class="toc" aria-label="On this page"><span class="nav-label">On this page</span><a class="depth-2" href="#installation">Installation</a>
+<a class="depth-2" href="#guides">Guides</a>
 <a class="depth-2" href="#where-to-start">Where to start</a>
 <a class="depth-2" href="#repository-resources">Repository resources</a>
 <a class="depth-2" href="#scope-of-this-documentation">Scope of this documentation</a></aside></div></body></html>

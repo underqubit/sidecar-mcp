@@ -16,9 +16,7 @@
 <a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
 <a href="architecture.html">Architecture and internals</a>
 <a href="development.html" aria-current="page">Developer guide</a>
-<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
-<a href="npm-publishing.html">License and npm publishing</a>
-<a href="documentation-site.html">HTML documentation site</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a></nav><small>v1.0.0 · Node.js 24+<br>Apache License 2.0</small></aside>
 <main id="main"><details class="mobile-nav"><summary>Browse guides</summary><nav aria-label="Documentation"><a href="index.html">Overview</a>
 <a href="quick-start.html">Quick start</a>
 <a href="configuration.html">Configuration reference</a>
@@ -31,10 +29,8 @@
 <a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
 <a href="architecture.html">Architecture and internals</a>
 <a href="development.html" aria-current="page">Developer guide</a>
-<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
-<a href="npm-publishing.html">License and npm publishing</a>
-<a href="documentation-site.html">HTML documentation site</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="developer-guide">Developer guide</h1>
-<p><a href="index.html">Back to index</a> · <a href="architecture.html">Architecture</a> · <a href="../es/desarrollo.html">Español</a></p>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="developer-guide">Developer guide</h1>
+<p><a href="../es/desarrollo.html">Español</a> · <a href="index.html">Back to index</a> · <a href="architecture.html">Architecture</a></p>
 <h2 id="prepare-the-environment">Prepare the environment<a class="heading-link" href="#prepare-the-environment" aria-label="Link to Prepare the environment">#</a></h2>
 <div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm ci
 npm run check</code></pre></div>
@@ -44,7 +40,7 @@ npm run check</code></pre></div>
 <div class="code-block"><span class="code-label">text</span><pre><code class="language-text">src/                    Server and worker code
 examples/               Usable configurations and example CLI
 schema/                 Generated configuration JSON Schema
-scripts/                Schema generator
+scripts/                Schema, OpenAPI importers, packaging, documentation, and Jira diagnostics
 tests/                  Tests without TCP listeners
 tests/network/          Tests with local HTTP sockets
 tests/fixtures/         Deterministic CLIs and configurations
@@ -140,6 +136,10 @@ node_modules/.bin/vitest run tests/config.test.ts tests/mcp.test.ts</code></pre>
 <td>Swagger/OpenAPI CLI generation, normalized schemas, auth, mapping, and execution of generated tools.</td>
 </tr>
 <tr>
+<td><a href="../../../tests/jira.test.ts">jira.test.ts</a></td>
+<td>Jira Cloud example over intercepted HTTP: authentication, cursors and pagination, scoped-token prefix, zero/one/many-item arrays, nullable fields, and missing arguments.</td>
+</tr>
+<tr>
 <td><a href="../../../tests/composition.test.ts">composition.test.ts</a></td>
 <td>Multi-file validation, paths, modes, stdio/HTTP catalogs, auth/cache isolation, limits, and shutdown.</td>
 </tr>
@@ -230,11 +230,11 @@ node_modules/.bin/vitest run tests/config.test.ts tests/mcp.test.ts</code></pre>
 <li>Schema regeneration and a Git diff check.</li>
 <li><code>npm run check:package</code>.</li>
 </ol>
-<p>The documentation workflow publishes changes in <code>docs</code> to GitHub Pages. See <a href="documentation-site.html">HTML documentation site</a> for local builds, styles, and deployment.</p>
+<p>The documentation workflow publishes changes in <code>docs</code> to GitHub Pages. See <a href="../../en/documentation-site.md">HTML documentation site</a> for local builds, styles, and deployment.</p>
 <p>The workflow runs once the repository is on GitHub and Actions is enabled; the file&#39;s existence does not mean a remote run has already passed.</p>
 <p>Before delivering a change, run affected suites, check the generated schema if Zod changed, and update the corresponding guides in both languages. For documentation-only changes, validating links and examples is usually more useful than repeating the entire functional suite.</p>
 <h2 id="distribution">Distribution<a class="heading-link" href="#distribution" aria-label="Link to Distribution">#</a></h2>
-<p>The public CLI package uses Apache-2.0 and exposes <code>underqubit-sidecar-mcp</code> through <code>dist/cli.js</code>. <code>prepack</code> builds a clean distribution and <code>prepublishOnly</code> runs the checks. See <a href="npm-publishing.html">npm publishing</a> for the file allowlist, production installation test, and release steps.</p>
+<p>The public CLI package uses Apache-2.0 and exposes <code>underqubit-sidecar-mcp</code> through <code>dist/cli.js</code>. <code>prepack</code> builds a clean distribution and <code>prepublishOnly</code> runs the checks. See <a href="../../en/npm-publishing.md">npm publishing</a> for the file allowlist, production installation test, and release steps.</p>
 <p>For a service installation, build with development dependencies and retain Node, production dependencies, <code>dist/</code>, configuration, and referenced executables/scripts at runtime. Copying <code>dist/cli.js</code> alone is insufficient.</p>
 <h2 id="extending-compositions">Extending compositions<a class="heading-link" href="#extending-compositions" aria-label="Link to Extending compositions">#</a></h2>
 <p>Keep <code>configSchema</code> and <code>loadConfig</code> compatible with integration files. <code>compositionSchema</code> describes the main file, and <code>configurationFileSchema</code> is the union exported to the editor JSON Schema. After changing either format, run <code>npm run schema</code>. Semantic checks such as unique group IDs, child credentials, and final tool-name lengths belong to <code>loadDeployment</code>.</p>

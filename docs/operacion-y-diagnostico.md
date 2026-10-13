@@ -1,8 +1,6 @@
 # Operación y diagnóstico
 
-[English](en/operations-and-troubleshooting.md)
-
-[Volver al índice](README.md)
+[English](en/operations-and-troubleshooting.md) · [Volver al índice](README.md)
 
 ## Elegir cómo ejecutar el servidor
 
@@ -36,7 +34,7 @@ El repositorio no instala un servicio del sistema ni contiene un despliegue Dock
 
 ## HTTP, proxy y controles de acceso
 
-Defaults: escucha en `127.0.0.1:3000`, ruta `/mcp`, hosts locales permitidos y ninguna Origin explícita permitida.
+Valores predeterminados: escucha en `127.0.0.1:3000`, ruta `/mcp`, hosts locales permitidos y ningún Origin explícito permitido.
 
 Para publicar detrás de un proxy:
 
@@ -47,7 +45,7 @@ Para publicar detrás de un proxy:
 - Preservar método, body y headers MCP. El protocolo puede utilizar streaming; configurar el proxy según el transporte del cliente, sin asumir que todo intercambio es una respuesta REST simple.
 - Ajustar timeout y límite de body del proxy para que sean coherentes con los del servidor.
 
-`allowedHosts` protege la selección del host y `allowedOrigins` restringe orígenes presentes, pero no autentican al cliente. Una Origin ausente se acepta; presente pero vacía, `null` o no incluida produce 403. La lista de Origins no habilita automáticamente CORS ni respuestas a preflight de navegador.
+`allowedHosts` protege la selección del host y `allowedOrigins` restringe orígenes presentes, pero no autentican al cliente. Un Origin ausente se acepta; uno presente pero vacío, `null` o no incluido produce 403. La lista de Origins no habilita automáticamente CORS ni respuestas a preflight de navegador.
 
 El servidor tiene un límite configurable de body entrante (`maxRequestBytes`). El listener Node usa 30 segundos para recepción del request y 10 segundos para headers; esos valores del listener no son el deadline de ejecución de la tool y no tienen campos de configuración propios.
 
@@ -121,7 +119,7 @@ Los mensajes genéricos evitan exponer detalles del servicio o credenciales. Rep
 | Puerto ocupado | Detener el proceso anterior o cambiar `server.http.port`. |
 | `listen EPERM` en pruebas TCP | El entorno prohíbe abrir sockets. Ejecutar la suite en una terminal/CI donde esté permitido. |
 
-Las 18 pruebas de red que dependen de listeners quedaron bloqueadas por `EPERM` durante la verificación local en este entorno. El workflow incluye su ejecución en CI, pero no se considera que hayan pasado aquí. La suite en memoria permite verificar protocolo y guards sin abrir un puerto.
+La suite en memoria verifica protocolo y guards sin abrir un puerto, pero no reemplaza a `npm run test:network`, que la CI ejecuta en cada cambio.
 
 ## Límites funcionales actuales
 

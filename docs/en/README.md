@@ -6,21 +6,39 @@ Underqubit Sidecar MCP exposes MCP tools from a YAML or JSON file. Each tool val
 
 The configuration file defines the integration: adding a tool does not require changing TypeScript. Changes take effect when the server restarts.
 
+## Installation
+
+The `underqubit-sidecar-mcp` package is published on npm, requires Node.js 24 or later, and installs the `underqubit-sidecar-mcp` command. You can run it without installing it or add it to a project:
+
+| Package manager | Run without installing | Install in a project | Run the installed version |
+| --- | --- | --- | --- |
+| npm | `npx -y underqubit-sidecar-mcp <command>` | `npm install underqubit-sidecar-mcp` | `npx underqubit-sidecar-mcp <command>` |
+| pnpm | `pnpm dlx underqubit-sidecar-mcp <command>` | `pnpm add underqubit-sidecar-mcp` | `pnpm exec underqubit-sidecar-mcp <command>` |
+| Yarn | Not supported | `yarn add underqubit-sidecar-mcp` | `yarn underqubit-sidecar-mcp <command>` |
+
+`<command>` is `serve`, `validate`, or `--help`. For example:
+
+```sh
+npx -y underqubit-sidecar-mcp validate --config ./config.yaml
+```
+
+Yarn 2 or later requires `nodeLinker: node-modules` in `.yarnrc.yml`: with Plug'n'Play, the worker that processes regex and JSONata cannot load its dependencies, and configuration validation fails. For the same reason, `yarn dlx` is not supported. Yarn 1 installs into `node_modules` and needs no changes.
+
+The [Quick start](quick-start.md) explains how to connect an MCP client, pin the version, load environment variables, and use the examples included in the package.
+
 ## Guides
 
 | Document | What it covers |
 | --- | --- |
-| [JSON Schema reference](json-schema.md) | Keywords, extra fields, formats, examples, and actual validator limitations. |
-| [HTML site and deployment](documentation-site.md) | Build the bilingual site, maintain styles, and publish to GitHub Pages. |
-| [npm publishing and license](npm-publishing.md) | Apache 2.0, package verification, npx usage, and release steps. |
 | [Quick start](quick-start.md) | Installation, first run, client connections, and available commands. |
-| [Import OpenAPI](openapi-import.md) | Generate integration files from Swagger 2.0 and OpenAPI 3.x. |
-| [Tool groups](tool-groups.md) | Multiple files in one process, unified catalog, separate endpoints, and Inspector. |
 | [Configuration](configuration.md) | Common fields, JSON Schema, variables, templates, defaults, and limits. |
+| [JSON Schema reference](json-schema.md) | Keywords, extra fields, formats, examples, and actual validator limitations. |
+| [Tool groups](tool-groups.md) | Multiple files in one process, unified catalog, separate endpoints, and Inspector. |
 | [HTTP tools](tools-http.md) | Mapping arguments to a REST API using Axios. |
 | [CLI tools](tools-cli.md) | Executables, arguments, stdin, environment, paths, and exit codes. |
 | [Authentication](authentication.md) | API keys, Bearer, Basic, OAuth2, and CLI credentials. |
 | [Responses](responses.md) | JSON/text/regex parsers, JSONata transformations, and MCP responses. |
+| [Import OpenAPI](openapi-import.md) | Generate integration files from Swagger 2.0 and OpenAPI 3.x. |
 | [Architecture](architecture.md) | Modules, data flow, shared state, and cancellation. |
 | [Development](development.md) | Development environment, tests, extensions, schema generation, and CI. |
 | [Operations and troubleshooting](operations-and-troubleshooting.md) | HTTP deployment, logs, maintenance, errors, and limitations. |
@@ -49,8 +67,8 @@ The configuration file defines the integration: adding a tool does not require c
 
 ## Scope of this documentation
 
-This documentation describes configuration format `version: 1` and the implementation in this repository. It does not assume the package is published on npm: commands use the local build in `dist/`.
+This documentation describes configuration format `version: 1` of the package published on npm. The [Quick start](quick-start.md) uses the command installed by the package. The other guides show `node dist/cli.js`, the equivalent form from a source checkout; with the package installed, replace it with `npx underqubit-sidecar-mcp` (or `pnpm exec` / `yarn`, depending on the package manager). Examples those guides place in `examples/` are in `node_modules/underqubit-sidecar-mcp/examples/`, except the Jira example, which is only in the repository.
 
-Run all commands from the project root unless stated otherwise. Blocks labeled **fragment** belong inside a complete configuration; they are not standalone executable files. URLs using `example.com` and `example.org` represent services you must replace.
+Run commands with relative paths from the project root unless stated otherwise. Blocks labeled **fragment** belong inside a complete configuration; they are not standalone executable files. URLs using `example.com` and `example.org` represent services you must replace.
 
 The source of truth for fields is [src/config-schema.ts](../../src/config-schema.ts). Rules that require additional logic—references, URLs, environment variables, and parser compilation—are in [src/config.ts](../../src/config.ts).

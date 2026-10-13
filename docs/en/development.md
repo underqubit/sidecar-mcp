@@ -1,6 +1,6 @@
 # Developer guide
 
-[Back to index](README.md) · [Architecture](architecture.md) · [Español](../desarrollo.md)
+[Español](../desarrollo.md) · [Back to index](README.md) · [Architecture](architecture.md)
 
 ## Prepare the environment
 
@@ -19,7 +19,7 @@ Node.js 24 or later is required. The project uses npm with a lockfile, strict Ty
 src/                    Server and worker code
 examples/               Usable configurations and example CLI
 schema/                 Generated configuration JSON Schema
-scripts/                Schema generator
+scripts/                Schema, OpenAPI importers, packaging, documentation, and Jira diagnostics
 tests/                  Tests without TCP listeners
 tests/network/          Tests with local HTTP sockets
 tests/fixtures/         Deterministic CLIs and configurations
@@ -67,6 +67,7 @@ node_modules/.bin/vitest run tests/config.test.ts tests/mcp.test.ts
 | [http.test.ts](../../tests/http.test.ts) | Axios with Nock: URLs, query, headers, bodies, errors, and authentication. |
 | [response.test.ts](../../tests/response.test.ts) | Parsers, regex groups, JSONata, timeouts, bytes, and worker cancellation. |
 | [openapi.test.ts](../../tests/openapi.test.ts) | Swagger/OpenAPI CLI generation, normalized schemas, auth, mapping, and execution of generated tools. |
+| [jira.test.ts](../../tests/jira.test.ts) | Jira Cloud example over intercepted HTTP: authentication, cursors and pagination, scoped-token prefix, zero/one/many-item arrays, nullable fields, and missing arguments. |
 | [composition.test.ts](../../tests/composition.test.ts) | Multi-file validation, paths, modes, stdio/HTTP catalogs, auth/cache isolation, limits, and shutdown. |
 | [mcp.test.ts](../../tests/mcp.test.ts) | Real stdio client and in-memory Streamable HTTP, exposed schemas, guards, and request sizes. |
 | [evaluation.test.ts](../../tests/evaluation.test.ts) | Answers verified through MCP tools over fixed data. |

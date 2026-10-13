@@ -16,9 +16,7 @@
 <a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
 <a href="architecture.html">Architecture and internals</a>
 <a href="development.html">Developer guide</a>
-<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
-<a href="npm-publishing.html">License and npm publishing</a>
-<a href="documentation-site.html">HTML documentation site</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a></nav><small>v1.0.0 · Node.js 24+<br>Apache License 2.0</small></aside>
 <main id="main"><details class="mobile-nav"><summary>Browse guides</summary><nav aria-label="Documentation"><a href="index.html">Overview</a>
 <a href="quick-start.html">Quick start</a>
 <a href="configuration.html">Configuration reference</a>
@@ -31,9 +29,7 @@
 <a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
 <a href="architecture.html">Architecture and internals</a>
 <a href="development.html">Developer guide</a>
-<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
-<a href="npm-publishing.html">License and npm publishing</a>
-<a href="documentation-site.html">HTML documentation site</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="multiple-tool-groups-in-one-process">Multiple tool groups in one process</h1>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="multiple-tool-groups-in-one-process">Multiple tool groups in one process</h1>
 <p><a href="../es/grupos-de-tools.html">Español</a> · <a href="index.html">Back to index</a></p>
 <p>A composition loads existing integration files and exposes them from one Node.js process. Each group retains its tools, authentication profiles, referenced environment variables, execution limits, and relative paths. There is no need to merge files or rename their tools.</p>
 <h2 id="choose-how-to-expose-them">Choose how to expose them<a class="heading-link" href="#choose-how-to-expose-them" aria-label="Link to Choose how to expose them">#</a></h2>
@@ -107,7 +103,7 @@ npx -y @modelcontextprotocol/inspector node -- \
 <p>Inspector starts the stdio process; do not start it separately. If integrations need <code>.env</code>, insert <code>--env-file=.env</code> before <code>dist/cli.js</code>. For clients launched from another directory, use absolute paths to the executable, CLI, configuration, and <code>.env</code>.</p>
 <p><code>--transport</code> overrides the main file&#39;s transport in both <code>serve</code> and <code>validate</code>. It does not change <code>mode</code>: <code>both</code> and <code>separate</code> fail with stdio. To migrate an existing integration, reference it from <code>groups</code>; running it directly still preserves its original names and <code>/mcp</code> endpoint.</p>
 <h2 id="credentials-operation-and-troubleshooting">Credentials, operation, and troubleshooting<a class="heading-link" href="#credentials-operation-and-troubleshooting" aria-label="Link to Credentials, operation, and troubleshooting">#</a></h2>
-<p>Each group has its own snapshot of referenced variables and its own authentication manager. Both catalogs use the same group runtime and share its OAuth cache. There are no global profiles or per-group environment overrides: reference different variable names in each file when credentials must differ. Node loads <code>.env</code>; the project does not load it automatically.</p>
+<p>Each group has its own snapshot of referenced variables and its own authentication manager. In <code>both</code> mode, the unified catalog and the group endpoint use the same group runtime and share its OAuth cache. There are no global profiles or per-group environment overrides: reference different variable names in each file when credentials must differ. Node loads <code>.env</code>; the project does not load it automatically.</p>
 <p>All files are validated before opening the listener. A missing file, missing required variable, or invalid integration aborts the entire startup and identifies the group. <code>validate</code> checks the composition and its integrations without calling APIs or executing tools. There is no hot reload: restart after changing configuration or credentials.</p>
 <p>Call logs contain <code>group</code> and the original tool name. Limits and cancellation apply within each runtime; process shutdown cancels operations in all groups and closes all endpoints.</p>
 <div class="table-wrap"><table>

@@ -16,9 +16,7 @@
 <a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
 <a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
 <a href="desarrollo.html">Guía para desarrolladores</a>
-<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
-<a href="publicacion-npm.html">Licencia y publicación en npm</a>
-<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a></nav><small>v1.0.0 · Node.js 24+<br>Apache License 2.0</small></aside>
 <main id="main"><details class="mobile-nav"><summary>Explorar guías</summary><nav aria-label="Documentación"><a href="index.html">Introducción</a>
 <a href="inicio-rapido.html">Inicio rápido</a>
 <a href="configuracion.html">Referencia de configuración</a>
@@ -31,9 +29,7 @@
 <a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
 <a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
 <a href="desarrollo.html">Guía para desarrolladores</a>
-<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
-<a href="publicacion-npm.html">Licencia y publicación en npm</a>
-<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="varios-grupos-de-tools-en-un-proceso">Varios grupos de tools en un proceso</h1>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="varios-grupos-de-tools-en-un-proceso">Varios grupos de tools en un proceso</h1>
 <p><a href="../en/tool-groups.html">English</a> · <a href="index.html">Volver al índice</a></p>
 <p>Una composición carga archivos de integración existentes y los publica desde un único proceso Node.js. Cada grupo conserva sus tools, perfiles de autenticación, variables referenciadas, límites de ejecución y rutas relativas. No es necesario fusionar los archivos ni cambiar sus nombres de tools.</p>
 <h2 id="elegir-cómo-publicarlos">Elegir cómo publicarlos<a class="heading-link" href="#elegir-cómo-publicarlos" aria-label="Enlace a Elegir cómo publicarlos">#</a></h2>
@@ -86,7 +82,7 @@ groups:
     config: ./cli.json</code></pre></div>
 <p><code>version</code>, <code>kind</code>, <code>mode</code> y una lista <code>groups</code> no vacía son obligatorios. Cada grupo tiene únicamente <code>id</code> y <code>config</code>. Los IDs son únicos, de 1 a 126 caracteres, y admiten letras minúsculas ASCII, números, <code>_</code> y <code>-</code>. Las rutas son literales, sin interpolación de variables ni globbing.</p>
 <p><code>server</code> admite <code>name</code>, <code>version</code>, <code>transport</code> y <code>http</code>, con los mismos defaults que una integración: nombre <code>underqubit-sidecar-mcp</code>, versión <code>0.1.0</code>, transporte <code>stdio</code> y HTTP en <code>127.0.0.1:3000</code>. No admite <code>timeoutMs</code> ni <code>maxOutputBytes</code> en la composición: esos valores pertenecen a cada integración. Para <code>separate</code> o <code>both</code>, declarar HTTP o pasar <code>--transport http</code>.</p>
-<p>Las rutas <code>config</code> se resuelven respecto del archivo principal. Dentro de cada integración, <code>command</code> y <code>cwd</code> relativos siguen resolviéndose respecto de su propio archivo. No se admiten composiciones anidadas. Cada archivo tiene un límite de 4 MiB y las mismas restricciones de YAML/JSON que antes.</p>
+<p>Las rutas <code>config</code> se resuelven respecto del archivo principal. Dentro de cada integración, <code>command</code> y <code>cwd</code> relativos siguen resolviéndose respecto de su propio archivo. No se admiten composiciones anidadas. Cada archivo tiene un límite de 4 MiB y las mismas restricciones de YAML/JSON que una integración individual.</p>
 <p>El servidor unificado toma su identidad del archivo principal. Cada endpoint separado usa el ID del grupo como nombre MCP y <code>server.version</code> de la integración como versión. El nombre, transporte y opciones HTTP de las integraciones no crean listeners adicionales.</p>
 <p>Los nombres unificados siempre incluyen el prefijo: una tool llamada <code>jira_get_issue</code> en el grupo <code>jira</code> se publica como <code>jira.jira_get_issue</code>. No se quitan prefijos existentes. El nombre final no puede superar 128 caracteres; esta comprobación se realiza en cualquier modo. Tools y perfiles de auth pueden repetir nombres entre grupos, pero las tools de una misma integración deben tener nombres únicos.</p>
 <h2 id="ejecutar-y-conectar-inspector">Ejecutar y conectar Inspector<a class="heading-link" href="#ejecutar-y-conectar-inspector" aria-label="Enlace a Ejecutar y conectar Inspector">#</a></h2>
@@ -99,7 +95,7 @@ http://127.0.0.1:3000/mcp/local
 http://127.0.0.1:3000/mcp/echo</code></pre></div>
 <p>En otra terminal, iniciar Inspector:</p>
 <div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npx -y @modelcontextprotocol/inspector</code></pre></div>
-<p>Abrir la URL que imprime Inspector, seleccionar <strong>Streamable HTTP</strong> y conectarse a uno de los endpoints. En <code>/mcp</code>, llamar <code>echo.local_echo</code> con <code>{&quot;message&quot;:&quot;hello&quot;}</code>. En <code>/mcp/echo</code>, llamar <code>local_echo</code> con los mismos argumentos. Ambas llamadas devuelven <code>{&quot;message&quot;:&quot;hello&quot;}</code>. <code>/mcp/local</code> también ofrece <code>local_node_version</code>.</p>
+<p>Abrir la URL que imprime Inspector, seleccionar <strong>Streamable HTTP</strong> y conectarse a uno de los endpoints. En <code>/mcp</code>, llamar <code>echo.local_echo</code> con <code>{&quot;message&quot;:&quot;hola&quot;}</code>. En <code>/mcp/echo</code>, llamar <code>local_echo</code> con los mismos argumentos. Ambas llamadas devuelven <code>{&quot;message&quot;:&quot;hola&quot;}</code>. <code>/mcp/local</code> también ofrece <code>local_node_version</code>.</p>
 <p>Para stdio, usar el <a href="../../../examples/composition.json">ejemplo JSON unificado</a>:</p>
 <div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node dist/cli.js validate --config examples/composition.json
 npx -y @modelcontextprotocol/inspector node -- \
@@ -107,7 +103,7 @@ npx -y @modelcontextprotocol/inspector node -- \
 <p>Inspector inicia el proceso stdio; no iniciarlo por separado. Si las integraciones necesitan <code>.env</code>, agregar <code>--env-file=.env</code> antes de <code>dist/cli.js</code>. En clientes configurados desde otro directorio, usar rutas absolutas para el ejecutable, CLI, configuración y <code>.env</code>.</p>
 <p><code>--transport</code> sobrescribe el transporte del archivo principal, tanto en <code>serve</code> como en <code>validate</code>. No cambia <code>mode</code>: <code>both</code> y <code>separate</code> con stdio fallan. Para migrar una integración existente, referenciarla desde <code>groups</code>; ejecutarla directamente sigue conservando sus nombres y <code>/mcp</code> originales.</p>
 <h2 id="credenciales-operación-y-diagnóstico">Credenciales, operación y diagnóstico<a class="heading-link" href="#credenciales-operación-y-diagnóstico" aria-label="Enlace a Credenciales, operación y diagnóstico">#</a></h2>
-<p>Cada grupo tiene su propio snapshot de variables referenciadas y su propio administrador de autenticación. Ambos catálogos usan el mismo runtime del grupo, por lo que comparten su caché OAuth. No hay perfiles globales ni overrides de entorno por grupo: para usar credenciales diferentes, referenciar nombres de variables diferentes en cada archivo. <code>.env</code> se carga mediante Node, no automáticamente por el proyecto.</p>
+<p>Cada grupo tiene su propio snapshot de variables referenciadas y su propio administrador de autenticación. En modo <code>both</code>, el catálogo unificado y el endpoint del grupo usan el mismo runtime, por lo que comparten su caché OAuth. No hay perfiles globales ni overrides de entorno por grupo: para usar credenciales diferentes, referenciar nombres de variables diferentes en cada archivo. <code>.env</code> se carga mediante Node, no automáticamente por el proyecto.</p>
 <p>Los archivos se validan por completo antes de abrir el listener. Un archivo ausente, una variable requerida faltante o una integración inválida aborta todo el arranque, indicando el grupo. <code>validate</code> comprueba la composición y sus integraciones, sin conectarse a APIs ni ejecutar tools. No hay recarga en caliente: reiniciar después de cambiar configuración o credenciales.</p>
 <p>Los logs de llamadas contienen <code>group</code> y el nombre original de la tool. Los límites y cancelaciones se aplican en cada runtime; el cierre del proceso cancela operaciones de todos los grupos y cierra todos los endpoints.</p>
 <div class="table-wrap"><table>

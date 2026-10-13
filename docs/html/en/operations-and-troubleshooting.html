@@ -16,9 +16,7 @@
 <a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
 <a href="architecture.html">Architecture and internals</a>
 <a href="development.html">Developer guide</a>
-<a href="operations-and-troubleshooting.html" aria-current="page">Operations and troubleshooting</a>
-<a href="npm-publishing.html">License and npm publishing</a>
-<a href="documentation-site.html">HTML documentation site</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<a href="operations-and-troubleshooting.html" aria-current="page">Operations and troubleshooting</a></nav><small>v1.0.0 · Node.js 24+<br>Apache License 2.0</small></aside>
 <main id="main"><details class="mobile-nav"><summary>Browse guides</summary><nav aria-label="Documentation"><a href="index.html">Overview</a>
 <a href="quick-start.html">Quick start</a>
 <a href="configuration.html">Configuration reference</a>
@@ -31,10 +29,8 @@
 <a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
 <a href="architecture.html">Architecture and internals</a>
 <a href="development.html">Developer guide</a>
-<a href="operations-and-troubleshooting.html" aria-current="page">Operations and troubleshooting</a>
-<a href="npm-publishing.html">License and npm publishing</a>
-<a href="documentation-site.html">HTML documentation site</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="operations-and-troubleshooting">Operations and troubleshooting</h1>
-<p><a href="index.html">Back to index</a> · <a href="../es/operacion-y-diagnostico.html">Español</a></p>
+<a href="operations-and-troubleshooting.html" aria-current="page">Operations and troubleshooting</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="operations-and-troubleshooting">Operations and troubleshooting</h1>
+<p><a href="../es/operacion-y-diagnostico.html">Español</a> · <a href="index.html">Back to index</a></p>
 <h2 id="choose-how-to-run-the-server">Choose how to run the server<a class="heading-link" href="#choose-how-to-run-the-server" aria-label="Link to Choose how to run the server">#</a></h2>
 <div class="table-wrap"><table>
 <thead>
@@ -212,7 +208,7 @@
 <td>The environment prohibits opening sockets. Run the suite in a terminal/CI where this is allowed.</td>
 </tr>
 </tbody></table></div>
-<p>The 18 network tests that depend on listeners were blocked by <code>EPERM</code> during local verification in this environment. The workflow includes them in CI, but they are not considered to have passed here. The in-memory suite verifies the protocol and guards without opening a port.</p>
+<p>The in-memory suite verifies the protocol and guards without opening a port, but it does not replace <code>npm run test:network</code>, which CI runs on every change.</p>
 <h2 id="current-functional-limits">Current functional limits<a class="heading-link" href="#current-functional-limits" aria-label="Link to Current functional limits">#</a></h2>
 <p>OpenAPI import is available through <a href="openapi-import.html">offline generation scripts</a>. There is no hot reload, executable TypeScript configuration, external Zod modules, multi-request workflows, automatic pagination, CSV/XML parsers, binary/multipart uploads, per-user OAuth login, per-tool authorization, or built-in incoming authentication.</p>
 <p>Dynamic tools are dynamic <strong>through configuration at startup</strong>. Manually choosing their contracts and transformations is part of integrating an existing API or CLI.</p>

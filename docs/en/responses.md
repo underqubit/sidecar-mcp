@@ -1,6 +1,6 @@
 # Parsing, transformation, and MCP output
 
-[Back to index](README.md) · [Español](../respuestas.md)
+[Español](../respuestas.md) · [Back to index](README.md)
 
 An API or CLI response goes through three steps: **parse the text**, **transform the data if JSONata is configured**, and **validate against `outputSchema`**. The schema describes the final result, which may differ from the original service response.
 

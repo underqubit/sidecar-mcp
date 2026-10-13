@@ -16,9 +16,7 @@
 <a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
 <a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
 <a href="desarrollo.html" aria-current="page">Guía para desarrolladores</a>
-<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
-<a href="publicacion-npm.html">Licencia y publicación en npm</a>
-<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a></nav><small>v1.0.0 · Node.js 24+<br>Apache License 2.0</small></aside>
 <main id="main"><details class="mobile-nav"><summary>Explorar guías</summary><nav aria-label="Documentación"><a href="index.html">Introducción</a>
 <a href="inicio-rapido.html">Inicio rápido</a>
 <a href="configuracion.html">Referencia de configuración</a>
@@ -31,11 +29,8 @@
 <a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
 <a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
 <a href="desarrollo.html" aria-current="page">Guía para desarrolladores</a>
-<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
-<a href="publicacion-npm.html">Licencia y publicación en npm</a>
-<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="guía-para-desarrolladores">Guía para desarrolladores</h1>
-<p><a href="../en/development.html">English</a></p>
-<p><a href="index.html">Volver al índice</a> · <a href="arquitectura.html">Arquitectura</a></p>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="guía-para-desarrolladores">Guía para desarrolladores</h1>
+<p><a href="../en/development.html">English</a> · <a href="index.html">Volver al índice</a> · <a href="arquitectura.html">Arquitectura</a></p>
 <h2 id="preparar-el-entorno">Preparar el entorno<a class="heading-link" href="#preparar-el-entorno" aria-label="Enlace a Preparar el entorno">#</a></h2>
 <div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm ci
 npm run check</code></pre></div>
@@ -45,12 +40,13 @@ npm run check</code></pre></div>
 <div class="code-block"><span class="code-label">text</span><pre><code class="language-text">src/                    Código del servidor y worker
 examples/               Configuraciones utilizables y CLI de ejemplo
 schema/                 JSON Schema generado para configuración
-scripts/                Generador del esquema
+scripts/                Esquema, importadores OpenAPI, empaquetado, documentación y diagnóstico de Jira
 tests/                  Pruebas sin listeners TCP
 tests/network/          Pruebas con sockets HTTP locales
 tests/fixtures/         CLIs y configuraciones deterministas
 evaluations/            Preguntas de evaluación del uso de tools
-docs/                   Documentación de usuario y desarrollo
+docs/                   Documentación de usuario y desarrollo en español
+docs/en/                Documentación de usuario y desarrollo en inglés
 .github/workflows/      Verificación en GitHub Actions</code></pre></div>
 <p>El mapa de responsabilidades de cada módulo está en <a href="arquitectura.html">Arquitectura</a>.</p>
 <h2 id="comandos-de-desarrollo">Comandos de desarrollo<a class="heading-link" href="#comandos-de-desarrollo" aria-label="Enlace a Comandos de desarrollo">#</a></h2>
@@ -140,6 +136,10 @@ node_modules/.bin/vitest run tests/config.test.ts tests/mcp.test.ts</code></pre>
 <td>Generación CLI desde Swagger/OpenAPI, esquemas, autenticación, mapeo y ejecución de tools generadas.</td>
 </tr>
 <tr>
+<td><a href="../../../tests/jira.test.ts">jira.test.ts</a></td>
+<td>Ejemplo Jira Cloud con HTTP interceptado: autenticación, cursores y paginación, prefijo de tokens con scopes, arrays de cero/uno/varios elementos, campos nulos y argumentos faltantes.</td>
+</tr>
+<tr>
 <td><a href="../../../tests/composition.test.ts">composition.test.ts</a></td>
 <td>Validación de varios archivos, rutas, modos, catálogos stdio/HTTP, autenticación, cachés, límites y cierre.</td>
 </tr>
@@ -177,7 +177,7 @@ node_modules/.bin/vitest run tests/config.test.ts tests/mcp.test.ts</code></pre>
 <li>Incorporar comprobaciones semánticas en <code>prepareConfig</code> cuando Zod no alcance: perfiles, referencias, URLs o restricciones de plantilla.</li>
 <li>Aplicar el campo en el módulo que lo consume; validar un campo no significa que se resuelva o ejecute automáticamente.</li>
 <li>Agregar casos de aceptación/rechazo y pruebas del comportamiento.</li>
-<li>Ejecutar <code>npm run schema</code> y actualizar <a href="configuracion.html">Configuración</a> y los ejemplos afectados.</li>
+<li>Ejecutar <code>npm run schema</code> y actualizar <a href="configuracion.html">Configuración</a>, su <a href="../en/configuration.html">versión en inglés</a> y los ejemplos afectados.</li>
 </ol>
 <p>El JSON Schema generado describe forma y defaults. Algunas reglas —por ejemplo, la existencia de una variable de entorno— solo se comprueban al cargar. No editar el artefacto generado como fuente principal.</p>
 <p>Si se introduce un cambio incompatible, revisar explícitamente <code>version</code> del formato y la estrategia de migración. Actualmente solo se acepta <code>version: 1</code> y no hay migraciones automáticas.</p>
@@ -214,7 +214,7 @@ node_modules/.bin/vitest run tests/config.test.ts tests/mcp.test.ts</code></pre>
 <p>Un nuevo ejecutor debe devolver <code>{text, metadata}</code> y no formar respuestas MCP por su cuenta. Mantener en el runtime la lógica común de validación de salida, logs y traducción de errores.</p>
 <p>La ruta directa y la ruta worker de respuestas deben permanecer coherentes. Si un parser puede bloquear con entradas adversas, considerar el mismo aislamiento terminable que regex/JSONata. <code>resourceLimits</code> de un worker no convierte todo el proceso en un sandbox.</p>
 <h2 id="errores-y-logging">Errores y logging<a class="heading-link" href="#errores-y-logging" aria-label="Enlace a Errores y logging">#</a></h2>
-<p>Usar <code>SidecarError(stage, message)</code> para fallos esperados con mensajes aptos para el cliente. No copiar <code>error.message</code> de Axios, cuerpos de autenticación o stderr del CLI sin revisar su contenido. <code>safeError</code> reemplaza errores desconocidos con un mensaje genérico.</p>
+<p>Usar <code>SidecarError(stage, message)</code> para fallos esperados con mensajes aptos para el cliente. No copiar <code>error.message</code> de Axios, cuerpos de autenticación o stderr del CLI sin revisar su contenido. <code>safeError</code> reemplaza errores desconocidos con un mensaje genérico. Mantener en inglés los comentarios del código, los diagnósticos y las descripciones de las tools de ejemplo.</p>
 <p>El logger recibe un <code>LogEvent</code> y por defecto escribe una línea JSON en stderr. Se puede inyectar un logger en el constructor de <code>Runtime</code>, como hacen las pruebas. No agregar <code>console.log</code> a rutas ejecutadas durante MCP stdio.</p>
 <p>Una validación rechazada por el SDK antes de entrar al runtime puede no generar un <code>LogEvent</code> de tool. Los diagnósticos de CLI/SDK tampoco usan necesariamente el formato JSON del runtime.</p>
 <h2 id="evaluaciones-de-uso-de-tools">Evaluaciones de uso de tools<a class="heading-link" href="#evaluaciones-de-uso-de-tools" aria-label="Enlace a Evaluaciones de uso de tools">#</a></h2>
@@ -230,11 +230,11 @@ node_modules/.bin/vitest run tests/config.test.ts tests/mcp.test.ts</code></pre>
 <li>Regeneración del esquema y comprobación de diferencias con Git.</li>
 <li><code>npm run check:package</code>.</li>
 </ol>
-<p>El workflow documental publica los cambios de <code>docs</code> en GitHub Pages. Ver <a href="sitio-documentacion.html">Sitio HTML de documentación</a> para generación local, estilos y despliegue.</p>
+<p>El workflow documental publica los cambios de <code>docs</code> en GitHub Pages. Ver <a href="../../sitio-documentacion.md">Sitio HTML de documentación</a> para generación local, estilos y despliegue.</p>
 <p>El workflow se ejecutará cuando el repositorio esté en GitHub y Actions esté habilitado; que el archivo exista no significa que una ejecución remota ya haya pasado.</p>
-<p>Antes de entregar un cambio, correr las suites afectadas, comprobar el esquema generado si cambió Zod y actualizar las guías correspondientes. Para cambios solo documentales, validar enlaces y ejemplos suele ser más útil que repetir toda la suite funcional.</p>
+<p>Antes de entregar un cambio, correr las suites afectadas, comprobar el esquema generado si cambió Zod y actualizar las guías correspondientes en ambos idiomas. Para cambios solo documentales, validar enlaces y ejemplos suele ser más útil que repetir toda la suite funcional.</p>
 <h2 id="distribución">Distribución<a class="heading-link" href="#distribución" aria-label="Enlace a Distribución">#</a></h2>
-<p>El paquete CLI público usa Apache-2.0 y expone <code>underqubit-sidecar-mcp</code> mediante <code>dist/cli.js</code>. <code>prepack</code> construye una distribución limpia y <code>prepublishOnly</code> ejecuta las verificaciones. Ver <a href="publicacion-npm.html">Publicación npm</a> para la lista de archivos, la prueba de instalación en producción y los pasos de lanzamiento.</p>
+<p>El paquete CLI público usa Apache-2.0 y expone <code>underqubit-sidecar-mcp</code> mediante <code>dist/cli.js</code>. <code>prepack</code> construye una distribución limpia y <code>prepublishOnly</code> ejecuta las verificaciones. Ver <a href="../../publicacion-npm.md">Publicación npm</a> para la lista de archivos, la prueba de instalación en producción y los pasos de lanzamiento.</p>
 <p>Para una instalación de servicio, construir con dependencias de desarrollo y conservar en ejecución Node, dependencias de producción, <code>dist/</code>, configuración y los ejecutables/scripts referenciados. No alcanza con copiar <code>dist/cli.js</code> aislado.</p>
 <h2 id="extender-composiciones">Extender composiciones<a class="heading-link" href="#extender-composiciones" aria-label="Enlace a Extender composiciones">#</a></h2>
 <p>Mantener <code>configSchema</code> y <code>loadConfig</code> compatibles con archivos de integración. <code>compositionSchema</code> describe el archivo principal y <code>configurationFileSchema</code> es la unión exportada al JSON Schema del editor. Después de cambiar cualquiera de los formatos, ejecutar <code>npm run schema</code>. Las comprobaciones semánticas de IDs únicos, credenciales de los hijos y longitud final de nombres pertenecen a <code>loadDeployment</code>.</p>

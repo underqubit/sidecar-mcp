@@ -1,6 +1,6 @@
 # Referencia de JSON Schema para las tools
 
-[English](en/json-schema.md) · [Índice](README.md) · [Configuración](configuracion.md)
+[English](en/json-schema.md) · [Volver al índice](README.md) · [Configuración](configuracion.md)
 
 Esta guía explica las palabras clave de JSON Schema draft 2020-12 y cómo funcionan en `inputSchema` y `outputSchema` de este proyecto. Incluye las extensiones del validador instalado, las opciones sin efecto y las incompatibilidades. No confundir estas palabras clave con los campos propios del servidor, como `execution`, `auth` o `response`, documentados en [Configuración](configuracion.md).
 
@@ -416,7 +416,7 @@ Al omitir anotaciones, no se agregan sugerencias ni restricciones; `readOnly` y 
 | `contentMediaType` | Tipo MIME del contenido, como `application/json`. | Metadata; no parsea JSON ni configura headers. |
 | `contentSchema` | Esquema del contenido decodificado. | Metadata; no valida ese contenido con esta configuración de AJV. |
 
-Si necesitás verificar base64, `format: byte` comprueba la sintaxis. Para parsear y validar contenido, configurar el parser/transformación y un `outputSchema` efectivo. Estas anotaciones tampoco habilitan uploads o respuestas binarias.
+Para verificar base64, `format: byte` comprueba la sintaxis. Para parsear y validar contenido, configurar el parser/transformación y un `outputSchema` efectivo. Estas anotaciones tampoco habilitan uploads o respuestas binarias.
 
 ## Compatibilidad y opciones no habilitadas
 
