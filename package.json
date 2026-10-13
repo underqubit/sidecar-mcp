@@ -58,7 +58,7 @@
     "dist/**/*.d.ts",
     "src/**/*.ts",
     "schema/config.schema.json",
-    "README.en.md",
+    "README.es.md",
     "docs/**/*.md",
     "skills/underqubit-sidecar-mcp/SKILL.md",
     "skills/underqubit-sidecar-mcp/agents/openai.yaml",

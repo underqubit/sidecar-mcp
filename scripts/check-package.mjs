@@ -19,7 +19,7 @@ try {
   const { stdout } = await runNpm(['pack', '--json', '--pack-destination', temporary], root);
   const [pack] = JSON.parse(stdout);
   const files = new Set(pack.files.map(file => file.path));
-  for (const file of ['LICENSE', 'README.md', 'README.en.md', 'dist/cli.js', 'dist/response-worker.js', 'schema/config.schema.json', 'examples/cli.yaml', 'examples/composition.json', 'scripts/openapi-to-config.mjs', 'scripts/lib/openapi-schema.mjs']) {
+  for (const file of ['LICENSE', 'README.md', 'README.es.md', 'dist/cli.js', 'dist/response-worker.js', 'schema/config.schema.json', 'examples/cli.yaml', 'examples/composition.json', 'scripts/openapi-to-config.mjs', 'scripts/lib/openapi-schema.mjs']) {
     assert(files.has(file), `Missing package file: ${file}`);
   }
   assert(pack.files.find(file => file.path === 'dist/cli.js').mode & 0o111, 'CLI must be executable.');
