@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generar configuraciones desde Swagger y OpenAPI · Underqubit Sidecar MCP</title><meta name="description" content="Generar configuraciones desde Swagger y OpenAPI. Guías y referencia de Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="en" href="../en/openapi-import.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Ir al contenido</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Idioma"><a href="importar-openapi.html" lang="es" hreflang="es" aria-current="true">ES</a><a href="../en/openapi-import.html" lang="en" hreflang="en">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentación</span><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html" aria-current="page">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Explorar guías</summary><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html" aria-current="page">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="generar-configuraciones-desde-swagger-y-openapi">Generar configuraciones desde Swagger y OpenAPI</h1>
+<p><a href="../en/openapi-import.html">English</a> · <a href="index.html">Volver al índice</a></p>
+<p>Los scripts convierten una especificación local JSON/YAML en un archivo de integración Sidecar. Generan una tool HTTP por operación seleccionada, con descripción, esquemas, parámetros, autenticación y transformación de respuesta. El resultado se puede ejecutar directamente o referenciar desde una <a href="grupos-de-tools.html">composición de grupos</a>.</p>
+<h2 id="uso">Uso<a class="heading-link" href="#uso" aria-label="Enlace a Uso">#</a></h2>
+<p>La carpeta <code>scripts</code> incluye tres entradas que comparten el mismo conversor:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Script</th>
+<th>Versiones aceptadas</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>scripts/openapi-to-config.mjs</code></td>
+<td>Detección automática de Swagger 2.0 y OpenAPI 3.0.x, 3.1.x y 3.2.x.</td>
+</tr>
+<tr>
+<td><code>scripts/openapi2-to-config.mjs</code></td>
+<td>Solo Swagger/OpenAPI 2.0.</td>
+</tr>
+<tr>
+<td><code>scripts/openapi3-to-config.mjs</code></td>
+<td>Solo OpenAPI 3.0.x, 3.1.x y 3.2.x.</td>
+</tr>
+</tbody></table></div>
+<p>Versiones futuras no reconocidas se rechazan explícitamente; no se asume compatibilidad automática con una futura versión mayor. Requiere las dependencias instaladas y el proyecto compilado:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm ci
+npm run build
+node scripts/openapi-to-config.mjs --help</code></pre></div>
+<p>Ejemplos incluidos, sin llamadas a servicios durante la generación:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node scripts/openapi2-to-config.mjs \
+  --input examples/openapi/swagger2.yaml \
+  --output examples/catalog-v2.json
+
+node scripts/openapi3-to-config.mjs \
+  --input examples/openapi/openapi3.yaml \
+  --output examples/catalog-v3.yaml</code></pre></div>
+<p>Para importar tu propia especificación y solo las operaciones de lectura:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node scripts/openapi-to-config.mjs \
+  --input ./api.yaml \
+  --output ./tools.json \
+  --base-url https://api.example.com/v1 \
+  --methods GET,HEAD \
+  --prefix catalog</code></pre></div>
+<p>Por defecto se incluyen <strong>todos los métodos soportados</strong>, también operaciones de escritura. El script genera configuración; no ejecuta esas operaciones. Revisar las tools antes de conectarlas a un agente.</p>
+<h2 id="opciones">Opciones<a class="heading-link" href="#opciones" aria-label="Enlace a Opciones">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Opción</th>
+<th>Comportamiento</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--input</code></td>
+<td>Archivo local <code>.json</code>, <code>.yaml</code> o <code>.yml</code>, hasta 16 MiB. Obligatorio.</td>
+</tr>
+<tr>
+<td><code>--output</code></td>
+<td>Archivo JSON/YAML según extensión. Sin esta opción, JSON por stdout. El directorio debe existir.</td>
+</tr>
+<tr>
+<td><code>--base-url</code></td>
+<td>Reemplaza las URLs de API de todas las operaciones, incluyendo su prefijo de ruta. No cambia el endpoint OAuth.</td>
+</tr>
+<tr>
+<td><code>--name</code></td>
+<td>Nombre del servidor; por defecto deriva de <code>info.title</code>.</td>
+</tr>
+<tr>
+<td><code>--prefix</code></td>
+<td>Prefijo de nombres de tools, separado con <code>_</code>.</td>
+</tr>
+<tr>
+<td><code>--env-prefix</code></td>
+<td>Prefijo de variables de credenciales; por defecto <code>OPENAPI</code>.</td>
+</tr>
+<tr>
+<td><code>--methods</code></td>
+<td>Lista de métodos separados por comas, sin distinguir mayúsculas.</td>
+</tr>
+<tr>
+<td><code>--tags</code></td>
+<td>Lista de tags separados por comas; incluye operaciones con cualquiera de ellos.</td>
+</tr>
+<tr>
+<td><code>--skip-unsupported</code></td>
+<td>Omite operaciones incompatibles y reporta cada una por stderr. Sin la opción, falla sin generar configuración parcial.</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td>Permite reemplazar el archivo de salida existente; nunca la especificación de entrada.</td>
+</tr>
+</tbody></table></div>
+<p>Los avisos, operaciones omitidas y nombres de variables requeridas se imprimen por stderr. No se descargan especificaciones ni referencias externas. No hay requests a las APIs ni validación de credenciales. El resultado debe pasar las validaciones de configuración del proyecto y no puede superar 4 MiB.</p>
+<p>YAML rechaza claves duplicadas y aliases. Si una especificación está dividida en archivos, consolidarla primero en un documento con referencias locales <code>#/...</code>.</p>
+<h2 id="mapeo-generado">Mapeo generado<a class="heading-link" href="#mapeo-generado" aria-label="Enlace a Mapeo generado">#</a></h2>
+<p><strong>Nombres:</strong> usa <code>operationId</code> o un nombre derivado de método/ruta, normaliza caracteres y agrega un sufijo determinista cuando hay colisiones. Los nombres no superan 128 caracteres. Las descripciones conservan <code>description</code>, <code>summary</code> o método/ruta, en ese orden. Las anotaciones consideran GET, HEAD y OPTIONS de lectura; los demás métodos se marcan conservadoramente como potencialmente destructivos.</p>
+<p><strong>URL:</strong> Swagger usa <code>schemes</code>, <code>host</code> y <code>basePath</code>; si no hay <code>schemes</code>, usa HTTPS con aviso. OpenAPI 3 usa el primer servidor de la operación, ruta o documento, en ese orden, y los defaults de sus variables. URLs relativas o sin host requieren <code>--base-url</code>. Las URLs deben ser HTTP(S), sin credenciales embebidas, query ni fragmentos. Las rutas generadas son relativas para conservar prefijos como <code>/api/v3</code>.</p>
+<p><strong>Parámetros:</strong> las entradas se llaman <code>path_id</code>, <code>query_limit</code>, <code>header_X_Count</code>, <code>form_name</code>, etc. Las declaraciones de operación sobrescriben parámetros homónimos de la ruta. Los placeholders de la URL se renombran internamente para admitir nombres que no son válidos en una plantilla Sidecar.</p>
+<p>Los query y campos de formulario opcionales se representan con una clave <strong>obligatoria y nullable</strong>: enviar <code>null</code> omite ese parámetro. Por ejemplo, <code>{&quot;query_limit&quot;:null}</code>. Omitir la clave falla en la validación de entrada. Los headers opcionales y el cuerpo opcional pasan a ser obligatorios, con aviso, porque el runtime no puede omitir sus plantillas; revisar esa decisión si la API distingue entre ausencia y valor. Los defaults de los esquemas no completan argumentos automáticamente.</p>
+<p><strong>Cuerpo:</strong> admite JSON, texto y formularios URL-encoded. El JSON/texto se recibe en <code>body</code>; los formularios usan entradas <code>form_*</code>. En OpenAPI 3, los formularios deben declarar un objeto simple de propiedades fijas con <code>additionalProperties: false</code>. El conversor no aplica serialización de objetos anidados a los formularios.</p>
+<p><strong>Respuesta:</strong> selecciona el menor código 2xx explícito y configura <code>successStatuses</code> con ese único código. Si hay varios, emite un aviso; otras respuestas 2xx serán errores hasta revisar la configuración. <code>default</code> o <code>2XX</code> sin un código concreto no bastan. Para contenido, prefiere JSON (también <code>application/*+json</code> en respuestas OpenAPI 3) y después texto; avisa si descarta otras alternativas.</p>
+<p>Todas las respuestas se envuelven como <code>{&quot;data&quot;:...}</code>, para conservar un objeto raíz MCP incluso si la API devuelve un array o escalar. HEAD, 204, 205 y respuestas sin cuerpo generan <code>{&quot;data&quot;:null}</code>. Las listas vacías y de un elemento se conservan como listas. El esquema de respuesta describe el contenido dentro de <code>data</code>.</p>
+<p><strong>Esquemas:</strong> convierte referencias locales a <code>$defs</code>, admite referencias recursivas y proyecta propiedades <code>readOnly</code> fuera de la entrada y <code>writeOnly</code> fuera de la salida. Convierte <code>nullable</code> de OpenAPI 3.0 y <code>x-nullable</code> de Swagger, además de límites exclusivos booleanos, a JSON Schema. OpenAPI 3.1/3.2 admite uniones con <code>null</code> nativas. Formatos desconocidos para el validador se omiten con aviso, conservando el tipo. Los keywords de validación no soportados provocan un error; no se eliminan silenciosamente. Los esquemas complejos también deben ser aceptados por AJV en modo estricto.</p>
+<h2 id="autenticación-y-ejecución">Autenticación y ejecución<a class="heading-link" href="#autenticación-y-ejecución" aria-label="Enlace a Autenticación y ejecución">#</a></h2>
+<p>Se respeta <code>security</code> de la operación sobre el global; <code>security: []</code> elimina la autenticación heredada. Admite API keys en header/query, Basic, Bearer y OAuth2 <code>client_credentials</code> (<code>flow: application</code> en Swagger 2). Para OAuth, el endpoint debe ser absoluto; genera <code>tokenAuthMethod: basic</code> y un aviso para verificarlo con el proveedor.</p>
+<p>Si hay varias alternativas OR, usa la primera y avisa. No combina esquemas AND ni sustituye esquemas no soportados por acceso anónimo. Solo genera perfiles utilizados por las tools seleccionadas.</p>
+<p>Las credenciales se representan como <code>${env.VARIABLE}</code>. Los nombres contienen el prefijo, el nombre normalizado del esquema, un hash estable y el tipo de secreto. El script lista las variables exactas sin solicitar ni leer credenciales reales. Por ejemplo, el ejemplo OpenAPI 3 requiere:</p>
+<div class="code-block"><span class="code-label">dotenv</span><pre><code class="language-dotenv">OPENAPI_BEARERAUTH_C41694_TOKEN=replace-with-your-token</code></pre></div>
+<p>Después de configurar <code>.env</code>:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node --env-file=.env dist/cli.js validate --config examples/catalog-v3.yaml
+node --env-file=.env dist/cli.js serve --config examples/catalog-v3.yaml</code></pre></div>
+<p>No se genera un <code>.env</code> automáticamente. La validación realizada por el generador usa valores ficticios y comprueba estructura, esquemas y plantillas; no demuestra que las credenciales ni la API funcionen.</p>
+<p>Para usar la integración como grupo, referenciarla desde el archivo de composición:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">groups:
+  - id: catalog
+    config: ./catalog-v3.yaml</code></pre></div>
+<h2 id="límites-y-desarrollo">Límites y desarrollo<a class="heading-link" href="#límites-y-desarrollo" aria-label="Enlace a Límites y desarrollo">#</a></h2>
+<p>Se rechazan: referencias externas o anchors, métodos no soportados por el ejecutor (TRACE, QUERY, COPY, etc.), cookies, multipart/archivos/binarios, serializaciones como <code>deepObject</code>, arrays CSV y arrays de path/header, <code>allowReserved: true</code>, parámetros por <code>content</code>, esquemas/dialectos incompatibles, OAuth interactivo, OpenID Connect y autenticación combinada. Las arrays query/form deben ser escalares y usar <code>collectionFormat: multi</code> en Swagger o <code>style: form</code>, <code>explode: true</code> en OpenAPI 3. Los parámetros escalares de path/header usan <code>simple</code>.</p>
+<p>Callbacks y webhooks se reportan como no generados. Las funciones específicas de OpenAPI 3.2 que no encajan en el ejecutor actual requieren mapeo manual. No es un validador completo de la especificación ni un generador universal de clientes.</p>
+<p>El código compartido está en <code>scripts/lib</code>: <code>openapi-cli.mjs</code> maneja archivos/opciones, <code>openapi-converter.mjs</code> traduce operaciones y <code>openapi-schema.mjs</code> normaliza esquemas y referencias. Las tres entradas evitan duplicar la lógica por versión. No se cambia el runtime ni el formato de configuración.</p>
+<p>Pruebas: <code>npm run check</code>. <code>tests/openapi.test.ts</code> genera archivos mediante los scripts y ejecuta las tools resultantes contra HTTP interceptado, incluyendo autenticación, URLs, parámetros, formularios, schemas, respuestas y errores de conversión.</p>
+<p>Referencias del formato: <a href="https://spec.openapis.org/oas/v2.0">Swagger 2.0</a>, <a href="https://spec.openapis.org/oas/v3.0.4.html">OpenAPI 3.0</a>, <a href="https://spec.openapis.org/oas/v3.1.2.html">3.1</a>, <a href="https://spec.openapis.org/oas/v3.2.0.html">3.2</a>.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../importar-openapi.md">Fuente Markdown</a></footer></main>
+<aside class="toc" aria-label="En esta página"><span class="nav-label">En esta página</span><a class="depth-2" href="#uso">Uso</a>
+<a class="depth-2" href="#opciones">Opciones</a>
+<a class="depth-2" href="#mapeo-generado">Mapeo generado</a>
+<a class="depth-2" href="#autenticación-y-ejecución">Autenticación y ejecución</a>
+<a class="depth-2" href="#límites-y-desarrollo">Límites y desarrollo</a></aside></div></body></html>

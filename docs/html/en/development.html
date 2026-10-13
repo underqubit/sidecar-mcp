@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Developer guide · Underqubit Sidecar MCP</title><meta name="description" content="Developer guide. Guides and reference for Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="es" href="../es/desarrollo.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Language"><a href="../es/desarrollo.html" lang="es" hreflang="es">ES</a><a href="development.html" lang="en" hreflang="en" aria-current="true">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentation</span><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html" aria-current="page">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Browse guides</summary><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html" aria-current="page">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="developer-guide">Developer guide</h1>
+<p><a href="index.html">Back to index</a> · <a href="architecture.html">Architecture</a> · <a href="../es/desarrollo.html">Español</a></p>
+<h2 id="prepare-the-environment">Prepare the environment<a class="heading-link" href="#prepare-the-environment" aria-label="Link to Prepare the environment">#</a></h2>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm ci
+npm run check</code></pre></div>
+<p>Node.js 24 or later is required. The project uses npm with a lockfile, strict TypeScript, ESM modules, and <code>NodeNext</code> resolution. Internal imports written in TypeScript use the <code>.js</code> extension, matching the compiled files.</p>
+<p><code>dist/</code> is generated; do not edit it directly. The worker is loaded using a URL relative to <code>response.js</code>, so a distribution must include <code>dist/response-worker.js</code> and its dependencies.</p>
+<h2 id="structure">Structure<a class="heading-link" href="#structure" aria-label="Link to Structure">#</a></h2>
+<div class="code-block"><span class="code-label">text</span><pre><code class="language-text">src/                    Server and worker code
+examples/               Usable configurations and example CLI
+schema/                 Generated configuration JSON Schema
+scripts/                Schema generator
+tests/                  Tests without TCP listeners
+tests/network/          Tests with local HTTP sockets
+tests/fixtures/         Deterministic CLIs and configurations
+evaluations/            Tool-use evaluation questions
+docs/                   Spanish user and developer documentation
+docs/en/                English user and developer documentation
+.github/workflows/      GitHub Actions checks</code></pre></div>
+<p>See <a href="architecture.html">Architecture</a> for the module responsibility map.</p>
+<h2 id="development-commands">Development commands<a class="heading-link" href="#development-commands" aria-label="Link to Development commands">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Script</th>
+<th>What it runs</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>npm run build</code></td>
+<td>Compiles <code>src/</code> with <code>tsconfig.build.json</code> to <code>dist/</code>, with declarations and source maps.</td>
+</tr>
+<tr>
+<td><code>npm run typecheck</code></td>
+<td>Builds and checks types in sources, tests, and Vitest configuration without emitting those tests.</td>
+</tr>
+<tr>
+<td><code>npm start -- serve --config examples/cli.yaml</code></td>
+<td>Runs the existing build.</td>
+</tr>
+<tr>
+<td><code>npm run dev -- serve --config examples/cli.yaml</code></td>
+<td>Builds and runs with <code>--enable-source-maps</code>. No watch mode.</td>
+</tr>
+<tr>
+<td><code>npm test</code></td>
+<td>Builds and runs <code>tests/*.test.ts</code>.</td>
+</tr>
+<tr>
+<td><code>npm run test:network</code></td>
+<td>Builds and runs <code>tests/network/*.test.ts</code>.</td>
+</tr>
+<tr>
+<td><code>npm run check</code></td>
+<td>Build, typecheck, and the suite without TCP.</td>
+</tr>
+<tr>
+<td><code>npm run check:package</code></td>
+<td>Builds and installs the tarball with production dependencies, then verifies the CLI, MCP tools, worker, and OpenAPI importer.</td>
+</tr>
+<tr>
+<td><code>npm run docs:check-schema</code></td>
+<td>Checks bilingual JSON Schema examples, keyword/format coverage, and validator restrictions.</td>
+</tr>
+<tr>
+<td><code>npm run docs:build</code></td>
+<td>Builds and verifies the HTML documentation in both languages.</td>
+</tr>
+<tr>
+<td><code>npm run schema</code></td>
+<td>Builds and regenerates <code>schema/config.schema.json</code> from Zod.</td>
+</tr>
+</tbody></table></div>
+<p>For an MCP stdio client, start <code>node dist/cli.js</code> directly. npm scripts are useful in a terminal, but their messages may contaminate stdout when used as a protocol command.</p>
+<p>No lint, formatting, or coverage scripts are currently configured. Do not assume they are included in <code>check</code>.</p>
+<h2 id="tests">Tests<a class="heading-link" href="#tests" aria-label="Link to Tests">#</a></h2>
+<p>Tests import <code>dist/</code> to verify the same build delivered to users. Build again before running Vitest directly after changes.</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm run build
+node_modules/.bin/vitest run tests/config.test.ts tests/mcp.test.ts</code></pre></div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Suite</th>
+<th>Main coverage</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="../../../tests/config.test.ts">config.test.ts</a></td>
+<td>YAML/JSON, defaults, references, schemas, variables, invalid regex/JSONata, and templates.</td>
+</tr>
+<tr>
+<td><a href="../../../tests/cli.test.ts">cli.test.ts</a></td>
+<td>Literal arguments, stdin, environment, exit codes, limits, cancellation, and processes.</td>
+</tr>
+<tr>
+<td><a href="../../../tests/http.test.ts">http.test.ts</a></td>
+<td>Axios with Nock: URLs, query, headers, bodies, errors, and authentication.</td>
+</tr>
+<tr>
+<td><a href="../../../tests/response.test.ts">response.test.ts</a></td>
+<td>Parsers, regex groups, JSONata, timeouts, bytes, and worker cancellation.</td>
+</tr>
+<tr>
+<td><a href="../../../tests/openapi.test.ts">openapi.test.ts</a></td>
+<td>Swagger/OpenAPI CLI generation, normalized schemas, auth, mapping, and execution of generated tools.</td>
+</tr>
+<tr>
+<td><a href="../../../tests/composition.test.ts">composition.test.ts</a></td>
+<td>Multi-file validation, paths, modes, stdio/HTTP catalogs, auth/cache isolation, limits, and shutdown.</td>
+</tr>
+<tr>
+<td><a href="../../../tests/mcp.test.ts">mcp.test.ts</a></td>
+<td>Real stdio client and in-memory Streamable HTTP, exposed schemas, guards, and request sizes.</td>
+</tr>
+<tr>
+<td><a href="../../../tests/evaluation.test.ts">evaluation.test.ts</a></td>
+<td>Answers verified through MCP tools over fixed data.</td>
+</tr>
+<tr>
+<td><a href="../../../tests/network/http.network.test.ts">http.network.test.ts</a></td>
+<td>Local API and OAuth endpoint using real sockets.</td>
+</tr>
+<tr>
+<td><a href="../../../tests/network/mcp.network.test.ts">mcp.network.test.ts</a></td>
+<td>Real HTTP listener, independent clients, Host/Origin, paths, and limits.</td>
+</tr>
+</tbody></table></div>
+<p>The suite without TCP still needs permission to run local processes and workers. The network suite needs permission to open loopback ports; <code>listen EPERM</code> indicates an environment restriction. Do not treat that failure as a passing test or assume the in-memory suite replaces all socket integration coverage.</p>
+<p>None of these suites requires real credentials or calls public APIs. Use fixtures and intercepted/local endpoints for new cases. Tests should verify observable behavior, especially failures and cancellation effects.</p>
+<h2 id="add-a-tool-without-changing-code">Add a tool without changing code<a class="heading-link" href="#add-a-tool-without-changing-code" aria-label="Link to Add a tool without changing code">#</a></h2>
+<ol>
+<li>Create or edit a configuration with schemas, <code>execution</code>, and <code>response</code>.</li>
+<li>Reuse an auth profile when appropriate.</li>
+<li>Validate with <code>node dist/cli.js validate --config &lt;file&gt;</code>.</li>
+<li>Test discovery and invocation from an MCP client.</li>
+<li>Restart to apply changes.</li>
+</ol>
+<p>TypeScript development is needed only if the required behavior is missing from the available adapters, parsers, or authentication methods.</p>
+<h2 id="change-the-configuration-format">Change the configuration format<a class="heading-link" href="#change-the-configuration-format" aria-label="Link to Change the configuration format">#</a></h2>
+<ol>
+<li>Modify <a href="../../../src/config-schema.ts">config-schema.ts</a>, preserving discriminated unions and inferred types.</li>
+<li>Add semantic checks in <code>prepareConfig</code> where Zod is insufficient: profiles, references, URLs, or template restrictions.</li>
+<li>Apply the field in the module that consumes it; validating a field does not automatically resolve or execute it.</li>
+<li>Add acceptance/rejection cases and behavior tests.</li>
+<li>Run <code>npm run schema</code> and update <a href="configuration.html">Configuration</a>, its <a href="../es/configuracion.html">Spanish version</a>, and affected examples.</li>
+</ol>
+<p>The generated JSON Schema describes structure and defaults. Some rules—for example, whether an environment variable exists—are checked only at load time. Do not edit the generated artifact as the primary source.</p>
+<p>For an incompatible change, explicitly review the format <code>version</code> and migration strategy. Currently only <code>version: 1</code> is accepted, and there are no automatic migrations.</p>
+<h2 id="extend-executors-authentication-or-responses">Extend executors, authentication, or responses<a class="heading-link" href="#extend-executors-authentication-or-responses" aria-label="Link to Extend executors, authentication, or responses">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Places to modify</th>
+<th>Behavior to preserve</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>New executor</td>
+<td><code>executionSchema</code> union, types, adapter, and runtime dispatch</td>
+<td>Validated input, cancellation, byte limits, <code>RawResponse</code>, and safe errors.</td>
+</tr>
+<tr>
+<td>New auth profile</td>
+<td><code>authSchema</code> union, <code>AuthManager</code>, and configuration validation</td>
+<td>Secrets from the environment, credential-free messages, and cancellation.</td>
+</tr>
+<tr>
+<td>New parser</td>
+<td>Parser union, prevalidation, and response processing</td>
+<td>Matching validate/serve semantics, limits, and final validation.</td>
+</tr>
+<tr>
+<td>Transport change</td>
+<td><code>mcp.ts</code>, lifecycle, and client tests</td>
+<td>Shared tool registration, HTTP guards, and resource cleanup.</td>
+</tr>
+</tbody></table></div>
+<p>A new executor must return <code>{text, metadata}</code> rather than build MCP responses itself. Keep common output validation, logging, and error conversion in the runtime.</p>
+<p>The direct and worker response paths must remain consistent. If a parser can block on adversarial input, consider the same terminable isolation used for regex/JSONata. A worker&#39;s <code>resourceLimits</code> do not turn the entire process into a sandbox.</p>
+<h2 id="errors-and-logging">Errors and logging<a class="heading-link" href="#errors-and-logging" aria-label="Link to Errors and logging">#</a></h2>
+<p>Use <code>SidecarError(stage, message)</code> for expected failures with client-safe messages. Do not copy Axios <code>error.message</code>, authentication bodies, or CLI stderr without reviewing their contents. <code>safeError</code> replaces unknown errors with a generic message. Keep source comments, diagnostics, and example tool descriptions in English.</p>
+<p>The logger receives a <code>LogEvent</code> and writes one JSON line to stderr by default. A logger can be injected into the <code>Runtime</code> constructor, as the tests do. Do not add <code>console.log</code> to paths executed during MCP stdio.</p>
+<p>Validation rejected by the SDK before reaching the runtime may not produce a tool <code>LogEvent</code>. CLI/SDK diagnostics do not necessarily use the runtime&#39;s JSON format either.</p>
+<h2 id="tool-use-evaluations">Tool-use evaluations<a class="heading-link" href="#tool-use-evaluations" aria-label="Link to Tool-use evaluations">#</a></h2>
+<p><a href="../../../evaluations/questions.xml">questions.xml</a> contains ten independent questions about a fixed operations dataset. The <a href="../../../tests/fixtures/evaluation.yaml">evaluation.yaml</a> configuration exposes one tool to list projects and another to retrieve each project&#39;s metrics.</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node dist/cli.js serve --config tests/fixtures/evaluation.yaml</code></pre></div>
+<p>The automated test verifies expected answers using MCP calls and calculations over their results. It does not measure a model&#39;s ability to choose tools. To evaluate an agent, connect it to that configuration and compare its answers with the XML using your evaluation environment. The repository contains no external model runner and requires no provider keys for its tests.</p>
+<h2 id="ci-and-change-verification">CI and change verification<a class="heading-link" href="#ci-and-change-verification" aria-label="Link to CI and change verification">#</a></h2>
+<p><a href="../../../.github/workflows/ci.yml">ci.yml</a> configures GitHub Actions on Ubuntu and Node 24 to run:</p>
+<ol>
+<li>Reproducible installation with <code>npm ci</code>.</li>
+<li><code>npm run check</code>.</li>
+<li><code>npm run test:network</code>.</li>
+<li>Schema regeneration and a Git diff check.</li>
+<li><code>npm run check:package</code>.</li>
+</ol>
+<p>The documentation workflow publishes changes in <code>docs</code> to GitHub Pages. See <a href="documentation-site.html">HTML documentation site</a> for local builds, styles, and deployment.</p>
+<p>The workflow runs once the repository is on GitHub and Actions is enabled; the file&#39;s existence does not mean a remote run has already passed.</p>
+<p>Before delivering a change, run affected suites, check the generated schema if Zod changed, and update the corresponding guides in both languages. For documentation-only changes, validating links and examples is usually more useful than repeating the entire functional suite.</p>
+<h2 id="distribution">Distribution<a class="heading-link" href="#distribution" aria-label="Link to Distribution">#</a></h2>
+<p>The public CLI package uses Apache-2.0 and exposes <code>underqubit-sidecar-mcp</code> through <code>dist/cli.js</code>. <code>prepack</code> builds a clean distribution and <code>prepublishOnly</code> runs the checks. See <a href="npm-publishing.html">npm publishing</a> for the file allowlist, production installation test, and release steps.</p>
+<p>For a service installation, build with development dependencies and retain Node, production dependencies, <code>dist/</code>, configuration, and referenced executables/scripts at runtime. Copying <code>dist/cli.js</code> alone is insufficient.</p>
+<h2 id="extending-compositions">Extending compositions<a class="heading-link" href="#extending-compositions" aria-label="Link to Extending compositions">#</a></h2>
+<p>Keep <code>configSchema</code> and <code>loadConfig</code> compatible with integration files. <code>compositionSchema</code> describes the main file, and <code>configurationFileSchema</code> is the union exported to the editor JSON Schema. After changing either format, run <code>npm run schema</code>. Semantic checks such as unique group IDs, child credentials, and final tool-name lengths belong to <code>loadDeployment</code>.</p>
+<p>Use <code>ToolCatalog</code> to expose a view; delegate execution to its existing runtime. Never flatten auth maps or overwrite child directories/environment snapshots. Inject a logger into <code>Application</code> to capture group-tagged events. For targeted checks, run <code>node_modules/.bin/vitest run tests/composition.test.ts</code> after building; the network suite also verifies a shared TCP listener and cleanup on bind failure.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../en/development.md">Markdown source</a></footer></main>
+<aside class="toc" aria-label="On this page"><span class="nav-label">On this page</span><a class="depth-2" href="#prepare-the-environment">Prepare the environment</a>
+<a class="depth-2" href="#structure">Structure</a>
+<a class="depth-2" href="#development-commands">Development commands</a>
+<a class="depth-2" href="#tests">Tests</a>
+<a class="depth-2" href="#add-a-tool-without-changing-code">Add a tool without changing code</a>
+<a class="depth-2" href="#change-the-configuration-format">Change the configuration format</a>
+<a class="depth-2" href="#extend-executors-authentication-or-responses">Extend executors, authentication, or responses</a>
+<a class="depth-2" href="#errors-and-logging">Errors and logging</a>
+<a class="depth-2" href="#tool-use-evaluations">Tool-use evaluations</a>
+<a class="depth-2" href="#ci-and-change-verification">CI and change verification</a>
+<a class="depth-2" href="#distribution">Distribution</a>
+<a class="depth-2" href="#extending-compositions">Extending compositions</a></aside></div></body></html>

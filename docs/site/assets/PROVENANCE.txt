@@ -1,0 +1,19 @@
+Underqubit documentation assets
+
+Visual source: underqubit-skills / skills/underqubit-proposals
+Source files: assets/brand.css, assets/portada.pdf, assets/fonts/Lato-*.ttf.
+Copied from the local skill at the project owner's request.
+
+site.css adapts the proposal palette, typography, rules and tables for a
+responsive documentation website. site.js adds clipboard and diagram support.
+
+underqubit-logo.png is a direct crop exported from portada.pdf with Poppler:
+pdftoppm -r 288 -x 280 -y 220 -W 600 -H 116 -png -singlefile portada.pdf underqubit-logo
+The logo is Underqubit's brand asset, not a generated replacement.
+
+Lato-Regular.ttf and Lato-Bold.ttf are unmodified copies from the skill.
+Their copyright notice comes from the fonts' name table. See fonts/OFL.txt.
+Font license reference: https://openfontlicense.org/open-font-license-official-text/
+
+The optional Mermaid renderer is loaded from jsDelivr at version 11.12.1.
+https://github.com/mermaid-js/mermaid (MIT).

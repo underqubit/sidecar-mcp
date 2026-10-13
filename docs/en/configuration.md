@@ -79,6 +79,8 @@ Tools are exposed sorted by name. Only the name, description, title, annotations
 
 ## Input and output JSON Schema
 
+The [complete JSON Schema reference](json-schema.md) explains each keyword, its values, behavior when omitted, and project limitations. In particular, `additionalProperties: false` rejects extra fields; `true` or omission allows them unless other constraints apply. It also accepts a subschema for extra values. It neither removes fields nor changes `required`, and each nested object has its own rules.
+
 The server uses draft 2020-12 with AJV in strict mode and formats from `ajv-formats`. Internal references such as `#/$defs/user` and standard combinations supported by that validator are allowed. Remote schemas are not downloaded, and asynchronous `$async` validators are not supported.
 
 Input **fragment**:

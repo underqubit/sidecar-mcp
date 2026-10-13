@@ -10,6 +10,8 @@ El archivo de configuración es la integración: agregar una tool no requiere mo
 
 | Documento | Qué explica |
 | --- | --- |
+| [Referencia JSON Schema](json-schema.md) | Palabras clave, campos adicionales, formatos, ejemplos y límites reales del validador. |
+| [Sitio HTML y despliegue](sitio-documentacion.md) | Generar el sitio bilingüe, actualizar estilos y publicar en GitHub Pages. |
 | [Publicación npm y licencia](publicacion-npm.md) | Apache 2.0, verificación del paquete, uso con npx y publicación. |
 | [Inicio rápido](inicio-rapido.md) | Instalación, primera ejecución, conexión desde un cliente y comandos disponibles. |
 | [Importar OpenAPI](importar-openapi.md) | Generar integraciones desde Swagger 2.0 y OpenAPI 3.x. |

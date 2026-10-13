@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Referencia de JSON Schema para las tools · Underqubit Sidecar MCP</title><meta name="description" content="Referencia de JSON Schema para las tools. Guías y referencia de Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="en" href="../en/json-schema.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Ir al contenido</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Idioma"><a href="json-schema.html" lang="es" hreflang="es" aria-current="true">ES</a><a href="../en/json-schema.html" lang="en" hreflang="en">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentación</span><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html" aria-current="page">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Explorar guías</summary><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html" aria-current="page">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="referencia-de-json-schema-para-las-tools">Referencia de JSON Schema para las tools</h1>
+<p><a href="../en/json-schema.html">English</a> · <a href="index.html">Índice</a> · <a href="configuracion.html">Configuración</a></p>
+<p>Esta guía explica las palabras clave de JSON Schema draft 2020-12 y cómo funcionan en <code>inputSchema</code> y <code>outputSchema</code> de este proyecto. Incluye las extensiones del validador instalado, las opciones sin efecto y las incompatibilidades. No confundir estas palabras clave con los campos propios del servidor, como <code>execution</code>, <code>auth</code> o <code>response</code>, documentados en <a href="configuracion.html">Configuración</a>.</p>
+<h2 id="qué-se-valida-y-cuándo">Qué se valida y cuándo<a class="heading-link" href="#qué-se-valida-y-cuándo" aria-label="Enlace a Qué se valida y cuándo">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Nivel</th>
+<th>Validador</th>
+<th>Comportamiento</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Archivo de configuración</td>
+<td>Zod</td>
+<td>Comprueba la estructura y aplica defaults del servidor, ejecución y parsers.</td>
+</tr>
+<tr>
+<td><code>inputSchema</code></td>
+<td>AJV, antes de ejecutar</td>
+<td>Comprueba los argumentos enviados por el cliente MCP. Si fallan, no ejecuta HTTP ni CLI.</td>
+</tr>
+<tr>
+<td><code>outputSchema</code></td>
+<td>AJV, después del parser y JSONata</td>
+<td>Comprueba el resultado estructurado. Si falla, devuelve error; el request o CLI ya se ejecutó.</td>
+</tr>
+</tbody></table></div>
+<p>Ambos esquemas deben declarar literalmente <code>&quot;type&quot;: &quot;object&quot;</code> en su raíz. Un array o valor escalar de una API se envuelve, por ejemplo, en <code>{&quot;items&quot;: [...]}</code> mediante <code>response.transform</code>. Los ejemplos JSON de esta guía son <strong>esquemas completos para pegar en <code>inputSchema</code> u <code>outputSchema</code></strong>, no archivos de configuración completos.</p>
+<p>Las reglas del proyecto están en <a href="../../../src/config.ts">src/config.ts</a>, <a href="../../../src/config-schema.ts">src/config-schema.ts</a> y <a href="../../../src/runtime.ts">src/runtime.ts</a>. AJV usa <code>strict: true</code>, <code>allErrors: true</code>, <code>ownProperties: true</code> y <code>validateFormats: true</code>, con <code>ajv-formats</code>. No se habilitan <code>useDefaults</code>, <code>coerceTypes</code>, <code>removeAdditional</code>, <code>$data</code> ni <code>discriminator</code>.</p>
+<p>Por eso validar <strong>no transforma los datos</strong>: no convierte <code>&quot;10&quot;</code> en <code>10</code>, no agrega valores de <code>default</code>, no borra propiedades sobrantes y no oculta contraseñas. Las propiedades heredadas de JavaScript no cuentan. La transformación de salida se configura aparte; ver <a href="respuestas.html">Respuestas</a>.</p>
+<h2 id="cómo-leer-un-esquema">Cómo leer un esquema<a class="heading-link" href="#cómo-leer-un-esquema" aria-label="Enlace a Cómo leer un esquema">#</a></h2>
+<p>Un esquema es un conjunto de condiciones que se aplican al mismo valor. <code>properties</code> describe campos, pero no los hace obligatorios: eso corresponde a <code>required</code>. Una condición para strings, números, objetos o arrays debe acompañarse del <code>type</code> correspondiente, declarado en ese esquema o en un contexto compatible; AJV estricto rechaza usos ambiguos.</p>
+<p>En posiciones de subesquema también se admiten <code>true</code> (cualquier valor), <code>false</code> (ningún valor) y <code>{}</code> (sin restricciones). No sirven por sí solos como raíz de una tool, donde se exige <code>type: object</code>. Por ejemplo, <code>properties: {&quot;metadata&quot;: true, &quot;obsolete&quot;: false}</code> permite cualquier <code>metadata</code> y prohíbe que aparezca <code>obsolete</code>.</p>
+<h3 id="tipos-valores-fijos-y-ausencia">Tipos, valores fijos y ausencia<a class="heading-link" href="#tipos-valores-fijos-y-ausencia" aria-label="Enlace a Tipos, valores fijos y ausencia">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Palabra clave</th>
+<th>Valor</th>
+<th>Regla y efecto al omitirla</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>type</code></td>
+<td><code>object</code>, <code>array</code>, <code>string</code>, <code>number</code>, <code>integer</code>, <code>boolean</code>, <code>null</code></td>
+<td>Restringe el tipo. Sin ella, JSON Schema no restringe el tipo; la raíz de una tool sí la exige. <code>integer</code> admite números sin parte fraccionaria, incluido <code>1.0</code>.</td>
+</tr>
+<tr>
+<td><code>enum</code></td>
+<td>Array no vacío de valores distintos</td>
+<td>Permite solo esos valores, comparando también la estructura de objetos/arrays. Sin ella, no hay lista cerrada.</td>
+</tr>
+<tr>
+<td><code>const</code></td>
+<td>Un valor JSON</td>
+<td>Exige exactamente ese valor. Sin ella, no hay valor fijo.</td>
+</tr>
+</tbody></table></div>
+<p><strong>Ausente</strong>, <code>null</code>, <code>&quot;&quot;</code>, <code>0</code> y <code>false</code> son diferentes. Un campo opcional se puede omitir, pero no admite <code>null</code> salvo que su esquema lo permita. <code>required</code> exige presencia, no un string no vacío: para eso se agrega <code>minLength: 1</code>.</p>
+<p>En campos anidados se acepta una unión con null, como <code>&quot;type&quot;: [&quot;string&quot;, &quot;null&quot;]</code>. Con esta configuración estricta, una unión de tipos no nulos como <code>[&quot;string&quot;, &quot;number&quot;]</code> se rechaza; usar <code>anyOf</code>. Si se combina nullable con <code>enum</code> o <code>const</code>, estos también deben permitir <code>null</code>. No usar un array de tipos en la raíz de una tool.</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;issueKey&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;pattern&quot;: &quot;^[A-Z][A-Z0-9_]*-[1-9][0-9]*$&quot; },
+    &quot;assignee&quot;: { &quot;type&quot;: [&quot;string&quot;, &quot;null&quot;] },
+    &quot;state&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;enum&quot;: [&quot;open&quot;, &quot;closed&quot;] },
+    &quot;apiVersion&quot;: { &quot;const&quot;: 1 }
+  },
+  &quot;required&quot;: [&quot;issueKey&quot;],
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p>Válido: <code>{&quot;issueKey&quot;:&quot;CS-303&quot;,&quot;assignee&quot;:null}</code>. Inválido: <code>{&quot;issueKey&quot;:null}</code> o <code>{&quot;issueKey&quot;:&quot;CS-303&quot;,&quot;state&quot;:&quot;unknown&quot;}</code>. <code>assignee</code>, <code>state</code> y <code>apiVersion</code> se pueden omitir.</p>
+<h2 id="objetos-y-campos-adicionales">Objetos y campos adicionales<a class="heading-link" href="#objetos-y-campos-adicionales" aria-label="Enlace a Objetos y campos adicionales">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Palabra clave</th>
+<th>Valor</th>
+<th>Regla y efecto al omitirla</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>properties</code></td>
+<td>Mapa nombre → subesquema</td>
+<td>Valida cada campo declarado si está presente. No exige presencia ni prohíbe otros campos.</td>
+</tr>
+<tr>
+<td><code>required</code></td>
+<td>Array de nombres únicos</td>
+<td>Todos deben estar presentes. Omitirlo equivale a <code>[]</code>. En modo estricto, declarar los nombres también en <code>properties</code> en un contexto compatible.</td>
+</tr>
+<tr>
+<td><code>additionalProperties</code></td>
+<td>Booleano o subesquema</td>
+<td>Controla campos no cubiertos por <code>properties</code> o <code>patternProperties</code> <strong>en ese mismo objeto de esquema</strong>. Omitido permite campos adicionales.</td>
+</tr>
+<tr>
+<td><code>patternProperties</code></td>
+<td>Mapa regex → subesquema</td>
+<td>Valida campos cuyos nombres coinciden. Si coinciden varios patrones, se aplican todos. Sin ella no hay reglas por patrón.</td>
+</tr>
+<tr>
+<td><code>propertyNames</code></td>
+<td>Subesquema de string</td>
+<td>Valida el nombre de cada campo, no su valor. No declara ni habilita campos por sí sola. Omitida no restringe nombres.</td>
+</tr>
+<tr>
+<td><code>minProperties</code></td>
+<td>Entero ≥ 0</td>
+<td>Mínimo de campos presentes. Omitido equivale a 0.</td>
+</tr>
+<tr>
+<td><code>maxProperties</code></td>
+<td>Entero ≥ 0</td>
+<td>Máximo de campos presentes. Omitido no impone límite.</td>
+</tr>
+<tr>
+<td><code>dependentRequired</code></td>
+<td>Mapa nombre → array de nombres</td>
+<td>Si aparece la clave, exige los campos listados. Es una dependencia de presencia, de una sola dirección. Omitida no agrega dependencias.</td>
+</tr>
+<tr>
+<td><code>dependentSchemas</code></td>
+<td>Mapa nombre → subesquema</td>
+<td>Si aparece la clave, aplica el subesquema al <strong>objeto completo</strong>. Omitida no agrega condiciones.</td>
+</tr>
+<tr>
+<td><code>unevaluatedProperties</code></td>
+<td>Booleano o subesquema</td>
+<td>Controla campos que no fueron evaluados por reglas aplicables, incluso mediante <code>$ref</code>, <code>allOf</code> y ramas válidas. Omitida no impone una restricción adicional.</td>
+</tr>
+</tbody></table></div>
+<h3 id="additionalproperties-false-true-o-un-esquema"><code>additionalProperties</code>: false, true o un esquema<a class="heading-link" href="#additionalproperties-false-true-o-un-esquema" aria-label="Enlace a additionalProperties: false, true o un esquema">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Configuración</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>false</code></td>
+<td>Un campo adicional hace fallar la validación. No se elimina.</td>
+</tr>
+<tr>
+<td><code>true</code></td>
+<td>Se permiten campos adicionales con cualquier valor. Los campos declarados siguen validándose.</td>
+</tr>
+<tr>
+<td>Omitida</td>
+<td>Se permiten campos adicionales, salvo otra regla como <code>unevaluatedProperties</code>.</td>
+</tr>
+<tr>
+<td><code>{ &quot;type&quot;: &quot;string&quot; }</code></td>
+<td>Los campos adicionales se permiten solo si sus valores son strings.</td>
+</tr>
+</tbody></table></div>
+<p>Con el primer ejemplo de esta guía, <code>{&quot;issueKey&quot;:&quot;CS-303&quot;,&quot;verbose&quot;:true}</code> falla. Cambiar <code>additionalProperties</code> a <code>true</code> lo admite. Esa opción no vuelve opcional a <code>issueKey</code> ni cambia su tipo.</p>
+<p>Cada objeto anidado tiene sus propias reglas: <code>additionalProperties: false</code> en la raíz no cierra los objetos internos. En este ejemplo, se rechazan tanto un campo extra en la raíz como un campo extra dentro de <code>issue</code>:</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;issue&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;properties&quot;: { &quot;key&quot;: { &quot;type&quot;: &quot;string&quot; }, &quot;summary&quot;: { &quot;type&quot;: &quot;string&quot; } },
+      &quot;required&quot;: [&quot;key&quot;, &quot;summary&quot;],
+      &quot;additionalProperties&quot;: false
+    }
+  },
+  &quot;required&quot;: [&quot;issue&quot;],
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p>En entradas, <code>false</code> ayuda a detectar argumentos inventados o mal escritos. En salidas, usarlo cuando se construye una estructura precisa. Si Jira devuelve muchos campos y el esquema declara dos, se debe proyectar la respuesta con JSONata o permitir campos extra. <strong>El esquema no realiza esa proyección.</strong></p>
+<h3 id="diccionarios-y-patrones">Diccionarios y patrones<a class="heading-link" href="#diccionarios-y-patrones" aria-label="Enlace a Diccionarios y patrones">#</a></h3>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;labels&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;propertyNames&quot;: { &quot;pattern&quot;: &quot;^[a-z][a-z0-9_]*$&quot; },
+      &quot;additionalProperties&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;maxLength&quot;: 80 },
+      &quot;maxProperties&quot;: 20
+    },
+    &quot;metrics&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;patternProperties&quot;: { &quot;^metric_[a-z]+$&quot;: { &quot;type&quot;: &quot;number&quot; } },
+      &quot;additionalProperties&quot;: false
+    }
+  },
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p><code>{&quot;labels&quot;:{&quot;team&quot;:&quot;support&quot;},&quot;metrics&quot;:{&quot;metric_count&quot;:3}}</code> es válido. <code>metric_count: &quot;3&quot;</code> falla. Las regex no están ancladas automáticamente: usar <code>^</code> y <code>$</code> para validar el nombre completo. AJV estricto rechaza que un nombre declarado en <code>properties</code> coincida también con un patrón de <code>patternProperties</code>.</p>
+<h3 id="composición-y-cierre-de-objetos">Composición y cierre de objetos<a class="heading-link" href="#composición-y-cierre-de-objetos" aria-label="Enlace a Composición y cierre de objetos">#</a></h3>
+<p><code>additionalProperties</code> no reúne propiedades declaradas en otros miembros de <code>allOf</code>. Para componer un objeto y cerrar el resultado, usar <code>unevaluatedProperties: false</code> en el nivel de composición y dejar abiertas las partes:</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;allOf&quot;: [
+    { &quot;properties&quot;: { &quot;key&quot;: { &quot;type&quot;: &quot;string&quot; } }, &quot;required&quot;: [&quot;key&quot;] },
+    { &quot;properties&quot;: { &quot;summary&quot;: { &quot;type&quot;: &quot;string&quot; } }, &quot;required&quot;: [&quot;summary&quot;] }
+  ],
+  &quot;unevaluatedProperties&quot;: false
+}</code></pre></div>
+<p>Admite <code>{&quot;key&quot;:&quot;CS-303&quot;,&quot;summary&quot;:&quot;Example&quot;}</code> y rechaza un campo <code>extra</code>. En uniones, cuentan las ramas que validan: no asumir que declarar un campo en cualquier rama lo habilita siempre. Un <code>additionalProperties: true</code> explícito también evalúa esos campos y puede impedir que un <code>unevaluatedProperties: false</code> exterior los rechace.</p>
+<h2 id="strings-y-números">Strings y números<a class="heading-link" href="#strings-y-números" aria-label="Enlace a Strings y números">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Palabra clave</th>
+<th>Tipo aplicable / valor</th>
+<th>Regla y efecto al omitirla</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>minLength</code></td>
+<td>String / entero ≥ 0</td>
+<td>Mínimo de caracteres Unicode (puntos de código, no bytes ni grafemas). Omitido: 0.</td>
+</tr>
+<tr>
+<td><code>maxLength</code></td>
+<td>String / entero ≥ 0</td>
+<td>Máximo de caracteres. Omitido: sin límite.</td>
+</tr>
+<tr>
+<td><code>pattern</code></td>
+<td>String / regex como string</td>
+<td>Debe encontrar coincidencia. No usar delimitadores <code>/.../</code>; por ejemplo, escribir <code>&quot;pattern&quot;: &quot;^\\d+$&quot;</code> en JSON para representar la regex <code>^\d+$</code>. Omitido: sin patrón.</td>
+</tr>
+<tr>
+<td><code>format</code></td>
+<td>Nombre de formato</td>
+<td>Aquí sí valida mediante <code>ajv-formats</code>. Omitido: sin validación de formato. Formatos desconocidos fallan al compilar.</td>
+</tr>
+<tr>
+<td><code>minimum</code></td>
+<td>Number/integer / número</td>
+<td>Límite inferior inclusivo. Omitido: sin límite.</td>
+</tr>
+<tr>
+<td><code>maximum</code></td>
+<td>Number/integer / número</td>
+<td>Límite superior inclusivo. Omitido: sin límite.</td>
+</tr>
+<tr>
+<td><code>exclusiveMinimum</code></td>
+<td>Number/integer / número</td>
+<td>Exige un valor estrictamente mayor. No es un booleano en 2020-12. Omitido: sin límite.</td>
+</tr>
+<tr>
+<td><code>exclusiveMaximum</code></td>
+<td>Number/integer / número</td>
+<td>Exige un valor estrictamente menor. Omitido: sin límite.</td>
+</tr>
+<tr>
+<td><code>multipleOf</code></td>
+<td>Number/integer / número &gt; 0</td>
+<td>Exige un múltiplo exacto. Omitido: sin restricción de múltiplos.</td>
+</tr>
+</tbody></table></div>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;limit&quot;: { &quot;type&quot;: &quot;integer&quot;, &quot;minimum&quot;: 1, &quot;maximum&quot;: 100 },
+    &quot;score&quot;: { &quot;type&quot;: &quot;number&quot;, &quot;exclusiveMinimum&quot;: 0, &quot;exclusiveMaximum&quot;: 1 },
+    &quot;amountCents&quot;: { &quot;type&quot;: &quot;integer&quot;, &quot;minimum&quot;: 0, &quot;multipleOf&quot;: 5 },
+    &quot;code&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;minLength&quot;: 3, &quot;maxLength&quot;: 12, &quot;pattern&quot;: &quot;^[A-Z0-9]+$&quot; },
+    &quot;email&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;format&quot;: &quot;email&quot; }
+  },
+  &quot;required&quot;: [&quot;limit&quot;],
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p><code>{&quot;limit&quot;:10,&quot;score&quot;:0.5,&quot;amountCents&quot;:15}</code> es válido. <code>&quot;limit&quot;:&quot;10&quot;</code>, <code>score: 1</code> y <code>amountCents: 12</code> fallan. JSON no representa <code>NaN</code> ni <code>Infinity</code>; AJV también rechaza números no finitos. JavaScript usa coma flotante: para dinero o identificadores grandes, preferir centavos enteros dentro del rango seguro o strings; <code>multipleOf: 0.01</code> puede sufrir redondeo.</p>
+<h3 id="todos-los-formatos-registrados">Todos los formatos registrados<a class="heading-link" href="#todos-los-formatos-registrados" aria-label="Enlace a Todos los formatos registrados">#</a></h3>
+<p>Este inventario corresponde a <code>newValidator()</code> y al lockfile del proyecto. Todos salvo <code>int32</code>, <code>int64</code>, <code>float</code> y <code>double</code> se usan sobre strings; declarar siempre el tipo adecuado. Un formato comprueba sintaxis, no existencia, permisos ni accesibilidad de una dirección.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Formato</th>
+<th>Qué comprueba</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>date</code></td>
+<td>Fecha de calendario, por ejemplo <code>2026-10-13</code>.</td>
+</tr>
+<tr>
+<td><code>time</code></td>
+<td>Hora con zona horaria, por ejemplo <code>14:30:00Z</code>.</td>
+</tr>
+<tr>
+<td><code>date-time</code></td>
+<td>Fecha y hora con zona, por ejemplo <code>2026-10-13T14:30:00Z</code>.</td>
+</tr>
+<tr>
+<td><code>iso-time</code></td>
+<td>Variante que también permite hora sin zona.</td>
+</tr>
+<tr>
+<td><code>iso-date-time</code></td>
+<td>Variante que también permite fecha-hora sin zona.</td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td>Duración ISO, como <code>P3D</code> o <code>PT2H</code>.</td>
+</tr>
+<tr>
+<td><code>uri</code></td>
+<td>URI absoluta; no limitada a HTTP.</td>
+</tr>
+<tr>
+<td><code>uri-reference</code></td>
+<td>Referencia URI absoluta o relativa.</td>
+</tr>
+<tr>
+<td><code>uri-template</code></td>
+<td>Sintaxis de plantilla URI; no sustituye variables del servidor.</td>
+</tr>
+<tr>
+<td><code>url</code></td>
+<td>Validador heredado de URL con restricciones propias; preferir <code>uri</code>. Puede rechazar localhost y direcciones privadas.</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>Sintaxis de correo; no verifica la casilla.</td>
+</tr>
+<tr>
+<td><code>hostname</code></td>
+<td>Sintaxis de nombre de host; no consulta DNS.</td>
+</tr>
+<tr>
+<td><code>ipv4</code></td>
+<td>Dirección IPv4.</td>
+</tr>
+<tr>
+<td><code>ipv6</code></td>
+<td>Dirección IPv6.</td>
+</tr>
+<tr>
+<td><code>regex</code></td>
+<td>Sintaxis de expresión regular. No ejecuta el patrón contra otros campos.</td>
+</tr>
+<tr>
+<td><code>uuid</code></td>
+<td>Sintaxis de UUID.</td>
+</tr>
+<tr>
+<td><code>json-pointer</code></td>
+<td>JSON Pointer, por ejemplo <code>/issue/key</code>.</td>
+</tr>
+<tr>
+<td><code>json-pointer-uri-fragment</code></td>
+<td>Pointer como fragmento, por ejemplo <code>#/issue/key</code>.</td>
+</tr>
+<tr>
+<td><code>relative-json-pointer</code></td>
+<td>JSON Pointer relativo, por ejemplo <code>1/key</code>.</td>
+</tr>
+<tr>
+<td><code>byte</code></td>
+<td>Sintaxis base64; no decodifica ni transforma la cadena.</td>
+</tr>
+<tr>
+<td><code>int32</code></td>
+<td>Número entero con signo de 32 bits. Usar <code>type: integer</code>.</td>
+</tr>
+<tr>
+<td><code>int64</code></td>
+<td>Comprueba que el número sea entero; no proporciona precisión de 64 bits ni un límite seguro de JavaScript.</td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td>Acepta números; no convierte ni impone precisión IEEE de 32 bits.</td>
+</tr>
+<tr>
+<td><code>double</code></td>
+<td>Acepta números; no añade precisión a JavaScript.</td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>Reconocido sin validación adicional. No encripta ni oculta el valor.</td>
+</tr>
+<tr>
+<td><code>binary</code></td>
+<td>Reconocido sin validación adicional. No habilita archivos, multipart ni transporte binario.</td>
+</tr>
+</tbody></table></div>
+<p><code>idn-email</code>, <code>idn-hostname</code>, <code>iri</code> e <code>iri-reference</code>, aunque existen en el estándar, no están registrados en este proyecto. No usarlos sin cambiar el validador.</p>
+<h3 id="límites-de-formatos-extensión-de-ajv-formats">Límites de formatos: extensión de ajv-formats<a class="heading-link" href="#límites-de-formatos-extensión-de-ajv-formats" aria-label="Enlace a Límites de formatos: extensión de ajv-formats">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Palabra clave</th>
+<th>Comparación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>formatMinimum</code></td>
+<td>Mayor o igual al límite.</td>
+</tr>
+<tr>
+<td><code>formatMaximum</code></td>
+<td>Menor o igual al límite.</td>
+</tr>
+<tr>
+<td><code>formatExclusiveMinimum</code></td>
+<td>Estrictamente mayor.</td>
+</tr>
+<tr>
+<td><code>formatExclusiveMaximum</code></td>
+<td>Estrictamente menor.</td>
+</tr>
+</tbody></table></div>
+<p>Los límites son strings y requieren <code>format</code> en el mismo esquema, con una función de comparación. Los formatos instalados que la ofrecen son <code>date</code>, <code>time</code>, <code>date-time</code>, <code>iso-time</code> e <code>iso-date-time</code>. No sirven para ordenar emails o UUIDs. Sin esos límites no hay restricciones adicionales de rango.</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;since&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;format&quot;: &quot;date&quot;, &quot;formatMinimum&quot;: &quot;2026-01-01&quot;, &quot;formatExclusiveMaximum&quot;: &quot;2027-01-01&quot; }
+  },
+  &quot;required&quot;: [&quot;since&quot;],
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<h2 id="arrays-tuplas-y-coincidencias">Arrays, tuplas y coincidencias<a class="heading-link" href="#arrays-tuplas-y-coincidencias" aria-label="Enlace a Arrays, tuplas y coincidencias">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Palabra clave</th>
+<th>Valor</th>
+<th>Regla y efecto al omitirla</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>items</code></td>
+<td>Subesquema o booleano</td>
+<td>Valida todos los elementos, o los posteriores a <code>prefixItems</code>. Omitido: no restringe esos elementos. No admite un array de esquemas en 2020-12.</td>
+</tr>
+<tr>
+<td><code>prefixItems</code></td>
+<td>Array no vacío de subesquemas</td>
+<td>Valida por posición los primeros elementos. No exige que esas posiciones existan. Omitido: no define tupla.</td>
+</tr>
+<tr>
+<td><code>minItems</code></td>
+<td>Entero ≥ 0</td>
+<td>Longitud mínima. Omitido: 0.</td>
+</tr>
+<tr>
+<td><code>maxItems</code></td>
+<td>Entero ≥ 0</td>
+<td>Longitud máxima. Omitido: sin límite.</td>
+</tr>
+<tr>
+<td><code>uniqueItems</code></td>
+<td>Booleano</td>
+<td>Con <code>true</code>, prohíbe elementos JSON iguales; no deduplica. Omitido: <code>false</code>. No significa unicidad de un campo como <code>id</code>.</td>
+</tr>
+<tr>
+<td><code>contains</code></td>
+<td>Subesquema</td>
+<td>Exige elementos que lo cumplan. Por defecto al menos uno. Omitido: no exige coincidencias.</td>
+</tr>
+<tr>
+<td><code>minContains</code></td>
+<td>Entero ≥ 0</td>
+<td>Mínimo de coincidencias de <code>contains</code>; omitido: 1 cuando existe <code>contains</code>.</td>
+</tr>
+<tr>
+<td><code>maxContains</code></td>
+<td>Entero ≥ 0</td>
+<td>Máximo de coincidencias de <code>contains</code>; omitido: sin límite.</td>
+</tr>
+<tr>
+<td><code>unevaluatedItems</code></td>
+<td>Booleano o subesquema</td>
+<td>Valida elementos no evaluados por otras reglas aplicables, incluidas composiciones. Omitido: sin restricción adicional.</td>
+</tr>
+</tbody></table></div>
+<p><code>minContains</code> y <code>maxContains</code> sin <code>contains</code> se rechazan en modo estricto. <code>contains</code> valida coincidencias, pero no filtra ni extrae los elementos. Con <code>minContains: 0</code>, <code>maxContains: 0</code> se puede prohibir que alguno coincida. Un <code>items: true</code> evalúa todos los elementos restantes; un <code>unevaluatedItems: false</code> exterior no los vuelve a cerrar.</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;tags&quot;: { &quot;type&quot;: &quot;array&quot;, &quot;items&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;minLength&quot;: 1 }, &quot;minItems&quot;: 1, &quot;maxItems&quot;: 5, &quot;uniqueItems&quot;: true },
+    &quot;coordinate&quot;: { &quot;type&quot;: &quot;array&quot;, &quot;prefixItems&quot;: [{ &quot;type&quot;: &quot;number&quot; }, { &quot;type&quot;: &quot;number&quot; }], &quot;minItems&quot;: 2, &quot;items&quot;: false },
+    &quot;states&quot;: { &quot;type&quot;: &quot;array&quot;, &quot;items&quot;: { &quot;type&quot;: &quot;string&quot; }, &quot;contains&quot;: { &quot;const&quot;: &quot;open&quot; }, &quot;minContains&quot;: 1, &quot;maxContains&quot;: 2 }
+  },
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p><code>{&quot;tags&quot;:[&quot;support&quot;],&quot;coordinate&quot;:[10,20],&quot;states&quot;:[&quot;open&quot;,&quot;closed&quot;]}</code> es válido. Tags duplicados, una coordenada de tres elementos o <code>states: [&quot;closed&quot;]</code> fallan. AJV estricto exige tuplas con límites coherentes: para dos posiciones fijas, usar <code>minItems: 2</code> y <code>items: false</code> o <code>maxItems: 2</code>.</p>
+<h2 id="combinaciones-y-condiciones">Combinaciones y condiciones<a class="heading-link" href="#combinaciones-y-condiciones" aria-label="Enlace a Combinaciones y condiciones">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Palabra clave</th>
+<th>Valor</th>
+<th>Regla</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>allOf</code></td>
+<td>Array no vacío de esquemas</td>
+<td>Debe cumplir todos. No fusiona, transforma ni sobrescribe propiedades.</td>
+</tr>
+<tr>
+<td><code>anyOf</code></td>
+<td>Array no vacío de esquemas</td>
+<td>Debe cumplir al menos uno; puede cumplir varios.</td>
+</tr>
+<tr>
+<td><code>oneOf</code></td>
+<td>Array no vacío de esquemas</td>
+<td>Debe cumplir exactamente uno. Si dos ramas coinciden, falla.</td>
+</tr>
+<tr>
+<td><code>not</code></td>
+<td>Un esquema</td>
+<td>Debe incumplir ese esquema.</td>
+</tr>
+<tr>
+<td><code>if</code></td>
+<td>Un esquema</td>
+<td>Selecciona una rama, pero no exige por sí mismo que los datos cumplan la condición.</td>
+</tr>
+<tr>
+<td><code>then</code></td>
+<td>Un esquema</td>
+<td>Se aplica cuando <code>if</code> valida.</td>
+</tr>
+<tr>
+<td><code>else</code></td>
+<td>Un esquema</td>
+<td>Se aplica cuando <code>if</code> no valida.</td>
+</tr>
+</tbody></table></div>
+<p>Omitirlas no agrega condiciones. AJV estricto rechaza <code>then</code>/<code>else</code> sin <code>if</code>, o <code>if</code> sin ninguna rama. En <code>if</code>, <code>properties</code> no exige presencia: agregar <code>required</code> cuando se quiera comprobar que el discriminante existe. Usar un <code>const</code> diferente en cada rama de <code>oneOf</code> evita solapamientos.</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;mode&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;enum&quot;: [&quot;issue&quot;, &quot;search&quot;] },
+    &quot;issueKey&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;minLength&quot;: 1 },
+    &quot;jql&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;minLength&quot;: 1 }
+  },
+  &quot;required&quot;: [&quot;mode&quot;],
+  &quot;if&quot;: { &quot;properties&quot;: { &quot;mode&quot;: { &quot;const&quot;: &quot;issue&quot; } }, &quot;required&quot;: [&quot;mode&quot;] },
+  &quot;then&quot;: { &quot;required&quot;: [&quot;issueKey&quot;] },
+  &quot;else&quot;: { &quot;required&quot;: [&quot;jql&quot;] },
+  &quot;not&quot;: { &quot;properties&quot;: { &quot;issueKey&quot;: {}, &quot;jql&quot;: {} }, &quot;required&quot;: [&quot;issueKey&quot;, &quot;jql&quot;] },
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p>Válidos: <code>{&quot;mode&quot;:&quot;issue&quot;,&quot;issueKey&quot;:&quot;CS-303&quot;}</code> y <code>{&quot;mode&quot;:&quot;search&quot;,&quot;jql&quot;:&quot;project = CS&quot;}</code>. Inválidos: modo issue sin <code>issueKey</code>, o ambos <code>issueKey</code> y <code>jql</code> presentes.</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;identifier&quot;: { &quot;anyOf&quot;: [{ &quot;type&quot;: &quot;string&quot;, &quot;minLength&quot;: 1 }, { &quot;type&quot;: &quot;integer&quot;, &quot;minimum&quot;: 1 }] },
+    &quot;result&quot;: {
+      &quot;oneOf&quot;: [
+        { &quot;type&quot;: &quot;object&quot;, &quot;properties&quot;: { &quot;status&quot;: { &quot;const&quot;: &quot;ok&quot; }, &quot;value&quot;: { &quot;type&quot;: &quot;string&quot; } }, &quot;required&quot;: [&quot;status&quot;, &quot;value&quot;], &quot;additionalProperties&quot;: false },
+        { &quot;type&quot;: &quot;object&quot;, &quot;properties&quot;: { &quot;status&quot;: { &quot;const&quot;: &quot;error&quot; }, &quot;message&quot;: { &quot;type&quot;: &quot;string&quot; } }, &quot;required&quot;: [&quot;status&quot;, &quot;message&quot;], &quot;additionalProperties&quot;: false }
+      ]
+    }
+  },
+  &quot;required&quot;: [&quot;identifier&quot;, &quot;result&quot;],
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p>Ejemplo válido: <code>{&quot;identifier&quot;:3,&quot;result&quot;:{&quot;status&quot;:&quot;ok&quot;,&quot;value&quot;:&quot;done&quot;}}</code>. Ni un booleano como identificador ni una respuesta <code>status: &quot;ok&quot;</code> sin <code>value</code> cumplen el esquema.</p>
+<h3 id="dependencias-entre-campos">Dependencias entre campos<a class="heading-link" href="#dependencias-entre-campos" aria-label="Enlace a Dependencias entre campos">#</a></h3>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;cursor&quot;: { &quot;type&quot;: &quot;string&quot; },
+    &quot;jql&quot;: { &quot;type&quot;: &quot;string&quot; },
+    &quot;credentials&quot;: { &quot;type&quot;: &quot;boolean&quot; },
+    &quot;account&quot;: { &quot;type&quot;: &quot;string&quot; }
+  },
+  &quot;dependentRequired&quot;: { &quot;cursor&quot;: [&quot;jql&quot;] },
+  &quot;dependentSchemas&quot;: { &quot;credentials&quot;: { &quot;required&quot;: [&quot;account&quot;] } },
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p><code>{&quot;cursor&quot;:&quot;next&quot;,&quot;jql&quot;:&quot;project = CS&quot;}</code> es válido; <code>{&quot;cursor&quot;:&quot;next&quot;}</code> no. Si aparece <code>credentials</code>, incluso con valor <code>false</code>, se exige <code>account</code>: estas dependencias evalúan presencia. Para depender de su valor, usar <code>if</code>/<code>then</code>.</p>
+<h2 id="referencias-identidad-y-vocabularios">Referencias, identidad y vocabularios<a class="heading-link" href="#referencias-identidad-y-vocabularios" aria-label="Enlace a Referencias, identidad y vocabularios">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Palabra clave</th>
+<th>Función y soporte en el proyecto</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>$schema</code></td>
+<td>Declara el dialecto del esquema. Omitido se usa AJV 2020-12. Usar <code>https://json-schema.org/draft/2020-12/schema</code>; no carga otros drafts automáticamente. El <code>$schema</code> de la configuración exterior es una indicación distinta para el editor.</td>
+</tr>
+<tr>
+<td><code>$id</code></td>
+<td>Identifica un recurso de esquema y establece una base para referencias. No descarga nada ni registra una definición global entre tools. Omitido no asigna un identificador explícito. Evitar cambiar bases en subesquemas salvo necesidad.</td>
+</tr>
+<tr>
+<td><code>$ref</code></td>
+<td>Aplica un esquema referenciado. Solo se permiten referencias internas que comiencen con <code>#</code>, como <code>#/$defs/issue</code>. En 2020-12 también se aplican sus keywords hermanas.</td>
+</tr>
+<tr>
+<td><code>$defs</code></td>
+<td>Mapa de subesquemas reutilizables. Declararlos no obliga a validarlos contra los datos: se aplican al referenciarlos. Cada esquema de entrada/salida tiene su propio mapa.</td>
+</tr>
+<tr>
+<td><code>$anchor</code></td>
+<td>El estándar define anclas con nombre, pero la versión/configuración instalada de AJV las rechaza como keyword desconocida en modo estricto. Usar pointers a <code>$defs</code>.</td>
+</tr>
+<tr>
+<td><code>$dynamicAnchor</code></td>
+<td>Define un ancla dinámica con nombre para referencias recursivas/extensibles. Admitida por AJV; normalmente no es necesaria para una integración simple.</td>
+</tr>
+<tr>
+<td><code>$dynamicRef</code></td>
+<td>Referencia que se resuelve según el ámbito dinámico. Solo interna (<code>#...</code>) en este servidor. Preferir <code>$ref</code> para reutilización ordinaria.</td>
+</tr>
+<tr>
+<td><code>$vocabulary</code></td>
+<td>En metaschemas declara vocabularios y si son requeridos (mapa URI → booleano). No instala plugins ni habilita keywords nuevas en este servidor. No usarlo para eludir el modo estricto.</td>
+</tr>
+<tr>
+<td><code>$comment</code></td>
+<td>Comentario para mantenedores. No restringe datos ni se ejecuta como código; no tiene un callback de logging configurado.</td>
+</tr>
+</tbody></table></div>
+<p>Salvo las restricciones de raíz del proyecto, estas keywords son opcionales. Un pointer JSON usa <code>~1</code> para <code>/</code> y <code>~0</code> para <code>~</code> en nombres; <code>#/...</code> no es una ruta de archivo. Referencias a URLs, a otros archivos o a otra tool están prohibidas. Las referencias internas inexistentes fallan al cargar la configuración. No confundir <code>$ref</code> con <code>${input...}</code>: las plantillas no se resuelven dentro de esquemas.</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;$schema&quot;: &quot;https://json-schema.org/draft/2020-12/schema&quot;,
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: { &quot;issue&quot;: { &quot;$ref&quot;: &quot;#/$defs/issue&quot; } },
+  &quot;required&quot;: [&quot;issue&quot;],
+  &quot;additionalProperties&quot;: false,
+  &quot;$defs&quot;: {
+    &quot;issue&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;properties&quot;: { &quot;key&quot;: { &quot;type&quot;: &quot;string&quot; }, &quot;summary&quot;: { &quot;type&quot;: &quot;string&quot; } },
+      &quot;required&quot;: [&quot;key&quot;, &quot;summary&quot;],
+      &quot;additionalProperties&quot;: false
+    }
+  }
+}</code></pre></div>
+<p>Una estructura recursiva también puede describirse sin descargar esquemas:</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;$dynamicAnchor&quot;: &quot;node&quot;,
+  &quot;properties&quot;: {
+    &quot;name&quot;: { &quot;type&quot;: &quot;string&quot; },
+    &quot;children&quot;: { &quot;type&quot;: &quot;array&quot;, &quot;items&quot;: { &quot;$dynamicRef&quot;: &quot;#node&quot; } }
+  },
+  &quot;required&quot;: [&quot;name&quot;],
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p>Admite <code>{&quot;name&quot;:&quot;root&quot;,&quot;children&quot;:[{&quot;name&quot;:&quot;child&quot;}]}</code>. Para esquemas recursivos o composiciones complejas, validar también la compatibilidad del cliente MCP que consumirá la definición.</p>
+<h2 id="anotaciones-describen-no-transforman">Anotaciones: describen, no transforman<a class="heading-link" href="#anotaciones-describen-no-transforman" aria-label="Enlace a Anotaciones: describen, no transforman">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Palabra clave</th>
+<th>Valor y efecto</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>title</code></td>
+<td>Nombre legible del valor descrito. No reemplaza automáticamente <code>tool.title</code>.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Explicación para agentes, usuarios y editores. No constituye una regla ejecutable.</td>
+</tr>
+<tr>
+<td><code>default</code></td>
+<td>Valor sugerido. Aquí no se inserta ni hace opcional un campo requerido.</td>
+</tr>
+<tr>
+<td><code>examples</code></td>
+<td>Array de valores ilustrativos. No restringe como <code>enum</code> ni implica que AJV los verifique al compilar.</td>
+</tr>
+<tr>
+<td><code>deprecated</code></td>
+<td>Booleano; <code>true</code> indica que se desaconseja el campo. No lo prohíbe. Omitido equivale a no declararlo obsoleto.</td>
+</tr>
+<tr>
+<td><code>readOnly</code></td>
+<td>Booleano; describe un campo de lectura. El runtime no lo elimina de entradas ni bloquea su escritura.</td>
+</tr>
+<tr>
+<td><code>writeOnly</code></td>
+<td>Booleano; describe un campo de escritura. El runtime no lo elimina de salidas ni lo oculta.</td>
+</tr>
+<tr>
+<td><code>x-mcp-header</code></td>
+<td>Extensión del proyecto, string, aceptada como metadata MCP. No configura headers HTTP por sí sola; usar <code>execution.headers</code>.</td>
+</tr>
+</tbody></table></div>
+<p>Al omitir anotaciones, no se agregan sugerencias ni restricciones; <code>readOnly</code> y <code>writeOnly</code> se consideran <code>false</code>. No guardar secretos en <code>default</code>, <code>examples</code> o descripciones: los esquemas se publican al cliente MCP. <code>readOnly</code>/<code>writeOnly</code> son distintos de las anotaciones de tool <code>readOnlyHint</code> y similares.</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;limit&quot;: { &quot;type&quot;: &quot;integer&quot;, &quot;minimum&quot;: 1, &quot;maximum&quot;: 100, &quot;default&quot;: 20, &quot;examples&quot;: [10, 20] },
+    &quot;note&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;description&quot;: &quot;Optional note&quot;, &quot;deprecated&quot;: true }
+  },
+  &quot;required&quot;: [&quot;limit&quot;],
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p><code>{}</code> falla aunque <code>limit</code> tenga <code>default: 20</code>. <code>{&quot;limit&quot;:10}</code> valida y se mantiene sin cambios. Si una plantilla de ejecución referencia un argumento opcional ausente, también puede fallar al resolverla: el esquema no suministra el valor faltante.</p>
+<h3 id="contenido-codificado">Contenido codificado<a class="heading-link" href="#contenido-codificado" aria-label="Enlace a Contenido codificado">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Palabra clave</th>
+<th>Significado</th>
+<th>Efecto real aquí</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>contentEncoding</code></td>
+<td>Codificación de un string, como <code>base64</code>.</td>
+<td>Metadata; no verifica ni decodifica.</td>
+</tr>
+<tr>
+<td><code>contentMediaType</code></td>
+<td>Tipo MIME del contenido, como <code>application/json</code>.</td>
+<td>Metadata; no parsea JSON ni configura headers.</td>
+</tr>
+<tr>
+<td><code>contentSchema</code></td>
+<td>Esquema del contenido decodificado.</td>
+<td>Metadata; no valida ese contenido con esta configuración de AJV.</td>
+</tr>
+</tbody></table></div>
+<p>Si necesitás verificar base64, <code>format: byte</code> comprueba la sintaxis. Para parsear y validar contenido, configurar el parser/transformación y un <code>outputSchema</code> efectivo. Estas anotaciones tampoco habilitan uploads o respuestas binarias.</p>
+<h2 id="compatibilidad-y-opciones-no-habilitadas">Compatibilidad y opciones no habilitadas<a class="heading-link" href="#compatibilidad-y-opciones-no-habilitadas" aria-label="Enlace a Compatibilidad y opciones no habilitadas">#</a></h2>
+<p>La referencia cubre las keywords de los vocabularios Core, Applicator, Validation, Unevaluated, Metadata, Format y Content de 2020-12, además de las extensiones registradas. No implica soporte universal de todos los drafts, formatos opcionales o extensiones de terceros.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Nombre o construcción</th>
+<th>Estado / alternativa</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>definitions</code></td>
+<td>Forma heredada aceptada por AJV. Preferir <code>$defs</code>.</td>
+</tr>
+<tr>
+<td><code>dependencies</code></td>
+<td>Forma heredada aceptada; listas exigen campos y esquemas se aplican al objeto completo. Preferir <code>dependentRequired</code> / <code>dependentSchemas</code>.</td>
+</tr>
+<tr>
+<td><code>nullable</code></td>
+<td>Extensión OpenAPI aceptada por AJV junto con <code>type</code>; <code>true</code> añade null al tipo, pero no a <code>enum</code>/<code>const</code>. Preferir <code>type: [&quot;string&quot;, &quot;null&quot;]</code> en campos anidados.</td>
+</tr>
+<tr>
+<td><code>additionalItems</code></td>
+<td>No usar en 2020-12; se rechaza en modo estricto. Usar <code>prefixItems</code> + <code>items</code>.</td>
+</tr>
+<tr>
+<td><code>items: [...]</code></td>
+<td>Sintaxis de tuplas de drafts anteriores; rechazada. Usar <code>prefixItems</code>.</td>
+</tr>
+<tr>
+<td><code>$recursiveAnchor</code>, <code>$recursiveRef</code></td>
+<td>Keywords antiguas de 2019-09. No usar como contrato de 2020-12; <code>$recursiveAnchor: true</code> se rechaza con el metaschema instalado. Usar <code>$dynamicAnchor</code> / <code>$dynamicRef</code>.</td>
+</tr>
+<tr>
+<td><code>id</code></td>
+<td>Forma antigua no soportada. Usar <code>$id</code>.</td>
+</tr>
+<tr>
+<td><code>$async</code></td>
+<td>Prohibida por el cargador, incluso con valor <code>false</code>: las tools usan validación síncrona.</td>
+</tr>
+<tr>
+<td><code>$data</code></td>
+<td>Referencias a valores de otros campos no habilitadas. Usar condiciones estándar cuando alcancen; comparaciones arbitrarias requieren lógica adicional.</td>
+</tr>
+<tr>
+<td><code>discriminator</code></td>
+<td>Extensión no habilitada. Usar <code>oneOf</code> con discriminantes <code>const</code>.</td>
+</tr>
+<tr>
+<td><code>example</code>, <code>xml</code>, <code>externalDocs</code>, <code>x-*</code> arbitrarios</td>
+<td>No son keywords admitidas directamente, salvo <code>x-mcp-header</code>. <code>examples</code> sí se admite. El importador OpenAPI puede convertir u omitir metadata.</td>
+</tr>
+<tr>
+<td><code>transform</code>, <code>errorMessage</code>, <code>select</code></td>
+<td>Extensiones de otros plugins, no instaladas. Para transformar la salida usar <code>response.transform</code>.</td>
+</tr>
+<tr>
+<td>Metaschemas/drafts externos</td>
+<td>No se descargan ni registran automáticamente. Normalizar a 2020-12.</td>
+</tr>
+</tbody></table></div>
+<p>Los strings dentro de <code>const</code>, <code>enum</code>, <code>default</code> o <code>examples</code> son datos, no keywords. Un campo de usuario llamado <code>$ref</code> dentro de <code>properties</code> no es por sí mismo una referencia de esquema.</p>
+<h3 id="importación-openapi-y-ejecución-son-etapas-distintas">Importación OpenAPI y ejecución son etapas distintas<a class="heading-link" href="#importación-openapi-y-ejecución-son-etapas-distintas" aria-label="Enlace a Importación OpenAPI y ejecución son etapas distintas">#</a></h3>
+<p>Los scripts OpenAPI no aceptan necesariamente todo lo que acepta AJV. Normalizan <code>nullable</code>, referencias locales y algunos formatos; pueden descartar metadata o rechazar binarios y keywords fuera de su lista. Durante la importación sí se proyectan campos <code>readOnly</code> fuera de la entrada y <code>writeOnly</code> fuera de la salida. Esa proyección sucede al <strong>generar la configuración</strong>, no al validar una llamada. Revisar advertencias y <a href="importar-openapi.html">la guía de importación</a>.</p>
+<h2 id="validar-diagnosticar-y-mantener">Validar, diagnosticar y mantener<a class="heading-link" href="#validar-diagnosticar-y-mantener" aria-label="Enlace a Validar, diagnosticar y mantener">#</a></h2>
+<p>Para comprobar un archivo de configuración completo:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm run build
+node dist/cli.js validate --config examples/cli.json</code></pre></div>
+<p>Reemplazar la ruta por el archivo propio. <code>validate</code> compila los esquemas y valida configuración/referencias/entorno; <strong>no llama a APIs ni ejecuta tools ni comprueba respuestas reales</strong>. Probar llamadas válidas e inválidas en <a href="inicio-rapido.html#probar-con-mcp-inspector">MCP Inspector</a>. Un cliente MCP puede rechazar argumentos antes de que lleguen al runtime.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Síntoma</th>
+<th>Qué revisar</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Invalid or unsupported JSON Schema</code></td>
+<td>Tipo ausente/incompatible, keyword desconocida, referencia incorrecta, formato no registrado o condición ignorada en modo estricto.</td>
+</tr>
+<tr>
+<td><code>[input]</code> / argumentos inválidos</td>
+<td><code>required</code>, tipos reales, <code>enum</code>, rangos, patrones y campos adicionales. La ejecución no debe comenzar.</td>
+</tr>
+<tr>
+<td><code>[output]</code> / resultado incompatible</td>
+<td>Forma obtenida después del parser/JSONata, campos anidados extra, nulls y raíz objeto. La operación externa ya ocurrió; no reintentar escrituras automáticamente.</td>
+</tr>
+<tr>
+<td>Falta un valor de <code>default</code></td>
+<td>Es una sugerencia del esquema, no un valor insertado. Enviarlo explícitamente o cambiar la configuración.</td>
+</tr>
+<tr>
+<td><code>oneOf</code> falla inesperadamente</td>
+<td>Ninguna rama o varias ramas validan. Revisar discriminantes y campos requeridos.</td>
+</tr>
+<tr>
+<td>Un <code>allOf</code> rechaza un campo declarado</td>
+<td>Revisar cierres <code>additionalProperties</code> dentro de ramas; considerar <code>unevaluatedProperties</code>.</td>
+</tr>
+</tbody></table></div>
+<p>No confundir <code>maxLength</code> o <code>maxItems</code> con <code>maxOutputBytes</code>: este último limita bytes de transporte/procesamiento y se configura fuera del esquema. Tampoco asumir que el timeout del worker aísla AJV: la validación es síncrona en el proceso principal. Mantener regex y esquemas con un costo razonable.</p>
+<p>Los ejemplos y el inventario se verifican con <code>npm run docs:check-schema</code>; el comando compara ambos idiomas, compila los ejemplos con el validador del proyecto y comprueba casos válidos e inválidos. Después de editar las guías ejecutar <code>npm run docs:build</code> para regenerar el HTML y verificar enlaces.</p>
+<p>Referencias oficiales: <a href="https://json-schema.org/specification">JSON Schema 2020-12</a>, <a href="https://json-schema.org/draft/2020-12/json-schema-validation">validación</a>, <a href="https://json-schema.org/draft/2020-12/json-schema-core">Core y Applicator</a>, <a href="https://ajv.js.org/strict-mode.html">modo estricto de AJV</a>, <a href="https://ajv.js.org/packages/ajv-formats.html">ajv-formats</a>. Para el comportamiento concreto de este servidor, prevalecen su configuración del validador, su lockfile y las comprobaciones de esta guía.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../json-schema.md">Fuente Markdown</a></footer></main>
+<aside class="toc" aria-label="En esta página"><span class="nav-label">En esta página</span><a class="depth-2" href="#qué-se-valida-y-cuándo">Qué se valida y cuándo</a>
+<a class="depth-2" href="#cómo-leer-un-esquema">Cómo leer un esquema</a>
+<a class="depth-3" href="#tipos-valores-fijos-y-ausencia">Tipos, valores fijos y ausencia</a>
+<a class="depth-2" href="#objetos-y-campos-adicionales">Objetos y campos adicionales</a>
+<a class="depth-3" href="#additionalproperties-false-true-o-un-esquema">additionalProperties: false, true o un esquema</a>
+<a class="depth-3" href="#diccionarios-y-patrones">Diccionarios y patrones</a>
+<a class="depth-3" href="#composición-y-cierre-de-objetos">Composición y cierre de objetos</a>
+<a class="depth-2" href="#strings-y-números">Strings y números</a>
+<a class="depth-3" href="#todos-los-formatos-registrados">Todos los formatos registrados</a>
+<a class="depth-3" href="#límites-de-formatos-extensión-de-ajv-formats">Límites de formatos: extensión de ajv-formats</a>
+<a class="depth-2" href="#arrays-tuplas-y-coincidencias">Arrays, tuplas y coincidencias</a>
+<a class="depth-2" href="#combinaciones-y-condiciones">Combinaciones y condiciones</a>
+<a class="depth-3" href="#dependencias-entre-campos">Dependencias entre campos</a>
+<a class="depth-2" href="#referencias-identidad-y-vocabularios">Referencias, identidad y vocabularios</a>
+<a class="depth-2" href="#anotaciones-describen-no-transforman">Anotaciones: describen, no transforman</a>
+<a class="depth-3" href="#contenido-codificado">Contenido codificado</a>
+<a class="depth-2" href="#compatibilidad-y-opciones-no-habilitadas">Compatibilidad y opciones no habilitadas</a>
+<a class="depth-3" href="#importación-openapi-y-ejecución-son-etapas-distintas">Importación OpenAPI y ejecución son etapas distintas</a>
+<a class="depth-2" href="#validar-diagnosticar-y-mantener">Validar, diagnosticar y mantener</a></aside></div></body></html>

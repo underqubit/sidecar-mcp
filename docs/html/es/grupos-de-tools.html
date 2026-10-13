@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Varios grupos de tools en un proceso · Underqubit Sidecar MCP</title><meta name="description" content="Varios grupos de tools en un proceso. Guías y referencia de Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="en" href="../en/tool-groups.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Ir al contenido</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Idioma"><a href="grupos-de-tools.html" lang="es" hreflang="es" aria-current="true">ES</a><a href="../en/tool-groups.html" lang="en" hreflang="en">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentación</span><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html" aria-current="page">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Explorar guías</summary><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html" aria-current="page">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="varios-grupos-de-tools-en-un-proceso">Varios grupos de tools en un proceso</h1>
+<p><a href="../en/tool-groups.html">English</a> · <a href="index.html">Volver al índice</a></p>
+<p>Una composición carga archivos de integración existentes y los publica desde un único proceso Node.js. Cada grupo conserva sus tools, perfiles de autenticación, variables referenciadas, límites de ejecución y rutas relativas. No es necesario fusionar los archivos ni cambiar sus nombres de tools.</p>
+<h2 id="elegir-cómo-publicarlos">Elegir cómo publicarlos<a class="heading-link" href="#elegir-cómo-publicarlos" aria-label="Enlace a Elegir cómo publicarlos">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th><code>mode</code></th>
+<th>Transporte</th>
+<th>Endpoints HTTP</th>
+<th>Nombres de tools</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>unified</code></td>
+<td>stdio o HTTP</td>
+<td><code>/mcp</code></td>
+<td><code>&lt;grupo&gt;.&lt;nombre-original&gt;</code></td>
+</tr>
+<tr>
+<td><code>separate</code></td>
+<td>HTTP</td>
+<td><code>/mcp/&lt;grupo&gt;</code></td>
+<td>Nombre original dentro de cada grupo</td>
+</tr>
+<tr>
+<td><code>both</code></td>
+<td>HTTP</td>
+<td><code>/mcp</code> y <code>/mcp/&lt;grupo&gt;</code></td>
+<td>Prefijos solo en <code>/mcp</code></td>
+</tr>
+</tbody></table></div>
+<p>El catálogo unificado publica una conexión MCP. Los prefijos identifican grupos, pero los clientes no necesariamente muestran carpetas o secciones. Los endpoints separados se agregan como conexiones distintas en el cliente, aunque pertenecen al mismo proceso y puerto.</p>
+<p>En <code>both</code>, conectar el catálogo completo y uno de sus grupos en el mismo cliente expone dos veces esas operaciones. Elegir las conexiones que se necesiten.</p>
+<h2 id="archivo-principal">Archivo principal<a class="heading-link" href="#archivo-principal" aria-label="Enlace a Archivo principal">#</a></h2>
+<p>Ejemplo ejecutable desde la raíz, sin credenciales externas: <a href="../../../examples/composition.yaml">composition.yaml</a>.</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml"># yaml-language-server: $schema=../schema/config.schema.json
+version: 1
+kind: composition
+server:
+  name: underqubit
+  transport: http
+  http:
+    host: 127.0.0.1
+    port: 3000
+mode: both
+groups:
+  - id: local
+    config: ./cli.yaml
+  - id: echo
+    config: ./cli.json</code></pre></div>
+<p><code>version</code>, <code>kind</code>, <code>mode</code> y una lista <code>groups</code> no vacía son obligatorios. Cada grupo tiene únicamente <code>id</code> y <code>config</code>. Los IDs son únicos, de 1 a 126 caracteres, y admiten letras minúsculas ASCII, números, <code>_</code> y <code>-</code>. Las rutas son literales, sin interpolación de variables ni globbing.</p>
+<p><code>server</code> admite <code>name</code>, <code>version</code>, <code>transport</code> y <code>http</code>, con los mismos defaults que una integración: nombre <code>underqubit-sidecar-mcp</code>, versión <code>0.1.0</code>, transporte <code>stdio</code> y HTTP en <code>127.0.0.1:3000</code>. No admite <code>timeoutMs</code> ni <code>maxOutputBytes</code> en la composición: esos valores pertenecen a cada integración. Para <code>separate</code> o <code>both</code>, declarar HTTP o pasar <code>--transport http</code>.</p>
+<p>Las rutas <code>config</code> se resuelven respecto del archivo principal. Dentro de cada integración, <code>command</code> y <code>cwd</code> relativos siguen resolviéndose respecto de su propio archivo. No se admiten composiciones anidadas. Cada archivo tiene un límite de 4 MiB y las mismas restricciones de YAML/JSON que antes.</p>
+<p>El servidor unificado toma su identidad del archivo principal. Cada endpoint separado usa el ID del grupo como nombre MCP y <code>server.version</code> de la integración como versión. El nombre, transporte y opciones HTTP de las integraciones no crean listeners adicionales.</p>
+<p>Los nombres unificados siempre incluyen el prefijo: una tool llamada <code>jira_get_issue</code> en el grupo <code>jira</code> se publica como <code>jira.jira_get_issue</code>. No se quitan prefijos existentes. El nombre final no puede superar 128 caracteres; esta comprobación se realiza en cualquier modo. Tools y perfiles de auth pueden repetir nombres entre grupos, pero las tools de una misma integración deben tener nombres únicos.</p>
+<h2 id="ejecutar-y-conectar-inspector">Ejecutar y conectar Inspector<a class="heading-link" href="#ejecutar-y-conectar-inspector" aria-label="Enlace a Ejecutar y conectar Inspector">#</a></h2>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm run build
+node dist/cli.js validate --config examples/composition.yaml
+node dist/cli.js serve --config examples/composition.yaml</code></pre></div>
+<p>El último comando inicia un listener y muestra por stderr:</p>
+<div class="code-block"><span class="code-label">text</span><pre><code class="language-text">http://127.0.0.1:3000/mcp
+http://127.0.0.1:3000/mcp/local
+http://127.0.0.1:3000/mcp/echo</code></pre></div>
+<p>En otra terminal, iniciar Inspector:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npx -y @modelcontextprotocol/inspector</code></pre></div>
+<p>Abrir la URL que imprime Inspector, seleccionar <strong>Streamable HTTP</strong> y conectarse a uno de los endpoints. En <code>/mcp</code>, llamar <code>echo.local_echo</code> con <code>{&quot;message&quot;:&quot;hello&quot;}</code>. En <code>/mcp/echo</code>, llamar <code>local_echo</code> con los mismos argumentos. Ambas llamadas devuelven <code>{&quot;message&quot;:&quot;hello&quot;}</code>. <code>/mcp/local</code> también ofrece <code>local_node_version</code>.</p>
+<p>Para stdio, usar el <a href="../../../examples/composition.json">ejemplo JSON unificado</a>:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node dist/cli.js validate --config examples/composition.json
+npx -y @modelcontextprotocol/inspector node -- \
+  dist/cli.js serve --config examples/composition.json --transport stdio</code></pre></div>
+<p>Inspector inicia el proceso stdio; no iniciarlo por separado. Si las integraciones necesitan <code>.env</code>, agregar <code>--env-file=.env</code> antes de <code>dist/cli.js</code>. En clientes configurados desde otro directorio, usar rutas absolutas para el ejecutable, CLI, configuración y <code>.env</code>.</p>
+<p><code>--transport</code> sobrescribe el transporte del archivo principal, tanto en <code>serve</code> como en <code>validate</code>. No cambia <code>mode</code>: <code>both</code> y <code>separate</code> con stdio fallan. Para migrar una integración existente, referenciarla desde <code>groups</code>; ejecutarla directamente sigue conservando sus nombres y <code>/mcp</code> originales.</p>
+<h2 id="credenciales-operación-y-diagnóstico">Credenciales, operación y diagnóstico<a class="heading-link" href="#credenciales-operación-y-diagnóstico" aria-label="Enlace a Credenciales, operación y diagnóstico">#</a></h2>
+<p>Cada grupo tiene su propio snapshot de variables referenciadas y su propio administrador de autenticación. Ambos catálogos usan el mismo runtime del grupo, por lo que comparten su caché OAuth. No hay perfiles globales ni overrides de entorno por grupo: para usar credenciales diferentes, referenciar nombres de variables diferentes en cada archivo. <code>.env</code> se carga mediante Node, no automáticamente por el proyecto.</p>
+<p>Los archivos se validan por completo antes de abrir el listener. Un archivo ausente, una variable requerida faltante o una integración inválida aborta todo el arranque, indicando el grupo. <code>validate</code> comprueba la composición y sus integraciones, sin conectarse a APIs ni ejecutar tools. No hay recarga en caliente: reiniciar después de cambiar configuración o credenciales.</p>
+<p>Los logs de llamadas contienen <code>group</code> y el nombre original de la tool. Los límites y cancelaciones se aplican en cada runtime; el cierre del proceso cancela operaciones de todos los grupos y cierra todos los endpoints.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Síntoma</th>
+<th>Comprobación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>requires HTTP</code></td>
+<td>Usar transporte HTTP o cambiar <code>mode</code> a <code>unified</code>.</td>
+</tr>
+<tr>
+<td><code>Duplicate group</code></td>
+<td>Asignar IDs únicos en <code>groups</code>.</td>
+</tr>
+<tr>
+<td><code>Group …</code> al iniciar</td>
+<td>Corregir el archivo o las variables de esa integración.</td>
+</tr>
+<tr>
+<td>HTTP 404</td>
+<td>Revisar el modo y la ruta exacta; no hay endpoints por tool ni redirección de barras finales.</td>
+</tr>
+<tr>
+<td>Tool no encontrada</td>
+<td>En <code>/mcp</code> usar el prefijo; en <code>/mcp/&lt;grupo&gt;</code> usar el nombre original.</td>
+</tr>
+<tr>
+<td>No aparecen carpetas de tools</td>
+<td>La presentación depende del cliente; usar conexiones separadas si se necesita distinguir servidores.</td>
+</tr>
+</tbody></table></div>
+<p>Host, Origin y tamaño máximo del request se controlan con el <code>server.http</code> principal para todos los endpoints. No hay autenticación entrante ni permisos por grupo. Los grupos comparten proceso y recursos del sistema; no son un aislamiento de seguridad. Para exponerlos fuera de localhost, ver <a href="operacion-y-diagnostico.html">operación HTTP</a>.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../grupos-de-tools.md">Fuente Markdown</a></footer></main>
+<aside class="toc" aria-label="En esta página"><span class="nav-label">En esta página</span><a class="depth-2" href="#elegir-cómo-publicarlos">Elegir cómo publicarlos</a>
+<a class="depth-2" href="#archivo-principal">Archivo principal</a>
+<a class="depth-2" href="#ejecutar-y-conectar-inspector">Ejecutar y conectar Inspector</a>
+<a class="depth-2" href="#credenciales-operación-y-diagnóstico">Credenciales, operación y diagnóstico</a></aside></div></body></html>

@@ -10,6 +10,8 @@ The configuration file defines the integration: adding a tool does not require c
 
 | Document | What it covers |
 | --- | --- |
+| [JSON Schema reference](json-schema.md) | Keywords, extra fields, formats, examples, and actual validator limitations. |
+| [HTML site and deployment](documentation-site.md) | Build the bilingual site, maintain styles, and publish to GitHub Pages. |
 | [npm publishing and license](npm-publishing.md) | Apache 2.0, package verification, npx usage, and release steps. |
 | [Quick start](quick-start.md) | Installation, first run, client connections, and available commands. |
 | [Import OpenAPI](openapi-import.md) | Generate integration files from Swagger 2.0 and OpenAPI 3.x. |

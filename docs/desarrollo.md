@@ -44,6 +44,8 @@ El mapa de responsabilidades de cada módulo está en [Arquitectura](arquitectur
 | `npm run test:network` | Compila y ejecuta `tests/network/*.test.ts`. |
 | `npm run check` | Build, typecheck y suite sin TCP. |
 | `npm run check:package` | Construye e instala el tarball con dependencias de producción y verifica CLI, tools MCP, worker e importador OpenAPI. |
+| `npm run docs:check-schema` | Comprueba ejemplos, cobertura de keywords/formatos y restricciones de JSON Schema en ambos idiomas. |
+| `npm run docs:build` | Genera y verifica la documentación HTML en ambos idiomas. |
 | `npm run schema` | Compila y regenera `schema/config.schema.json` desde Zod. |
 
 Para un cliente MCP stdio, iniciar `node dist/cli.js` directamente. Los scripts npm son útiles en terminal, pero sus mensajes pueden contaminar stdout si se usan como comando de protocolo.
@@ -138,6 +140,8 @@ La prueba automática verifica las respuestas esperadas usando llamadas MCP y c�
 3. `npm run test:network`.
 4. Regeneración del esquema y comprobación de diferencias con Git.
 5. `npm run check:package`.
+
+El workflow documental publica los cambios de `docs` en GitHub Pages. Ver [Sitio HTML de documentación](sitio-documentacion.md) para generación local, estilos y despliegue.
 
 El workflow se ejecutará cuando el repositorio esté en GitHub y Actions esté habilitado; que el archivo exista no significa que una ejecución remota ya haya pasado.
 

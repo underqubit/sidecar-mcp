@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generate configurations from Swagger and OpenAPI · Underqubit Sidecar MCP</title><meta name="description" content="Generate configurations from Swagger and OpenAPI. Guides and reference for Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="es" href="../es/importar-openapi.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Language"><a href="../es/importar-openapi.html" lang="es" hreflang="es">ES</a><a href="openapi-import.html" lang="en" hreflang="en" aria-current="true">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentation</span><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html" aria-current="page">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Browse guides</summary><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html" aria-current="page">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="generate-configurations-from-swagger-and-openapi">Generate configurations from Swagger and OpenAPI</h1>
+<p><a href="../es/importar-openapi.html">Español</a> · <a href="index.html">Back to index</a></p>
+<p>The scripts convert a local JSON/YAML specification into a Sidecar integration file. They generate one HTTP tool per selected operation, including descriptions, schemas, parameters, authentication, and response transformation. The result can run directly or be referenced by a <a href="tool-groups.html">group composition</a>.</p>
+<h2 id="usage">Usage<a class="heading-link" href="#usage" aria-label="Link to Usage">#</a></h2>
+<p>The <code>scripts</code> directory contains three entry points sharing one converter:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Script</th>
+<th>Accepted versions</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>scripts/openapi-to-config.mjs</code></td>
+<td>Auto-detects Swagger 2.0 and OpenAPI 3.0.x, 3.1.x, and 3.2.x.</td>
+</tr>
+<tr>
+<td><code>scripts/openapi2-to-config.mjs</code></td>
+<td>Swagger/OpenAPI 2.0 only.</td>
+</tr>
+<tr>
+<td><code>scripts/openapi3-to-config.mjs</code></td>
+<td>OpenAPI 3.0.x, 3.1.x, and 3.2.x only.</td>
+</tr>
+</tbody></table></div>
+<p>Unknown future versions are explicitly rejected; compatibility with a future major version is not assumed. Install dependencies and build the project first:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm ci
+npm run build
+node scripts/openapi-to-config.mjs --help</code></pre></div>
+<p>Included examples, with no service calls during generation:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node scripts/openapi2-to-config.mjs \
+  --input examples/openapi/swagger2.yaml \
+  --output examples/catalog-v2.json
+
+node scripts/openapi3-to-config.mjs \
+  --input examples/openapi/openapi3.yaml \
+  --output examples/catalog-v3.yaml</code></pre></div>
+<p>To import your own specification and include only read operations:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node scripts/openapi-to-config.mjs \
+  --input ./api.yaml \
+  --output ./tools.json \
+  --base-url https://api.example.com/v1 \
+  --methods GET,HEAD \
+  --prefix catalog</code></pre></div>
+<p>By default, <strong>all supported methods</strong> are included, including write operations. The script generates configuration; it does not execute those operations. Review the tools before connecting them to an agent.</p>
+<h2 id="options">Options<a class="heading-link" href="#options" aria-label="Link to Options">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--input</code></td>
+<td>Required local <code>.json</code>, <code>.yaml</code>, or <code>.yml</code> file, up to 16 MiB.</td>
+</tr>
+<tr>
+<td><code>--output</code></td>
+<td>JSON/YAML file selected by extension. Without it, prints JSON to stdout. The directory must exist.</td>
+</tr>
+<tr>
+<td><code>--base-url</code></td>
+<td>Overrides all operation API URLs, including the base path. Does not change the OAuth endpoint.</td>
+</tr>
+<tr>
+<td><code>--name</code></td>
+<td>Server name; defaults to a name derived from <code>info.title</code>.</td>
+</tr>
+<tr>
+<td><code>--prefix</code></td>
+<td>Tool name prefix, separated by <code>_</code>.</td>
+</tr>
+<tr>
+<td><code>--env-prefix</code></td>
+<td>Credential variable prefix; defaults to <code>OPENAPI</code>.</td>
+</tr>
+<tr>
+<td><code>--methods</code></td>
+<td>Comma-separated HTTP methods, case-insensitive.</td>
+</tr>
+<tr>
+<td><code>--tags</code></td>
+<td>Comma-separated tags; includes operations matching any of them.</td>
+</tr>
+<tr>
+<td><code>--skip-unsupported</code></td>
+<td>Omits incompatible operations and reports each on stderr. Without it, fails without generating partial configuration.</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td>Allows replacing an existing output file, never the input specification.</td>
+</tr>
+</tbody></table></div>
+<p>Warnings, skipped operations, and required variable names go to stderr. Specifications and external references are not downloaded. No API calls or credential verification take place. The result must pass the project&#39;s configuration validation and cannot exceed 4 MiB.</p>
+<p>YAML rejects duplicate keys and aliases. Bundle multi-file specifications into one document with local <code>#/...</code> references first.</p>
+<h2 id="generated-mapping">Generated mapping<a class="heading-link" href="#generated-mapping" aria-label="Link to Generated mapping">#</a></h2>
+<p><strong>Names:</strong> uses <code>operationId</code> or a method/path-derived name, normalizes characters, and adds a deterministic suffix for collisions. Names do not exceed 128 characters. Descriptions preserve <code>description</code>, <code>summary</code>, or method/path, in that order. Annotations treat GET, HEAD, and OPTIONS as read-only; other methods are conservatively marked as potentially destructive.</p>
+<p><strong>URL:</strong> Swagger uses <code>schemes</code>, <code>host</code>, and <code>basePath</code>; missing <code>schemes</code> defaults to HTTPS with a warning. OpenAPI 3 uses the first server at operation, path, or document level, in that order, and substitutes server variable defaults. Relative URLs or missing hosts require <code>--base-url</code>. URLs must use HTTP(S), without embedded credentials, query strings, or fragments. Generated paths are relative to preserve prefixes such as <code>/api/v3</code>.</p>
+<p><strong>Parameters:</strong> inputs are named <code>path_id</code>, <code>query_limit</code>, <code>header_X_Count</code>, <code>form_name</code>, etc. Operation declarations override same-location/name path parameters. URL placeholders are renamed internally to accommodate names that are not valid Sidecar template identifiers.</p>
+<p>Optional query and form parameters become <strong>required nullable keys</strong>: send <code>null</code> to omit a parameter, for example <code>{&quot;query_limit&quot;:null}</code>. Omitting the key fails input validation. Optional headers and request bodies become required with a warning, because the runtime cannot omit their templates; review this choice when the API distinguishes absence from a supplied value. Schema defaults do not populate arguments automatically.</p>
+<p><strong>Body:</strong> supports JSON, text, and URL-encoded forms. JSON/text use <code>body</code>; forms use <code>form_*</code> inputs. OpenAPI 3 forms must declare a simple object with fixed properties and <code>additionalProperties: false</code>. The converter does not serialize nested objects into form values.</p>
+<p><strong>Response:</strong> selects the lowest explicit 2xx status and sets <code>successStatuses</code> to that one code. Multiple successful statuses produce a warning; other 2xx responses become errors until the configuration is reviewed. <code>default</code> or <code>2XX</code> without a concrete code is insufficient. For content, prefers JSON (including <code>application/*+json</code> in OpenAPI 3 responses), then text; warns when discarding alternatives.</p>
+<p>Every response is wrapped as <code>{&quot;data&quot;:...}</code>, preserving an MCP object root even for an API array or scalar. HEAD, 204, 205, and responses without a body produce <code>{&quot;data&quot;:null}</code>. Empty and singleton arrays remain arrays. The output schema describes the content inside <code>data</code>.</p>
+<p><strong>Schemas:</strong> converts local references to <code>$defs</code>, supports recursive references, and projects <code>readOnly</code> properties out of inputs and <code>writeOnly</code> properties out of outputs. Converts OpenAPI 3.0 <code>nullable</code>, Swagger <code>x-nullable</code>, and boolean exclusive bounds to JSON Schema. OpenAPI 3.1/3.2 supports native unions with <code>null</code>. Formats unknown to the validator are omitted with a warning while preserving the underlying type. Unsupported validation keywords cause errors rather than being silently removed. Complex schemas must also be accepted by AJV in strict mode.</p>
+<h2 id="authentication-and-execution">Authentication and execution<a class="heading-link" href="#authentication-and-execution" aria-label="Link to Authentication and execution">#</a></h2>
+<p>Operation <code>security</code> overrides global security; <code>security: []</code> removes inherited authentication. Supports header/query API keys, Basic, Bearer, and OAuth2 <code>client_credentials</code> (<code>flow: application</code> in Swagger 2). OAuth endpoints must be absolute; the converter emits <code>tokenAuthMethod: basic</code> and a warning to verify it with the provider.</p>
+<p>When multiple OR alternatives exist, it uses the first and warns. It does not combine AND schemes or replace unsupported schemes with anonymous access. Only profiles used by selected tools are generated.</p>
+<p>Credentials are represented as <code>${env.VARIABLE}</code>. Names contain the prefix, normalized scheme name, a stable hash, and secret type. The script lists exact variable names without requesting or reading real credentials. For example, the OpenAPI 3 fixture requires:</p>
+<div class="code-block"><span class="code-label">dotenv</span><pre><code class="language-dotenv">OPENAPI_BEARERAUTH_C41694_TOKEN=replace-with-your-token</code></pre></div>
+<p>After configuring <code>.env</code>:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node --env-file=.env dist/cli.js validate --config examples/catalog-v3.yaml
+node --env-file=.env dist/cli.js serve --config examples/catalog-v3.yaml</code></pre></div>
+<p>No <code>.env</code> file is generated automatically. Generator validation uses dummy values and checks structure, schemas, and templates; it does not establish that credentials or the API work.</p>
+<p>To use the integration as a group, reference it from a composition file:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">groups:
+  - id: catalog
+    config: ./catalog-v3.yaml</code></pre></div>
+<h2 id="limitations-and-development">Limitations and development<a class="heading-link" href="#limitations-and-development" aria-label="Link to Limitations and development">#</a></h2>
+<p>Rejects external references or anchors, methods unsupported by the executor (TRACE, QUERY, COPY, etc.), cookies, multipart/files/binary data, serialization such as <code>deepObject</code>, CSV arrays and path/header arrays, <code>allowReserved: true</code>, parameters using <code>content</code>, incompatible schemas/dialects, interactive OAuth, OpenID Connect, and combined authentication. Query/form arrays must contain scalars and use Swagger <code>collectionFormat: multi</code> or OpenAPI 3 <code>style: form</code>, <code>explode: true</code>. Scalar path/header parameters use <code>simple</code>.</p>
+<p>Callbacks and webhooks are reported as not generated. OpenAPI 3.2-specific features that do not fit the current executor require manual mapping. This is not a complete specification validator or universal API client generator.</p>
+<p>Shared code lives in <code>scripts/lib</code>: <code>openapi-cli.mjs</code> handles files/options, <code>openapi-converter.mjs</code> translates operations, and <code>openapi-schema.mjs</code> normalizes schemas/references. The three entry points avoid duplicating version-specific logic. The runtime and configuration format are unchanged.</p>
+<p>Tests: <code>npm run check</code>. <code>tests/openapi.test.ts</code> generates files through the scripts and executes resulting tools against intercepted HTTP, covering authentication, URLs, parameters, forms, schemas, responses, and conversion failures.</p>
+<p>Format references: <a href="https://spec.openapis.org/oas/v2.0">Swagger 2.0</a>, <a href="https://spec.openapis.org/oas/v3.0.4.html">OpenAPI 3.0</a>, <a href="https://spec.openapis.org/oas/v3.1.2.html">3.1</a>, <a href="https://spec.openapis.org/oas/v3.2.0.html">3.2</a>.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../en/openapi-import.md">Markdown source</a></footer></main>
+<aside class="toc" aria-label="On this page"><span class="nav-label">On this page</span><a class="depth-2" href="#usage">Usage</a>
+<a class="depth-2" href="#options">Options</a>
+<a class="depth-2" href="#generated-mapping">Generated mapping</a>
+<a class="depth-2" href="#authentication-and-execution">Authentication and execution</a>
+<a class="depth-2" href="#limitations-and-development">Limitations and development</a></aside></div></body></html>

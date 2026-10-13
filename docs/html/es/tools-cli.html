@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tools CLI: adaptar un ejecutable local · Underqubit Sidecar MCP</title><meta name="description" content="Tools CLI: adaptar un ejecutable local. Guías y referencia de Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="en" href="../en/tools-cli.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Ir al contenido</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Idioma"><a href="tools-cli.html" lang="es" hreflang="es" aria-current="true">ES</a><a href="../en/tools-cli.html" lang="en" hreflang="en">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentación</span><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html" aria-current="page">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Explorar guías</summary><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html" aria-current="page">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="tools-cli-adaptar-un-ejecutable-local">Tools CLI: adaptar un ejecutable local</h1>
+<p><a href="../en/tools-cli.html">English</a></p>
+<p><a href="index.html">Volver al índice</a> · <a href="configuracion.html">Configuración común</a></p>
+<p>Una tool CLI inicia un proceso, envía argumentos y stdin, captura stdout y procesa su resultado. Funciona con programas que ya existan; cuando el CLI admite salida JSON, usarla suele simplificar el mapeo.</p>
+<h2 id="referencia-de-execution">Referencia de <code>execution</code><a class="heading-link" href="#referencia-de-execution" aria-label="Enlace a Referencia de execution">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo / default</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>type</code></td>
+<td>Literal <code>cli</code></td>
+<td>Selecciona el adaptador.</td>
+</tr>
+<tr>
+<td><code>command</code></td>
+<td>String obligatorio</td>
+<td>Ejecutable fijo o desde entorno; nunca desde input.</td>
+</tr>
+<tr>
+<td><code>args</code></td>
+<td>Lista de strings, <code>[]</code></td>
+<td>Cada elemento se resuelve como un argumento individual.</td>
+</tr>
+<tr>
+<td><code>cwd</code></td>
+<td>Directorio del archivo de configuración</td>
+<td>Directorio de trabajo fijo o desde entorno.</td>
+</tr>
+<tr>
+<td><code>env</code></td>
+<td>Mapa de strings, <code>{}</code></td>
+<td>Variables explícitas del proceso hijo.</td>
+</tr>
+<tr>
+<td><code>stdin</code></td>
+<td>Valor JSON, omitido</td>
+<td>String literal o serialización JSON de otro valor.</td>
+</tr>
+<tr>
+<td><code>successExitCodes</code></td>
+<td><code>[0]</code></td>
+<td>Lista no vacía de enteros entre 0 y 255.</td>
+</tr>
+<tr>
+<td><code>timeoutMs</code></td>
+<td>Hereda del servidor</td>
+<td>Deadline de la tool.</td>
+</tr>
+<tr>
+<td><code>maxOutputBytes</code></td>
+<td>Hereda del servidor</td>
+<td>Límite de stdin, captura y resultado.</td>
+</tr>
+</tbody></table></div>
+<h2 id="ejemplo-completo-ejecutable">Ejemplo completo ejecutable<a class="heading-link" href="#ejemplo-completo-ejecutable" aria-label="Enlace a Ejemplo completo ejecutable">#</a></h2>
+<p>Guardar como <code>local.yaml</code> en la raíz del proyecto. Utiliza el script de ejemplo que ya existe en <code>examples/echo.mjs</code>.</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">version: 1
+tools:
+  - name: local_message
+    description: Recibe un mensaje y lo devuelve mediante un CLI local de ejemplo.
+    inputSchema:
+      type: object
+      properties:
+        message: { type: string, maxLength: 1024 }
+      required: [message]
+      additionalProperties: false
+    outputSchema:
+      type: object
+      properties:
+        message: { type: string }
+      required: [message]
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
+    execution:
+      type: cli
+      command: node
+      args: [examples/echo.mjs]
+      cwd: .
+      stdin:
+        message: &#39;${input.message}&#39;
+    response:
+      parser: { type: json }</code></pre></div>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node dist/cli.js validate --config local.yaml
+node dist/cli.js serve --config local.yaml</code></pre></div>
+<p>Desde un cliente MCP, invocar <code>local_message</code> con <code>{&quot;message&quot;:&quot;hola&quot;}</code> devuelve <code>{&quot;message&quot;:&quot;hola&quot;}</code>. Para probar sin crear un archivo nuevo, usar <a href="../../../examples/cli.yaml">examples/cli.yaml</a> o <a href="../../../examples/cli.json">examples/cli.json</a>.</p>
+<h2 id="argumentos-y-shell">Argumentos y shell<a class="heading-link" href="#argumentos-y-shell" aria-label="Enlace a Argumentos y shell">#</a></h2>
+<p>Se usa <code>spawn(command, args, {shell: false})</code>. Un string como <code>&quot;hello world&quot;</code> es un solo argumento y no debe contener comillas adicionales para proteger espacios.</p>
+<p><strong>Fragmento</strong> para un CLI existente:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">execution:
+  type: cli
+  command: service-cli
+  args: [users, get, &#39;${input.id}&#39;, --output, json]</code></pre></div>
+<p>No poner toda la línea en <code>command: &#39;service-cli users get ...&#39;</code>: se intentaría encontrar un ejecutable con ese nombre completo. No hay expansión automática de <code>~</code>, globbing, pipes, redirecciones, <code>$HOME</code> ni sustitución <code>$(...)</code>.</p>
+<p>Una referencia numérica o booleana en <code>args</code> se convierte a string. Los objetos y arrays no se expanden en múltiples argumentos. Si el programa necesita JSON estructurado, usar stdin o un contrato de argumentos apropiado.</p>
+<p>Para scripts se puede declarar un intérprete y la ruta como argumento: <code>command: node</code>, <code>args: [script.mjs]</code>. La configuración es de confianza: configurar explícitamente un intérprete que ejecute código conserva los permisos y capacidades de ese intérprete.</p>
+<h2 id="directorios-y-búsqueda-del-ejecutable">Directorios y búsqueda del ejecutable<a class="heading-link" href="#directorios-y-búsqueda-del-ejecutable" aria-label="Enlace a Directorios y búsqueda del ejecutable">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Valor</th>
+<th>Resolución</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>command: node</code></td>
+<td>Búsqueda en PATH.</td>
+</tr>
+<tr>
+<td><code>command: ./bin/tool</code></td>
+<td>Relativo al directorio del archivo de configuración.</td>
+</tr>
+<tr>
+<td>Ruta absoluta en <code>command</code></td>
+<td>Se conserva como absoluta en la plataforma correspondiente.</td>
+</tr>
+<tr>
+<td><code>cwd</code> omitido</td>
+<td>Directorio del archivo de configuración.</td>
+</tr>
+<tr>
+<td><code>cwd: ../workspace</code></td>
+<td>Relativo al archivo de configuración.</td>
+</tr>
+<tr>
+<td>Ruta dentro de <code>args</code></td>
+<td>La interpreta el CLI desde su <code>cwd</code>.</td>
+</tr>
+</tbody></table></div>
+<p>Por eso mover un YAML de <code>examples/</code> a la raíz puede requerir ajustar rutas. El nombre del archivo pasado a <code>--config</code> se resuelve desde el directorio donde se inicia Node.</p>
+<p>En Windows, declarar ejecutables compatibles con <code>spawn</code> sin shell o el intérprete correspondiente. La implementación no ofrece un modo <code>shell: true</code> para scripts <code>.cmd</code>/<code>.bat</code>.</p>
+<h2 id="entorno-y-credenciales">Entorno y credenciales<a class="heading-link" href="#entorno-y-credenciales" aria-label="Enlace a Entorno y credenciales">#</a></h2>
+<p>Solo se heredan del servidor estas variables, cuando existen: <code>PATH</code>, <code>SystemRoot</code>, <code>WINDIR</code>, <code>TMPDIR</code>, <code>TEMP</code>, <code>TMP</code> y <code>LANG</code>. <code>execution.env</code> se agrega después y puede reemplazarlas.</p>
+<p><strong>Fragmento</strong>:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">env:
+  SERVICE_TOKEN: &#39;${env.SERVICE_TOKEN}&#39;
+  HOME: &#39;${env.HOME}&#39;
+  SERVICE_PROFILE: production</code></pre></div>
+<p><code>HOME</code> no se hereda por defecto. Si el CLI consulta credenciales o configuración en el home del usuario, declararlo explícitamente. Las variables de entorno del servidor usadas por plantillas se capturan al iniciar; las variables básicas heredadas se consultan al crear el proceso.</p>
+<p>El adaptador CLI no usa <code>execution.auth</code>: delega la autenticación al propio programa mediante entorno o stdin. Consultar <a href="autenticacion.html">Autenticación</a>.</p>
+<h2 id="stdin-stdout-y-stderr">Stdin, stdout y stderr<a class="heading-link" href="#stdin-stdout-y-stderr" aria-label="Enlace a Stdin, stdout y stderr">#</a></h2>
+<p>Si <code>stdin</code> es un string, se envía tal cual, sin agregar un salto de línea. Para incluir uno, usar un string YAML con <code>\n</code> o un bloque literal. Si es objeto, array, número, booleano o <code>null</code>, se serializa como JSON. Si se omite, stdin se cierra sin datos.</p>
+<p>El proceso debe terminar para producir un resultado MCP. No es una terminal interactiva ni una sesión con TTY.</p>
+<p>Stdout completo se interpreta como UTF-8 y alimenta el parser. Si el programa escribe banners o logs antes de un JSON, el parser JSON fallará; configurar su modo silencioso/JSON o usar un parser adecuado. Stderr se drena y se cuenta para el límite de captura, pero se descarta: no se agrega al resultado ni a los logs.</p>
+<p>Un código de salida fuera de <code>successExitCodes</code>, o la terminación por señal, produce error antes del parseo. Si se aceptan códigos no cero, también debe existir un parser/esquema válido para la salida correspondiente.</p>
+<h2 id="cancelación-y-límites">Cancelación y límites<a class="heading-link" href="#cancelación-y-límites" aria-label="Enlace a Cancelación y límites">#</a></h2>
+<p>Un timeout, cancelación MCP, cierre del servidor o exceso de salida solicita SIGTERM. En POSIX se señala al grupo de procesos creado para la tool y se escala a SIGKILL después de 250 ms si hace falta. En Windows se termina el proceso directo; no se garantiza finalizar descendientes independientes. Un proceso que se desacopla de su grupo en POSIX tampoco se convierte en un recurso aislado por el servidor.</p>
+<p>El límite suma los bytes recibidos por stdout y stderr. Stdin tiene su propia comprobación con el mismo valor configurado. El resultado JSON final vuelve a comprobarse. No se devuelve una captura parcial como resultado correcto.</p>
+<p>Para estructurar salida textual, continuar con <a href="respuestas.html">Respuestas</a>.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../tools-cli.md">Fuente Markdown</a></footer></main>
+<aside class="toc" aria-label="En esta página"><span class="nav-label">En esta página</span><a class="depth-2" href="#referencia-de-execution">Referencia de execution</a>
+<a class="depth-2" href="#ejemplo-completo-ejecutable">Ejemplo completo ejecutable</a>
+<a class="depth-2" href="#argumentos-y-shell">Argumentos y shell</a>
+<a class="depth-2" href="#directorios-y-búsqueda-del-ejecutable">Directorios y búsqueda del ejecutable</a>
+<a class="depth-2" href="#entorno-y-credenciales">Entorno y credenciales</a>
+<a class="depth-2" href="#stdin-stdout-y-stderr">Stdin, stdout y stderr</a>
+<a class="depth-2" href="#cancelación-y-límites">Cancelación y límites</a></aside></div></body></html>

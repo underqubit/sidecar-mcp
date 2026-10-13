@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Operations and troubleshooting · Underqubit Sidecar MCP</title><meta name="description" content="Operations and troubleshooting. Guides and reference for Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="es" href="../es/operacion-y-diagnostico.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Language"><a href="../es/operacion-y-diagnostico.html" lang="es" hreflang="es">ES</a><a href="operations-and-troubleshooting.html" lang="en" hreflang="en" aria-current="true">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentation</span><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html" aria-current="page">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Browse guides</summary><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html" aria-current="page">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="operations-and-troubleshooting">Operations and troubleshooting</h1>
+<p><a href="index.html">Back to index</a> · <a href="../es/operacion-y-diagnostico.html">Español</a></p>
+<h2 id="choose-how-to-run-the-server">Choose how to run the server<a class="heading-link" href="#choose-how-to-run-the-server" aria-label="Link to Choose how to run the server">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Use</th>
+<th>Who manages the process</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Stdio</td>
+<td>Local integration with an MCP client</td>
+<td>The client usually starts and stops Node.</td>
+</tr>
+<tr>
+<td>Streamable HTTP</td>
+<td>A process shared by network clients or behind a proxy</td>
+<td>The operator or service supervisor.</td>
+</tr>
+</tbody></table></div>
+<p>Each process serves one transport. To serve both simultaneously, start separate processes; each has its own OAuth cache and can run its own CLIs.</p>
+<p>Configuration is assumed to be managed by a trusted operator. Commands run with the server user&#39;s permissions, and accepted HTTP clients access the same tool catalog. There are no built-in per-tool permissions, user accounts, rate limits, or concurrency quotas.</p>
+<h2 id="prepare-a-service-deployment">Prepare a service deployment<a class="heading-link" href="#prepare-a-service-deployment" aria-label="Link to Prepare a service deployment">#</a></h2>
+<ol>
+<li>Install Node 24 and the required CLIs on the server host.</li>
+<li>Install dependencies and build with <code>npm ci</code> and <code>npm run build</code>.</li>
+<li>Place configuration, scripts, and secrets where the process user can read them.</li>
+<li>Run <code>validate</code> with the same environment the service will use.</li>
+<li>Start Node using your chosen supervisor and configure restarts/logging there.</li>
+</ol>
+<p>Example command, with paths to replace:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node --env-file=/path/to/sidecar/.env /path/to/sidecar/dist/cli.js serve \
+  --config /path/to/sidecar/config.yaml --transport http</code></pre></div>
+<p>The supervisor&#39;s working directory need not be the project directory when using absolute paths. Relative CLI paths are resolved against the configuration file and its <code>cwd</code>, as explained in <a href="tools-cli.html">CLI tools</a>.</p>
+<p>The repository does not install a system service or include a preconfigured Docker/Kubernetes deployment. The server does not automatically reload code or configuration.</p>
+<h2 id="http-proxies-and-access-controls">HTTP, proxies, and access controls<a class="heading-link" href="#http-proxies-and-access-controls" aria-label="Link to HTTP, proxies, and access controls">#</a></h2>
+<p>Defaults: listen on <code>127.0.0.1:3000</code>, path <code>/mcp</code>, local hosts allowed, and no explicit Origin allowed.</p>
+<p>To expose the server behind a proxy:</p>
+<ul>
+<li>Keep loopback binding if the proxy and backend share a host. For another topology, configure the bind address and restrict direct backend access through the network.</li>
+<li>Terminate TLS and authenticate clients at the proxy. The MCP server does not validate incoming tokens.</li>
+<li>Configure <code>allowedHosts</code> with the hostnames the backend will actually receive. The request Host is checked; authorization is not inferred from <code>X-Forwarded-Host</code>.</li>
+<li>If clients send Origin, declare full values such as <code>https://console.example.com</code>. Scheme and port matter. Do not use wildcards.</li>
+<li>Preserve the method, body, and MCP headers. The protocol may use streaming; configure the proxy for the client&#39;s transport without assuming every exchange is a simple REST response.</li>
+<li>Set proxy timeouts and body limits consistently with the server&#39;s limits.</li>
+</ul>
+<p><code>allowedHosts</code> protects host selection and <code>allowedOrigins</code> restricts origins when present, but neither authenticates the client. An absent Origin is accepted; an empty, <code>null</code>, or unlisted Origin produces 403. The Origins list does not automatically enable CORS or browser preflight responses.</p>
+<p>The server has a configurable incoming body limit (<code>maxRequestBytes</code>). The Node listener allows 30 seconds for receiving a request and 10 seconds for headers; these listener values are not the tool execution deadline and have no dedicated configuration fields.</p>
+<p>There is no implemented <code>/health</code> route. To check functional availability, connect an MCP client and list tools; to check an integration, invoke an appropriate read-only tool.</p>
+<h2 id="changes-and-shutdown">Changes and shutdown<a class="heading-link" href="#changes-and-shutdown" aria-label="Link to Changes and shutdown">#</a></h2>
+<p>Changing YAML/JSON, credentials, or schemas requires a restart. Validate first, then restart through the client/supervisor. Changing <code>outputSchema</code> can break consumers expecting the previous contract; update the integration name or version according to the needs of the system using it.</p>
+<p>SIGINT and SIGTERM cancel active work and release resources. In stdio mode, closing stdin also initiates shutdown. In HTTP mode, shutdown ends calls, the handler, connections, and the listener; it does not drain indefinitely while allowing every job to finish.</p>
+<p>On POSIX, shutdown attempts to terminate each canceled CLI&#39;s process group, escalating to SIGKILL. Review descendant limitations in <a href="tools-cli.html">CLI tools</a>.</p>
+<h2 id="logs">Logs<a class="heading-link" href="#logs" aria-label="Link to Logs">#</a></h2>
+<p>The runtime emits JSON lines to stderr, for example:</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{&quot;tool&quot;:&quot;users_get&quot;,&quot;durationMs&quot;:123,&quot;ok&quot;:true}</code></pre></div>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{&quot;tool&quot;:&quot;users_get&quot;,&quot;durationMs&quot;:30001,&quot;ok&quot;:false,&quot;stage&quot;:&quot;execution&quot;}</code></pre></div>
+<p>Arguments, bodies, CLI stdout/stderr, and credential values are not logged. Upstream output may contain sensitive data and become part of a successful result; restrict it through the transformation and schema.</p>
+<p>Stderr may also contain plain-text startup, validation, and SDK messages. Collectors must not assume every line is JSON. Duration refers to each call reaching the runtime; not every protocol rejection generates a tool log.</p>
+<p>To save diagnostics in a POSIX terminal:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node dist/cli.js serve --config examples/cli.yaml 2&gt;sidecar.log</code></pre></div>
+<p>In stdio mode, do not merge stderr into stdout with <code>2&gt;&amp;1</code>, because stdout carries MCP. There is no built-in log rotation or metrics endpoint; manage these externally if needed.</p>
+<h2 id="troubleshooting-by-stage">Troubleshooting by stage<a class="heading-link" href="#troubleshooting-by-stage" aria-label="Link to Troubleshooting by stage">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Stage / symptom</th>
+<th>What to check</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>[config]</code> at startup</td>
+<td>Extension, valid YAML/JSON, unknown fields, version 1, nonempty tools, and unique names.</td>
+</tr>
+<tr>
+<td>Required environment variable</td>
+<td>Missing/empty variable, client/supervisor environment, placement of <code>--env-file</code>; also unused profiles.</td>
+</tr>
+<tr>
+<td>Invalid/unsupported JSON Schema</td>
+<td>Object root, correct types, internal references, and strict AJV validator restrictions.</td>
+</tr>
+<tr>
+<td>Invalid regex/JSONata</td>
+<td>Syntax, named groups, flags, and worker compilation budget.</td>
+</tr>
+<tr>
+<td><code>[input]</code> or SDK validation error</td>
+<td>Required arguments, actual types, limits, and <code>additionalProperties</code>; schema defaults do not fill in data.</td>
+</tr>
+<tr>
+<td><code>[parameters]</code></td>
+<td>Unavailable reference, object where a scalar was expected, <code>.</code>/<code>..</code> path parameter, excessive stdin.</td>
+</tr>
+<tr>
+<td><code>[auth]</code></td>
+<td>OAuth endpoint, credentials, scopes, Basic/body method, and Bearer response contract.</td>
+</tr>
+<tr>
+<td>HTTP 401/403 inside a tool error</td>
+<td>Remote service credentials or authorization. A static Bearer token does not renew itself.</td>
+</tr>
+<tr>
+<td>HTTP 301/302 inside a tool error</td>
+<td>The service&#39;s final URL is required; redirects are not followed.</td>
+</tr>
+<tr>
+<td>HTTP request failed</td>
+<td>Connectivity, DNS/TLS, deadline, and byte limit. Outgoing proxies from the environment are not used.</td>
+</tr>
+<tr>
+<td>Could not start executable</td>
+<td>PATH, path, permissions, working directory, and available interpreter.</td>
+</tr>
+<tr>
+<td>CLI exit code not accepted</td>
+<td>Run the CLI directly with the same cwd/environment to see its diagnostics. The server does not return stderr.</td>
+</tr>
+<tr>
+<td><code>[parse]</code></td>
+<td>Empty body/stdout, malformed JSON, mixed-in logs, or no regex match in <code>first</code> mode.</td>
+</tr>
+<tr>
+<td><code>[transform]</code></td>
+<td>Missing fields, invalid conversions, missing result, timeout, or worker resources.</td>
+</tr>
+<tr>
+<td><code>[output]</code></td>
+<td>Incompatible final object, unwrapped root array, or excessive bytes after transformation.</td>
+</tr>
+</tbody></table></div>
+<p>Generic messages avoid exposing service details or credentials. Reproducing the request/CLI with your own tools may be necessary to diagnose the upstream; do not automatically copy its complete output into shared logs.</p>
+<h2 id="transport-troubleshooting">Transport troubleshooting<a class="heading-link" href="#transport-troubleshooting" aria-label="Link to Transport troubleshooting">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Interpretation and action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Stdio process with no text on screen</td>
+<td>It may be working normally and waiting for an MCP client.</td>
+</tr>
+<tr>
+<td><code>Cannot find module .../dist/cli.js</code> or missing worker</td>
+<td>Build and retain the complete <code>dist/</code> directory.</td>
+</tr>
+<tr>
+<td><code>node</code> or CLI not found from a graphical app</td>
+<td>Check the process PATH or use an absolute executable path.</td>
+</tr>
+<tr>
+<td>HTTP 403 from the MCP endpoint</td>
+<td>Check Host/Origin and the proxy before investigating remote service auth.</td>
+</tr>
+<tr>
+<td>HTTP 404 from the MCP endpoint</td>
+<td>Use a route published by the configured mode: <code>/mcp</code> and/or <code>/mcp/&lt;group&gt;</code>. There are no routes named after tools.</td>
+</tr>
+<tr>
+<td>HTTP 413</td>
+<td>The incoming body exceeds <code>server.http.maxRequestBytes</code> or the proxy limit.</td>
+</tr>
+<tr>
+<td>HTTP 400/405 or negotiation failure</td>
+<td>Use a Streamable HTTP client and valid MCP messages; do not invoke it as a REST endpoint.</td>
+</tr>
+<tr>
+<td>Port already in use</td>
+<td>Stop the previous process or change <code>server.http.port</code>.</td>
+</tr>
+<tr>
+<td><code>listen EPERM</code> in TCP tests</td>
+<td>The environment prohibits opening sockets. Run the suite in a terminal/CI where this is allowed.</td>
+</tr>
+</tbody></table></div>
+<p>The 18 network tests that depend on listeners were blocked by <code>EPERM</code> during local verification in this environment. The workflow includes them in CI, but they are not considered to have passed here. The in-memory suite verifies the protocol and guards without opening a port.</p>
+<h2 id="current-functional-limits">Current functional limits<a class="heading-link" href="#current-functional-limits" aria-label="Link to Current functional limits">#</a></h2>
+<p>OpenAPI import is available through <a href="openapi-import.html">offline generation scripts</a>. There is no hot reload, executable TypeScript configuration, external Zod modules, multi-request workflows, automatic pagination, CSV/XML parsers, binary/multipart uploads, per-user OAuth login, per-tool authorization, or built-in incoming authentication.</p>
+<p>Dynamic tools are dynamic <strong>through configuration at startup</strong>. Manually choosing their contracts and transformations is part of integrating an existing API or CLI.</p>
+<p>See <a href="development.html">Development</a> to add capabilities and <a href="configuration.html">Configuration</a> for existing limits.</p>
+<h2 id="operating-multiple-groups">Operating multiple groups<a class="heading-link" href="#operating-multiple-groups" aria-label="Link to Operating multiple groups">#</a></h2>
+<p>See <a href="tool-groups.html">Tool groups</a> for <code>unified</code>, <code>separate</code>, and <code>both</code>. Start one process and use the endpoints printed on stderr. All routes share the main HTTP guards, port, and process lifetime; separate connections do not provide access control or failure isolation. Configure any incoming authorization in your trusted proxy for every exposed route, including <code>/mcp</code> if it exposes the full catalog.</p>
+<p>Configuration is validated atomically at startup. A missing child file or required variable prevents all groups from starting. Restart to load changes; there is no hot reload. Call logs include <code>group</code> and the original tool name. Duplicate operations in a client usually mean it connected to both the unified and group-specific endpoints.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../en/operations-and-troubleshooting.md">Markdown source</a></footer></main>
+<aside class="toc" aria-label="On this page"><span class="nav-label">On this page</span><a class="depth-2" href="#choose-how-to-run-the-server">Choose how to run the server</a>
+<a class="depth-2" href="#prepare-a-service-deployment">Prepare a service deployment</a>
+<a class="depth-2" href="#http-proxies-and-access-controls">HTTP, proxies, and access controls</a>
+<a class="depth-2" href="#changes-and-shutdown">Changes and shutdown</a>
+<a class="depth-2" href="#logs">Logs</a>
+<a class="depth-2" href="#troubleshooting-by-stage">Troubleshooting by stage</a>
+<a class="depth-2" href="#transport-troubleshooting">Transport troubleshooting</a>
+<a class="depth-2" href="#current-functional-limits">Current functional limits</a>
+<a class="depth-2" href="#operating-multiple-groups">Operating multiple groups</a></aside></div></body></html>

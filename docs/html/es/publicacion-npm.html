@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Licencia y publicación en npm · Underqubit Sidecar MCP</title><meta name="description" content="Licencia y publicación en npm. Guías y referencia de Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="en" href="../en/npm-publishing.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Ir al contenido</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Idioma"><a href="publicacion-npm.html" lang="es" hreflang="es" aria-current="true">ES</a><a href="../en/npm-publishing.html" lang="en" hreflang="en">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentación</span><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html" aria-current="page">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Explorar guías</summary><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html" aria-current="page">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="licencia-y-publicación-en-npm">Licencia y publicación en npm</h1>
+<p><a href="../en/npm-publishing.html">English</a> · <a href="index.html">Volver al índice</a></p>
+<p>El proyecto se distribuye bajo <a href="../../../LICENSE">Apache License 2.0</a>. El manifiesto declara <code>license: Apache-2.0</code> y está preparado para publicar <code>underqubit-sidecar-mcp</code> como paquete público. La preparación del repositorio no implica que una versión ya esté disponible en el registro.</p>
+<h2 id="usar-una-versión-publicada">Usar una versión publicada<a class="heading-link" href="#usar-una-versión-publicada" aria-label="Enlace a Usar una versión publicada">#</a></h2>
+<p>Requiere Node.js 24 o superior. Una vez publicada la versión indicada:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npx -y underqubit-sidecar-mcp@0.1.0 serve \
+  --config /ruta/absoluta/config.yaml --transport stdio</code></pre></div>
+<p>También se puede instalar como dependencia local:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm install underqubit-sidecar-mcp@0.1.0
+npx underqubit-sidecar-mcp validate --config ./config.yaml</code></pre></div>
+<p>La configuración pertenece al usuario; el paquete no crea ni carga <code>.env</code> automáticamente. Para cargarlo con una instalación local:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node --env-file=.env node_modules/underqubit-sidecar-mcp/dist/cli.js \
+  serve --config ./config.yaml --transport stdio</code></pre></div>
+<p>Los ejemplos están dentro de <code>node_modules/underqubit-sidecar-mcp/examples</code>. Si se copia una configuración CLI a otro directorio, copiar también sus scripts referenciados o ajustar las rutas. Los archivos de composición conservan la resolución relativa documentada en <a href="grupos-de-tools.html">Grupos de tools</a>.</p>
+<p>El paquete incluye los scripts de importación, listos para ejecutar sin compilar:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node node_modules/underqubit-sidecar-mcp/scripts/openapi-to-config.mjs \
+  --input ./api.yaml --output ./tools.json</code></pre></div>
+<p>Es un paquete de línea de comandos: no se declara una API JavaScript pública mediante <code>main</code> o <code>exports</code>.</p>
+<h2 id="qué-se-publica">Qué se publica<a class="heading-link" href="#qué-se-publica" aria-label="Enlace a Qué se publica">#</a></h2>
+<p><code>package.json.files</code> permite únicamente el código compilado y sus mapas/declaraciones, fuentes TypeScript para esos mapas, licencia, README, documentación, esquema, skill, ejemplos seleccionados y scripts OpenAPI. npm añade automáticamente <code>package.json</code>, README y LICENSE al paquete.</p>
+<p>No se incluyen <code>.env</code>, <code>node_modules</code>, tests, cachés ni archivos <code>.tgz</code>. Los archivos locales de Jira que no están incorporados al paquete (<code>examples/jira.json</code> y <code>scripts/diagnose-jira.mjs</code>) quedan fuera. Algunas guías para desarrolladores enlazan archivos disponibles solo en el checkout.</p>
+<ul>
+<li><code>prepack</code> limpia <code>dist</code>, compila, regenera el esquema y da permisos de ejecución a la CLI. Se ejecuta al usar <code>npm pack</code> o publicar desde el checkout.</li>
+<li><code>prepublishOnly</code> ejecuta <code>npm run check</code> antes de publicar desde el checkout.</li>
+<li>No hay <code>install</code>, <code>postinstall</code> ni <code>prepare</code>: los consumidores reciben JavaScript compilado y no necesitan TypeScript ni dependencias de desarrollo.</li>
+</ul>
+<p>Las tareas de desarrollo y empaquetado se ejecutan desde el checkout completo, no desde la carpeta instalada en <code>node_modules</code>.</p>
+<h2 id="verificar-el-paquete">Verificar el paquete<a class="heading-link" href="#verificar-el-paquete" aria-label="Enlace a Verificar el paquete">#</a></h2>
+<p>Desde el repositorio:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm ci
+npm run check
+npm run test:network
+npm run check:package
+npm pack --dry-run</code></pre></div>
+<p><code>check:package</code> construye el tarball real en un directorio temporal, revisa sus archivos y lo instala como dependencia de un proyecto consumidor. Usa las versiones de producción del lockfile para que la prueba sea reproducible. Comprueba el binario con <code>npm exec</code>, un cliente MCP stdio, tools de dos grupos, el worker y el conversor OpenAPI. Limpia el directorio temporal al finalizar. No publica nada.</p>
+<p>Con las dependencias ya disponibles en la caché npm se puede usar <code>npm run check:package -- --offline</code>. La prueba normal puede descargar dependencias. La suite <code>test:network</code> requiere permiso para abrir puertos localhost; la prueba de paquete usa stdio y no requiere puertos entrantes.</p>
+<p>La CI ejecuta también <code>check:package</code>. Para conservar un tarball para revisión manual, ejecutar <code>npm pack</code>; los <code>.tgz</code> están ignorados por Git.</p>
+<h2 id="publicar-una-versión">Publicar una versión<a class="heading-link" href="#publicar-una-versión" aria-label="Enlace a Publicar una versión">#</a></h2>
+<p>Antes de publicar, confirmar que el nombre está disponible o pertenece a la cuenta publicadora:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm view underqubit-sidecar-mcp name version maintainers
+npm login
+npm whoami</code></pre></div>
+<p>Un error DNS o de conexión no confirma disponibilidad. Un nombre ya registrado requiere permisos de publicación. Si se elige un nombre con scope, actualizar <code>name</code> y sincronizar <code>package-lock.json</code>; el comando CLI puede seguir llamándose <code>underqubit-sidecar-mcp</code>.</p>
+<p>El repositorio puede declarar <code>repository</code>, <code>homepage</code> y <code>bugs</code> cuando exista una URL pública confirmada. No son obligatorios para npm y no se completan con URLs inventadas.</p>
+<p>Para la primera versión, el manifiesto declara <code>0.1.0</code>. Para versiones siguientes, incrementar la versión antes de volver a publicar; npm no permite reemplazar una versión existente. Por ejemplo, <code>npm version patch</code> actualiza manifiesto y lockfile, y normalmente crea un commit/tag: ejecutarlo con el estado de Git preparado para ese paso.</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm publish --dry-run
+# Publicación real, solo cuando se decida lanzar la versión:
+npm publish</code></pre></div>
+<p><code>publishConfig</code> fija el registro <code>https://registry.npmjs.org/</code> y acceso público. La cuenta debe cumplir los requisitos vigentes de autenticación/2FA de npm. El dry run revisa el empaquetado, pero no demuestra que la cuenta tenga permisos ni reserva el nombre.</p>
+<p>Referencias: <a href="https://docs.npmjs.com/cli/v11/configuring-npm/package-json/">campos de package.json</a>, <a href="https://docs.npmjs.com/cli/v11/commands/npm-publish/">npm publish</a>, <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../publicacion-npm.md">Fuente Markdown</a></footer></main>
+<aside class="toc" aria-label="En esta página"><span class="nav-label">En esta página</span><a class="depth-2" href="#usar-una-versión-publicada">Usar una versión publicada</a>
+<a class="depth-2" href="#qué-se-publica">Qué se publica</a>
+<a class="depth-2" href="#verificar-el-paquete">Verificar el paquete</a>
+<a class="depth-2" href="#publicar-una-versión">Publicar una versión</a></aside></div></body></html>

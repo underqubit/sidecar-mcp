@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture and internals · Underqubit Sidecar MCP</title><meta name="description" content="Architecture and internals. Guides and reference for Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="es" href="../es/arquitectura.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Language"><a href="../es/arquitectura.html" lang="es" hreflang="es">ES</a><a href="architecture.html" lang="en" hreflang="en" aria-current="true">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentation</span><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html" aria-current="page">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Browse guides</summary><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html" aria-current="page">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="architecture-and-internals">Architecture and internals</h1>
+<p><a href="index.html">Back to index</a> · <a href="development.html">Development guide</a> · <a href="../es/arquitectura.html">Español</a></p>
+<p>The project separates the MCP protocol from integration execution. Tools are described in configuration; the runtime applies the same flow to all of them, regardless of transport or target service.</p>
+<h2 id="overall-flow">Overall flow<a class="heading-link" href="#overall-flow" aria-label="Link to Overall flow">#</a></h2>
+<div class="code-block diagram-source"><span class="code-label">mermaid</span><pre><code class="language-mermaid">flowchart TD
+    A[YAML or JSON file] --&gt; B[Load and validate]
+    B --&gt; C[Runtime and auth profiles]
+    C --&gt; D[Register tools with MCP SDK]
+    E[MCP client: stdio or HTTP] --&gt; D
+    D --&gt; F[Validate arguments and resolve parameters]
+    F --&gt; G{Execution type}
+    G --&gt; H[Axios: API request]
+    G --&gt; I[spawn: local CLI]
+    H --&gt; J[Text and metadata]
+    I --&gt; J
+    J --&gt; K[Parser and optional JSONata]
+    K --&gt; L[Validate outputSchema]
+    L --&gt; M[structuredContent and JSON text]
+    M --&gt; E</code></pre></div>
+<h2 id="module-responsibilities">Module responsibilities<a class="heading-link" href="#module-responsibilities" aria-label="Link to Module responsibilities">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="../../../src/cli.ts">cli.ts</a></td>
+<td>Process arguments, transport selection, validation without serving, shutdown signals.</td>
+</tr>
+<tr>
+<td><a href="../../../src/config-schema.ts">config-schema.ts</a></td>
+<td>Zod configuration schemas and inferred types.</td>
+</tr>
+<tr>
+<td><a href="../../../src/config.ts">config.ts</a></td>
+<td>YAML/JSON loading, semantic checks, required environment, paths, and response prevalidation.</td>
+</tr>
+<tr>
+<td><a href="../../../src/templates.ts">templates.ts</a></td>
+<td>Reference discovery and resolution, type preservation, and scalar conversion.</td>
+</tr>
+<tr>
+<td><a href="../../../src/composition.ts">composition.ts</a></td>
+<td>Deployment loading, independent group runtimes, catalog views, routing, and shared lifecycle.</td>
+</tr>
+<tr>
+<td><a href="../../../src/runtime.ts">runtime.ts</a></td>
+<td>Compiled tool registry, active calls, deadlines, data validation, results, and logging.</td>
+</tr>
+<tr>
+<td><a href="../../../src/auth.ts">auth.ts</a></td>
+<td>HTTP profiles, token cache, and coordination of concurrent OAuth requests.</td>
+</tr>
+<tr>
+<td><a href="../../../src/executors.ts">executors.ts</a></td>
+<td>Axios and CLI process adapters; produces text and metadata.</td>
+</tr>
+<tr>
+<td><a href="../../../src/response.ts">response.ts</a></td>
+<td>Direct parsing or worker creation/cancellation.</td>
+</tr>
+<tr>
+<td><a href="../../../src/response-worker.ts">response-worker.ts</a></td>
+<td>Regex, JSONata, and serialization inside the worker.</td>
+</tr>
+<tr>
+<td><a href="../../../src/mcp.ts">mcp.ts</a></td>
+<td>SDK registration, AJV bridge, stdio, HTTP handler, guards, and Node listener.</td>
+</tr>
+<tr>
+<td><a href="../../../src/errors.ts">errors.ts</a></td>
+<td>Stage-specific errors and safe messages.</td>
+</tr>
+</tbody></table></div>
+<h2 id="startup">Startup<a class="heading-link" href="#startup" aria-label="Link to Startup">#</a></h2>
+<ol>
+<li>The CLI processes <code>serve</code> or <code>validate</code> and the <code>--config</code> path.</li>
+<li><code>loadDeployment</code> reads the file through <code>readConfigFile</code>, detects an integration or composition, and loads the referenced files. <code>loadConfig</code> remains the single-integration API.</li>
+<li><code>prepareConfig</code> validates with Zod, applies defaults, checks unique names, compiles JSON Schemas, and validates references, profiles, and URLs.</li>
+<li>It captures only referenced environment variables and normalizes executable/cwd paths for CLI tools. It checks regex and JSONata in workers without running the transformation.</li>
+<li>The effective transport and mode are checked. <code>validate</code> reports success and exits. <code>serve</code> builds an <code>Application</code>, with one <code>Runtime</code> per group, and enables the transport.</li>
+</ol>
+<p>There is no automatic API discovery, advance CLI execution, token prefetching, or file watching. If startup fails, no partial set of tools becomes available.</p>
+<h2 id="internal-contracts">Internal contracts<a class="heading-link" href="#internal-contracts" aria-label="Link to Internal contracts">#</a></h2>
+<p>These interfaces help navigate the code; they are not a published or separately versioned package API.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Contract</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>LoadedConfig</code></td>
+<td>Normalized <code>config</code>, file <code>directory</code>, and <code>env</code> snapshot.</td>
+</tr>
+<tr>
+<td><code>ToolConfig</code> / <code>ExecutionConfig</code></td>
+<td>Types inferred from Zod; HTTP/CLI are discriminated by <code>type</code>.</td>
+</tr>
+<tr>
+<td><code>ExecutionContext</code></td>
+<td>Input, environment, <code>AbortSignal</code>, configured deadline, and maximum bytes.</td>
+</tr>
+<tr>
+<td><code>RawResponse</code></td>
+<td><code>{text: string, metadata: Record&lt;string, unknown&gt;}</code>.</td>
+</tr>
+<tr>
+<td><code>SidecarError</code></td>
+<td><code>stage</code> and a client-safe message.</td>
+</tr>
+<tr>
+<td><code>LogEvent</code></td>
+<td>Tool name, duration, success, and optional stage.</td>
+</tr>
+</tbody></table></div>
+<p>Adapters do not return MCP results directly. The runtime processes <code>RawResponse</code>, validates its result, and builds <code>CallToolResult</code>. This allows executors to be extended without duplicating the rest of the flow.</p>
+<h2 id="a-single-call">A single call<a class="heading-link" href="#a-single-call" aria-label="Link to A single call">#</a></h2>
+<p>The SDK validates arguments against the exposed definition. The runtime also validates input to preserve the same contract when called directly through <code>Runtime.call</code>.</p>
+<p>After validation, a deadline is created, and its signal is combined with the global shutdown and consumer signals. Parameters are resolved and the adapter runs. HTTP obtains credentials before the request; CLI builds its explicit environment and starts the process without a shell.</p>
+<p>The parser receives the complete text. JSON/text without a transform run directly; regex or JSONata use one worker per operation. The resulting object and final JSON size are validated before building a successful response.</p>
+<p>Known failures become <code>isError: true</code> with a stage-specific message. Unexpected failures are replaced with a generic message. The <code>finally</code> block removes the timer and logs the outcome; logger failures do not change the tool response.</p>
+<h2 id="transports-and-state">Transports and state<a class="heading-link" href="#transports-and-state" aria-label="Link to Transports and state">#</a></h2>
+<p><strong>Stdio:</strong> <code>serveStdio</code> manages the MCP exchange and the instance associated with the connection. Stdout belongs to the protocol; logs and diagnostics go to stderr. The client usually manages the child process.</p>
+<p><strong>Streamable HTTP:</strong> the SDK builds an MCP instance per request. The shared <code>Runtime</code> holds the process&#39;s definitions, authentication, and active operations. Separate profiles or credentials are not created per client. The SDK manages modern/legacy protocol compatibility.</p>
+<p><code>createHttpHandler</code> exposes a fetch interface with validation for the hostname, Host when present, Origin, and path. <code>startHttp</code> adapts it to <code>node:http</code>, additionally validates the original Host, and limits the incoming body. Both paths use the same tool registry.</p>
+<p>The <code>fromJsonSchema</code> bridge connects configuration schemas to the SDK. It uses synchronous AJV validators and a <code>WeakMap</code> cache keyed by object identity, without exposing environment or execution values.</p>
+<h2 id="concurrency-cancellation-and-shutdown">Concurrency, cancellation, and shutdown<a class="heading-link" href="#concurrency-cancellation-and-shutdown" aria-label="Link to Concurrency, cancellation, and shutdown">#</a></h2>
+<p>Calls can run concurrently. There is no global queue or configurable concurrency limit. Each CLI process and worker consumes its own resources; each server replica maintains its own token cache.</p>
+<p>OAuth coordinates by profile name: multiple consumers share the same token request, but each can cancel individually. Retrieval is canceled when no consumers remain. Tokens are cached only in memory and are not shared across processes.</p>
+<p><code>Runtime.close</code> aborts the global signal, closes auth, and waits for active calls. Adapters propagate cancellation to Axios, child processes, or workers. HTTP also closes the handler, connections, and listener. For stdio, the CLI closes the transport and pauses stdin.</p>
+<p>Main-thread time limits are cooperative: a synchronous operation does not yield control just because a timer expires. The worker allows regex/JSONata to be terminated without waiting for the expression to cooperate.</p>
+<h2 id="trust-boundaries">Trust boundaries<a class="heading-link" href="#trust-boundaries" aria-label="Link to Trust boundaries">#</a></h2>
+<p>The operator controls the file, executables, and server environment. The model supplies only declared arguments. TypeScript modules are not loaded from configuration, and templates do not evaluate JavaScript, but a configured executable retains its normal capabilities.</p>
+<p>MCP annotations describe effects; they do not provide authorization. The HTTP handler does not authenticate users. Output data is not automatically filtered for sensitivity: the parser, transformation, and <code>outputSchema</code> must expose the appropriate contract for each integration.</p>
+<h2 id="composition-and-catalog-views">Composition and catalog views<a class="heading-link" href="#composition-and-catalog-views" aria-label="Link to Composition and catalog views">#</a></h2>
+<p><code>LoadedDeployment</code> distinguishes a single integration from a validated composition. <code>Application</code> owns the group runtimes and a map of endpoint paths to <code>ToolCatalog</code> views. A catalog contains an MCP identity, tool definitions, and a call dispatcher; it does not copy execution state. Unified names map back to the original group tool. Separate endpoints publish original names and group identities.</p>
+<p><code>createApplicationHttpHandler</code> dispatches exact paths to independent SDK handlers, after common Host/Origin checks. <code>startHttp</code> opens one listener and reports all published URLs (<code>urls</code>); <code>url</code> remains the first published URL for compatibility. <code>createHttpHandler(Runtime)</code> remains available for single-runtime embedded consumers.</p>
+<p>Both views share each group&#39;s runtime and OAuth cache. Profiles with identical names in different groups remain independent. Execution defaults and referenced environment variables belong to the integration; listener settings belong to the composition. These boundaries prevent accidental configuration mixing, but are not process isolation or per-group access control.</p>
+<p><code>Application.close</code> and <code>Runtime.close</code> are idempotent. Shutdown cancels all group operations and closes all HTTP handlers; failed listener startup also closes runtimes. Composition logs add the group ID while keeping the original tool name. See <a href="tool-groups.html">Tool groups</a> for configuration and compatibility rules.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../en/architecture.md">Markdown source</a></footer></main>
+<aside class="toc" aria-label="On this page"><span class="nav-label">On this page</span><a class="depth-2" href="#overall-flow">Overall flow</a>
+<a class="depth-2" href="#module-responsibilities">Module responsibilities</a>
+<a class="depth-2" href="#startup">Startup</a>
+<a class="depth-2" href="#internal-contracts">Internal contracts</a>
+<a class="depth-2" href="#a-single-call">A single call</a>
+<a class="depth-2" href="#transports-and-state">Transports and state</a>
+<a class="depth-2" href="#concurrency-cancellation-and-shutdown">Concurrency, cancellation, and shutdown</a>
+<a class="depth-2" href="#trust-boundaries">Trust boundaries</a>
+<a class="depth-2" href="#composition-and-catalog-views">Composition and catalog views</a></aside></div></body></html>

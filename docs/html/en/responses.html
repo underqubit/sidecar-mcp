@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parsing, transformation, and MCP output · Underqubit Sidecar MCP</title><meta name="description" content="Parsing, transformation, and MCP output. Guides and reference for Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="es" href="../es/respuestas.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Language"><a href="../es/respuestas.html" lang="es" hreflang="es">ES</a><a href="responses.html" lang="en" hreflang="en" aria-current="true">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentation</span><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html" aria-current="page">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Browse guides</summary><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html" aria-current="page">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="parsing-transformation-and-mcp-output">Parsing, transformation, and MCP output</h1>
+<p><a href="index.html">Back to index</a> · <a href="../es/respuestas.html">Español</a></p>
+<p>An API or CLI response goes through three steps: <strong>parse the text</strong>, <strong>transform the data if JSONata is configured</strong>, and <strong>validate against <code>outputSchema</code></strong>. The schema describes the final result, which may differ from the original service response.</p>
+<h2 id="response-reference"><code>response</code> reference<a class="heading-link" href="#response-reference" aria-label="Link to response reference">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Default</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>parser</code></td>
+<td><code>{type: json}</code></td>
+<td>Object discriminated by <code>type: json</code>, <code>text</code>, or <code>regex</code>.</td>
+</tr>
+<tr>
+<td><code>transform</code></td>
+<td>Omitted</td>
+<td>JSONata expression; without it, parsed data is preserved.</td>
+</tr>
+<tr>
+<td><code>workerTimeoutMs</code></td>
+<td><code>1000</code></td>
+<td>Worker budget when using regex or JSONata.</td>
+</tr>
+</tbody></table></div>
+<p>A JSON/text parser without a transformation runs on the main thread. With regex or a transformation, parsing and transformation run in a worker.</p>
+<h2 id="json">JSON<a class="heading-link" href="#json" aria-label="Link to JSON">#</a></h2>
+<p><strong>Fragment</strong>:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">response:
+  parser: { type: json }</code></pre></div>
+<p><code>JSON.parse</code> is applied to the entire text. An empty body, multiple independent JSON lines, a banner before JSON, or non-JSON text causes an error. Content-Type does not change the selected parser.</p>
+<p>If the response is already an object compatible with <code>outputSchema</code>, no transformation is needed. Wrap a root list:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">response:
+  parser: { type: json }
+  transform: &#39;{&quot;items&quot;: data}&#39;</code></pre></div>
+<h2 id="text">Text<a class="heading-link" href="#text" aria-label="Link to Text">#</a></h2>
+<p>The <code>text</code> parser preserves the entire string. Because <code>outputSchema</code> must have an object root, a tool using it usually needs to wrap the string.</p>
+<p><strong>Fragment</strong>:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">response:
+  parser: { type: text }
+  transform: &#39;{&quot;text&quot;: $trim(data)}&#39;
+outputSchema:
+  type: object
+  properties: { text: { type: string } }
+  required: [text]
+  additionalProperties: false</code></pre></div>
+<p><code>$trim</code> is optional: omit it if spaces and newlines are part of the result you want to preserve.</p>
+<h2 id="regex-with-named-groups">Regex with named groups<a class="heading-link" href="#regex-with-named-groups" aria-label="Link to Regex with named groups">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th><code>parser</code> field</th>
+<th>Default / requirement</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>type</code></td>
+<td>Literal <code>regex</code>.</td>
+</tr>
+<tr>
+<td><code>pattern</code></td>
+<td>Required string with named groups <code>(?&lt;name&gt;...)</code>.</td>
+</tr>
+<tr>
+<td><code>flags</code></td>
+<td>Empty string. Allowed flags: <code>i</code>, <code>m</code>, <code>s</code>, <code>u</code>, without duplicates.</td>
+</tr>
+<tr>
+<td><code>mode</code></td>
+<td><code>first</code>; alternative: <code>all</code>.</td>
+</tr>
+</tbody></table></div>
+<p>Do not add <code>g</code> to flags: it is added internally when <code>mode</code> is <code>all</code>. JavaScript RegExp syntax is used.</p>
+<p>For the text <code>requests=120 errors=3</code>:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">response:
+  parser:
+    type: regex
+    pattern: &#39;requests=(?&lt;requests&gt;\d+) errors=(?&lt;errors&gt;\d+)&#39;
+  transform: &#39;{&quot;requests&quot;: $number(data.requests), &quot;errors&quot;: $number(data.errors)}&#39;
+outputSchema:
+  type: object
+  properties:
+    requests: { type: integer }
+    errors: { type: integer }
+  required: [requests, errors]
+  additionalProperties: false</code></pre></div>
+<p>Result: <code>{&quot;requests&quot;:120,&quot;errors&quot;:3}</code>. Before JSONata, groups are strings. In YAML, single quotes preserve regex backslashes; in JSON, write them as <code>&quot;\\d+&quot;</code> inside the JSON string.</p>
+<p>In <code>first</code> mode, the first match is used, and finding no match is an error. In <code>all</code> mode, the result is an array of objects, and finding no matches returns <code>[]</code>.</p>
+<p>For one item per line:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">response:
+  parser:
+    type: regex
+    pattern: &#39;^(?&lt;name&gt;\w+)=(?&lt;count&gt;\d+)$&#39;
+    flags: m
+    mode: all
+  transform: &#39;{&quot;items&quot;: [data.{&quot;name&quot;: name, &quot;count&quot;: $number(count)}]}&#39;</code></pre></div>
+<p>With <code>cpu=2</code> and <code>memory=4</code> on separate lines, the result contains a list of two objects. Declare <code>outputSchema.properties.items</code> as an array of objects with <code>name: string</code> and <code>count: integer</code>.</p>
+<h2 id="jsonata-context">JSONata context<a class="heading-link" href="#jsonata-context" aria-label="Link to JSONata context">#</a></h2>
+<p>The expression&#39;s root document contains:</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;data&quot;: {&quot;id&quot;: 42, &quot;name&quot;: &quot;Ada&quot;},
+  &quot;metadata&quot;: {&quot;status&quot;: 200, &quot;headers&quot;: {&quot;content-type&quot;: &quot;application/json&quot;}}
+}</code></pre></div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Available metadata</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HTTP</td>
+<td><code>status</code>, <code>headers.&quot;content-type&quot;</code>, and <code>headers.&quot;retry-after&quot;</code>, if those headers exist.</td>
+</tr>
+<tr>
+<td>CLI</td>
+<td><code>exitCode</code>.</td>
+</tr>
+</tbody></table></div>
+<p>Input, environment variables, auth profiles, cookies, and stderr are not included in the context. No registered functions access the filesystem or network. <code>${input...}</code> and <code>${env...}</code> are not interpolated in the expression.</p>
+<p>Transformation recipes:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Expression</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Select and normalize fields</td>
+<td><code>{&quot;id&quot;: $string(data.id), &quot;name&quot;: data.name}</code></td>
+</tr>
+<tr>
+<td>Preserve a list even with zero or one result</td>
+<td><code>{&quot;users&quot;: [data.items.{&quot;id&quot;: $string(id), &quot;name&quot;: name}]}</code></td>
+</tr>
+<tr>
+<td>Filter a list</td>
+<td><code>{&quot;active&quot;: [data.items[active = true]]}</code></td>
+</tr>
+<tr>
+<td>Include HTTP status</td>
+<td><code>{&quot;result&quot;: data, &quot;status&quot;: metadata.status}</code></td>
+</tr>
+<tr>
+<td>Convert a regex group</td>
+<td><code>{&quot;count&quot;: $number(data.count)}</code></td>
+</tr>
+<tr>
+<td>Accept an empty response using the text parser</td>
+<td><code>{&quot;ok&quot;: true}</code></td>
+</tr>
+</tbody></table></div>
+<p>Explicit brackets help preserve arrays in JSONata. Check zero, one, and multiple items because some selection expressions produce sequences or single values.</p>
+<p>The expression must produce a JSON-serializable value. A missing result (<code>undefined</code>), evaluation failure, or invalid numeric conversion causes an error. After serialization, the final object is validated against <code>outputSchema</code>.</p>
+<h2 id="mcp-result">MCP result<a class="heading-link" href="#mcp-result" aria-label="Link to MCP result">#</a></h2>
+<p>The runtime builds a successful response with structured content and a text copy of the same JSON. Example internal result, before any SDK compatibility adaptation:</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;resultType&quot;: &quot;complete&quot;,
+  &quot;content&quot;: [{&quot;type&quot;: &quot;text&quot;, &quot;text&quot;: &quot;{\&quot;message\&quot;:\&quot;hello\&quot;}&quot;}],
+  &quot;structuredContent&quot;: {&quot;message&quot;: &quot;hello&quot;}
+}</code></pre></div>
+<p>A tool failure returns <code>isError: true</code> and text containing a stage and a safe message, without successful <code>structuredContent</code>. Validation errors detected by the SDK may use its own error text.</p>
+<h2 id="budgets-and-limits">Budgets and limits<a class="heading-link" href="#budgets-and-limits" aria-label="Link to Budgets and limits">#</a></h2>
+<p>Each worker has an empty environment, a 64 MiB old-generation heap limit, and a 4 MiB stack. That heap limit is not a total memory limit for the entire process. The configured time includes worker startup and serialization; it also applies when compiling regex/JSONata during <code>validate</code>.</p>
+<p>A worker exceeding its time or resource limits is terminated. The tool deadline can also cancel it. Regex/JSONata are compiled at startup to check syntax; that does not guarantee the transformation will work for every actual response.</p>
+<p>The final JSON must fit within <code>maxOutputBytes</code>. The MCP response includes both its structured and textual forms, so the total transmitted size may exceed the size of that individual JSON value. Output is not truncated to force validation.</p>
+<p>See <a href="operations-and-troubleshooting.html">Operations and troubleshooting</a> for help with parsing and output errors.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../en/responses.md">Markdown source</a></footer></main>
+<aside class="toc" aria-label="On this page"><span class="nav-label">On this page</span><a class="depth-2" href="#response-reference">response reference</a>
+<a class="depth-2" href="#json">JSON</a>
+<a class="depth-2" href="#text">Text</a>
+<a class="depth-2" href="#regex-with-named-groups">Regex with named groups</a>
+<a class="depth-2" href="#jsonata-context">JSONata context</a>
+<a class="depth-2" href="#mcp-result">MCP result</a>
+<a class="depth-2" href="#budgets-and-limits">Budgets and limits</a></aside></div></body></html>

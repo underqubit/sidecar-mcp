@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JSON Schema reference for tools · Underqubit Sidecar MCP</title><meta name="description" content="JSON Schema reference for tools. Guides and reference for Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="es" href="../es/json-schema.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Language"><a href="../es/json-schema.html" lang="es" hreflang="es">ES</a><a href="json-schema.html" lang="en" hreflang="en" aria-current="true">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentation</span><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html" aria-current="page">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Browse guides</summary><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html" aria-current="page">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="json-schema-reference-for-tools">JSON Schema reference for tools</h1>
+<p><a href="../es/json-schema.html">Español</a> · <a href="index.html">Index</a> · <a href="configuration.html">Configuration</a></p>
+<p>This guide explains JSON Schema draft 2020-12 keywords and how they work in this project&#39;s <code>inputSchema</code> and <code>outputSchema</code>. It includes the installed validator&#39;s extensions, options without validation effects, and incompatibilities. These keywords are separate from server configuration fields such as <code>execution</code>, <code>auth</code>, and <code>response</code>, documented in <a href="configuration.html">Configuration</a>.</p>
+<h2 id="what-is-validated-and-when">What is validated and when<a class="heading-link" href="#what-is-validated-and-when" aria-label="Link to What is validated and when">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Validator</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Configuration file</td>
+<td>Zod</td>
+<td>Checks structure and applies server, execution, and parser defaults.</td>
+</tr>
+<tr>
+<td><code>inputSchema</code></td>
+<td>AJV, before execution</td>
+<td>Checks arguments from the MCP client. Invalid arguments prevent HTTP or CLI execution.</td>
+</tr>
+<tr>
+<td><code>outputSchema</code></td>
+<td>AJV, after parsing and JSONata</td>
+<td>Checks the structured result. Failure returns an error; the request or CLI has already run.</td>
+</tr>
+</tbody></table></div>
+<p>Both schemas must declare exactly <code>&quot;type&quot;: &quot;object&quot;</code> at their root. Wrap an API array or scalar, for example as <code>{&quot;items&quot;: [...]}</code>, using <code>response.transform</code>. JSON examples in this guide are <strong>complete schemas to paste into <code>inputSchema</code> or <code>outputSchema</code></strong>, not complete configuration files.</p>
+<p>Project rules live in <a href="../../../src/config.ts">src/config.ts</a>, <a href="../../../src/config-schema.ts">src/config-schema.ts</a>, and <a href="../../../src/runtime.ts">src/runtime.ts</a>. AJV uses <code>strict: true</code>, <code>allErrors: true</code>, <code>ownProperties: true</code>, and <code>validateFormats: true</code>, with <code>ajv-formats</code>. <code>useDefaults</code>, <code>coerceTypes</code>, <code>removeAdditional</code>, <code>$data</code>, and <code>discriminator</code> are not enabled.</p>
+<p>Validation therefore <strong>does not transform data</strong>: it does not convert <code>&quot;10&quot;</code> into <code>10</code>, insert <code>default</code> values, remove extra properties, or conceal passwords. Inherited JavaScript properties do not count. Configure output transformation separately; see <a href="responses.html">Responses</a>.</p>
+<h2 id="how-to-read-a-schema">How to read a schema<a class="heading-link" href="#how-to-read-a-schema" aria-label="Link to How to read a schema">#</a></h2>
+<p>A schema combines conditions on the same value. <code>properties</code> describes fields without requiring them: <code>required</code> controls presence. String, number, object, and array constraints need the corresponding <code>type</code>, declared in that schema or a compatible enclosing context; strict AJV rejects ambiguous uses.</p>
+<p>Subschema positions also accept <code>true</code> (any value), <code>false</code> (no value), and <code>{}</code> (no constraints). These cannot stand alone as a tool schema root, which requires <code>type: object</code>. For example, <code>properties: {&quot;metadata&quot;: true, &quot;obsolete&quot;: false}</code> allows any <code>metadata</code> value and forbids the presence of <code>obsolete</code>.</p>
+<h3 id="types-fixed-values-and-absence">Types, fixed values, and absence<a class="heading-link" href="#types-fixed-values-and-absence" aria-label="Link to Types, fixed values, and absence">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Keyword</th>
+<th>Value</th>
+<th>Rule and behavior when omitted</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>type</code></td>
+<td><code>object</code>, <code>array</code>, <code>string</code>, <code>number</code>, <code>integer</code>, <code>boolean</code>, <code>null</code></td>
+<td>Restricts the type. Without it, JSON Schema imposes no type constraint; tool roots still require it. <code>integer</code> accepts numbers without a fractional part, including <code>1.0</code>.</td>
+</tr>
+<tr>
+<td><code>enum</code></td>
+<td>Nonempty array of distinct values</td>
+<td>Accepts only those values, including structural comparison of objects/arrays. Omission imposes no closed list.</td>
+</tr>
+<tr>
+<td><code>const</code></td>
+<td>One JSON value</td>
+<td>Requires exactly that value. Omission imposes no fixed value.</td>
+</tr>
+</tbody></table></div>
+<p><strong>Absent</strong>, <code>null</code>, <code>&quot;&quot;</code>, <code>0</code>, and <code>false</code> are different. An optional field may be omitted, but does not accept <code>null</code> unless its schema allows it. <code>required</code> requires presence, not a nonempty string: add <code>minLength: 1</code> for that.</p>
+<p>Nested fields support nullable unions such as <code>&quot;type&quot;: [&quot;string&quot;, &quot;null&quot;]</code>. With the current strict settings, non-null unions such as <code>[&quot;string&quot;, &quot;number&quot;]</code> are rejected; use <code>anyOf</code>. Combining nullability with <code>enum</code> or <code>const</code> requires those constraints to allow <code>null</code> too. Do not use a type array at the root of a tool schema.</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;issueKey&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;pattern&quot;: &quot;^[A-Z][A-Z0-9_]*-[1-9][0-9]*$&quot; },
+    &quot;assignee&quot;: { &quot;type&quot;: [&quot;string&quot;, &quot;null&quot;] },
+    &quot;state&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;enum&quot;: [&quot;open&quot;, &quot;closed&quot;] },
+    &quot;apiVersion&quot;: { &quot;const&quot;: 1 }
+  },
+  &quot;required&quot;: [&quot;issueKey&quot;],
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p>Valid: <code>{&quot;issueKey&quot;:&quot;CS-303&quot;,&quot;assignee&quot;:null}</code>. Invalid: <code>{&quot;issueKey&quot;:null}</code> or <code>{&quot;issueKey&quot;:&quot;CS-303&quot;,&quot;state&quot;:&quot;unknown&quot;}</code>. <code>assignee</code>, <code>state</code>, and <code>apiVersion</code> may be omitted.</p>
+<h2 id="objects-and-extra-fields">Objects and extra fields<a class="heading-link" href="#objects-and-extra-fields" aria-label="Link to Objects and extra fields">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Keyword</th>
+<th>Value</th>
+<th>Rule and behavior when omitted</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>properties</code></td>
+<td>Field name → subschema map</td>
+<td>Validates each declared field when present. Does not require presence or forbid other fields.</td>
+</tr>
+<tr>
+<td><code>required</code></td>
+<td>Array of unique names</td>
+<td>All must be present. Omission is equivalent to <code>[]</code>. Strict mode also requires the names in <code>properties</code> in a compatible context.</td>
+</tr>
+<tr>
+<td><code>additionalProperties</code></td>
+<td>Boolean or subschema</td>
+<td>Controls fields not covered by <code>properties</code> or <code>patternProperties</code> <strong>in that same schema object</strong>. Omission allows extra fields.</td>
+</tr>
+<tr>
+<td><code>patternProperties</code></td>
+<td>Regex → subschema map</td>
+<td>Validates matching field names. Multiple matching patterns all apply. Omission defines no pattern-based rules.</td>
+</tr>
+<tr>
+<td><code>propertyNames</code></td>
+<td>String subschema</td>
+<td>Validates each field&#39;s name, not its value. Does not declare or allow fields by itself. Omission does not restrict names.</td>
+</tr>
+<tr>
+<td><code>minProperties</code></td>
+<td>Integer ≥ 0</td>
+<td>Minimum number of present fields. Omission is equivalent to 0.</td>
+</tr>
+<tr>
+<td><code>maxProperties</code></td>
+<td>Integer ≥ 0</td>
+<td>Maximum number of present fields. Omission imposes no limit.</td>
+</tr>
+<tr>
+<td><code>dependentRequired</code></td>
+<td>Field name → array of names</td>
+<td>When the key is present, the listed fields are required. A one-way presence dependency. Omission adds none.</td>
+</tr>
+<tr>
+<td><code>dependentSchemas</code></td>
+<td>Field name → subschema</td>
+<td>When the key is present, applies the subschema to the <strong>entire object</strong>. Omission adds no conditions.</td>
+</tr>
+<tr>
+<td><code>unevaluatedProperties</code></td>
+<td>Boolean or subschema</td>
+<td>Controls fields not evaluated by applicable rules, including through <code>$ref</code>, <code>allOf</code>, and successful branches. Omission adds no restriction.</td>
+</tr>
+</tbody></table></div>
+<h3 id="additionalproperties-false-true-or-a-schema"><code>additionalProperties</code>: false, true, or a schema<a class="heading-link" href="#additionalproperties-false-true-or-a-schema" aria-label="Link to additionalProperties: false, true, or a schema">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>false</code></td>
+<td>Extra fields fail validation. They are not removed.</td>
+</tr>
+<tr>
+<td><code>true</code></td>
+<td>Extra fields with any value are accepted. Declared fields are still validated.</td>
+</tr>
+<tr>
+<td>Omitted</td>
+<td>Extra fields are accepted unless another rule such as <code>unevaluatedProperties</code> constrains them.</td>
+</tr>
+<tr>
+<td><code>{ &quot;type&quot;: &quot;string&quot; }</code></td>
+<td>Extra fields are allowed only when their values are strings.</td>
+</tr>
+</tbody></table></div>
+<p>With the first example in this guide, <code>{&quot;issueKey&quot;:&quot;CS-303&quot;,&quot;verbose&quot;:true}</code> fails. Changing <code>additionalProperties</code> to <code>true</code> accepts it. This does not make <code>issueKey</code> optional or change its type.</p>
+<p>Each nested object has its own rules: root-level <code>additionalProperties: false</code> does not close nested objects. This example rejects extra fields both at the root and inside <code>issue</code>:</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;issue&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;properties&quot;: { &quot;key&quot;: { &quot;type&quot;: &quot;string&quot; }, &quot;summary&quot;: { &quot;type&quot;: &quot;string&quot; } },
+      &quot;required&quot;: [&quot;key&quot;, &quot;summary&quot;],
+      &quot;additionalProperties&quot;: false
+    }
+  },
+  &quot;required&quot;: [&quot;issue&quot;],
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p>For inputs, <code>false</code> helps detect invented or misspelled arguments. For outputs, use it when constructing a precise structure. If Jira returns many fields and the schema declares two, project the response with JSONata or allow extra fields. <strong>The schema does not perform that projection.</strong></p>
+<h3 id="dictionaries-and-patterns">Dictionaries and patterns<a class="heading-link" href="#dictionaries-and-patterns" aria-label="Link to Dictionaries and patterns">#</a></h3>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;labels&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;propertyNames&quot;: { &quot;pattern&quot;: &quot;^[a-z][a-z0-9_]*$&quot; },
+      &quot;additionalProperties&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;maxLength&quot;: 80 },
+      &quot;maxProperties&quot;: 20
+    },
+    &quot;metrics&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;patternProperties&quot;: { &quot;^metric_[a-z]+$&quot;: { &quot;type&quot;: &quot;number&quot; } },
+      &quot;additionalProperties&quot;: false
+    }
+  },
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p><code>{&quot;labels&quot;:{&quot;team&quot;:&quot;support&quot;},&quot;metrics&quot;:{&quot;metric_count&quot;:3}}</code> is valid. <code>metric_count: &quot;3&quot;</code> fails. Regexes are not automatically anchored: use <code>^</code> and <code>$</code> to validate the entire name. Strict AJV rejects a name declared in <code>properties</code> that also matches a <code>patternProperties</code> pattern.</p>
+<h3 id="composition-and-closed-objects">Composition and closed objects<a class="heading-link" href="#composition-and-closed-objects" aria-label="Link to Composition and closed objects">#</a></h3>
+<p><code>additionalProperties</code> does not collect properties declared in other <code>allOf</code> members. To compose an object and close the result, use <code>unevaluatedProperties: false</code> at the composition level and leave its parts open:</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;allOf&quot;: [
+    { &quot;properties&quot;: { &quot;key&quot;: { &quot;type&quot;: &quot;string&quot; } }, &quot;required&quot;: [&quot;key&quot;] },
+    { &quot;properties&quot;: { &quot;summary&quot;: { &quot;type&quot;: &quot;string&quot; } }, &quot;required&quot;: [&quot;summary&quot;] }
+  ],
+  &quot;unevaluatedProperties&quot;: false
+}</code></pre></div>
+<p>This accepts <code>{&quot;key&quot;:&quot;CS-303&quot;,&quot;summary&quot;:&quot;Example&quot;}</code> and rejects an <code>extra</code> field. In unions, successful branches count: declaring a field in any branch does not always allow it. An explicit <code>additionalProperties: true</code> also evaluates extra fields and can prevent an enclosing <code>unevaluatedProperties: false</code> from rejecting them.</p>
+<h2 id="strings-and-numbers">Strings and numbers<a class="heading-link" href="#strings-and-numbers" aria-label="Link to Strings and numbers">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Keyword</th>
+<th>Applicable type / value</th>
+<th>Rule and behavior when omitted</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>minLength</code></td>
+<td>String / integer ≥ 0</td>
+<td>Minimum Unicode characters (code points, not bytes or graphemes). Omitted: 0.</td>
+</tr>
+<tr>
+<td><code>maxLength</code></td>
+<td>String / integer ≥ 0</td>
+<td>Maximum characters. Omitted: no limit.</td>
+</tr>
+<tr>
+<td><code>pattern</code></td>
+<td>String / regex string</td>
+<td>Requires a match. Do not include <code>/.../</code> delimiters; for example, write <code>&quot;pattern&quot;: &quot;^\\d+$&quot;</code> in JSON to represent the regex <code>^\d+$</code>. Omitted: no pattern.</td>
+</tr>
+<tr>
+<td><code>format</code></td>
+<td>Format name</td>
+<td>This project validates it using <code>ajv-formats</code>. Omitted: no format check. Unknown formats fail compilation.</td>
+</tr>
+<tr>
+<td><code>minimum</code></td>
+<td>Number/integer / number</td>
+<td>Inclusive lower bound. Omitted: no bound.</td>
+</tr>
+<tr>
+<td><code>maximum</code></td>
+<td>Number/integer / number</td>
+<td>Inclusive upper bound. Omitted: no bound.</td>
+</tr>
+<tr>
+<td><code>exclusiveMinimum</code></td>
+<td>Number/integer / number</td>
+<td>Requires a strictly greater value. Not a boolean in 2020-12. Omitted: no bound.</td>
+</tr>
+<tr>
+<td><code>exclusiveMaximum</code></td>
+<td>Number/integer / number</td>
+<td>Requires a strictly smaller value. Omitted: no bound.</td>
+</tr>
+<tr>
+<td><code>multipleOf</code></td>
+<td>Number/integer / number &gt; 0</td>
+<td>Requires an exact multiple. Omitted: no multiple constraint.</td>
+</tr>
+</tbody></table></div>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;limit&quot;: { &quot;type&quot;: &quot;integer&quot;, &quot;minimum&quot;: 1, &quot;maximum&quot;: 100 },
+    &quot;score&quot;: { &quot;type&quot;: &quot;number&quot;, &quot;exclusiveMinimum&quot;: 0, &quot;exclusiveMaximum&quot;: 1 },
+    &quot;amountCents&quot;: { &quot;type&quot;: &quot;integer&quot;, &quot;minimum&quot;: 0, &quot;multipleOf&quot;: 5 },
+    &quot;code&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;minLength&quot;: 3, &quot;maxLength&quot;: 12, &quot;pattern&quot;: &quot;^[A-Z0-9]+$&quot; },
+    &quot;email&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;format&quot;: &quot;email&quot; }
+  },
+  &quot;required&quot;: [&quot;limit&quot;],
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p><code>{&quot;limit&quot;:10,&quot;score&quot;:0.5,&quot;amountCents&quot;:15}</code> is valid. <code>&quot;limit&quot;:&quot;10&quot;</code>, <code>score: 1</code>, and <code>amountCents: 12</code> fail. JSON cannot represent <code>NaN</code> or <code>Infinity</code>; AJV also rejects non-finite numbers. JavaScript uses floating point: for money or large identifiers, prefer integer cents within the safe range or strings; <code>multipleOf: 0.01</code> can encounter rounding errors.</p>
+<h3 id="all-registered-formats">All registered formats<a class="heading-link" href="#all-registered-formats" aria-label="Link to All registered formats">#</a></h3>
+<p>This inventory reflects <code>newValidator()</code> and the project lockfile. All formats except <code>int32</code>, <code>int64</code>, <code>float</code>, and <code>double</code> apply to strings; always declare the appropriate type. A format checks syntax, not existence, permissions, or reachability of an address.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Check</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>date</code></td>
+<td>Calendar date, such as <code>2026-10-13</code>.</td>
+</tr>
+<tr>
+<td><code>time</code></td>
+<td>Time with timezone, such as <code>14:30:00Z</code>.</td>
+</tr>
+<tr>
+<td><code>date-time</code></td>
+<td>Date and time with timezone, such as <code>2026-10-13T14:30:00Z</code>.</td>
+</tr>
+<tr>
+<td><code>iso-time</code></td>
+<td>Variant also accepting time without a timezone.</td>
+</tr>
+<tr>
+<td><code>iso-date-time</code></td>
+<td>Variant also accepting date-time without a timezone.</td>
+</tr>
+<tr>
+<td><code>duration</code></td>
+<td>ISO duration, such as <code>P3D</code> or <code>PT2H</code>.</td>
+</tr>
+<tr>
+<td><code>uri</code></td>
+<td>Absolute URI; not limited to HTTP.</td>
+</tr>
+<tr>
+<td><code>uri-reference</code></td>
+<td>Absolute or relative URI reference.</td>
+</tr>
+<tr>
+<td><code>uri-template</code></td>
+<td>URI template syntax; does not substitute server variables.</td>
+</tr>
+<tr>
+<td><code>url</code></td>
+<td>Legacy URL validator with its own restrictions; prefer <code>uri</code>. May reject localhost and private addresses.</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>Email syntax; does not verify the mailbox.</td>
+</tr>
+<tr>
+<td><code>hostname</code></td>
+<td>Hostname syntax; does not query DNS.</td>
+</tr>
+<tr>
+<td><code>ipv4</code></td>
+<td>IPv4 address.</td>
+</tr>
+<tr>
+<td><code>ipv6</code></td>
+<td>IPv6 address.</td>
+</tr>
+<tr>
+<td><code>regex</code></td>
+<td>Regular expression syntax. Does not execute the pattern against other fields.</td>
+</tr>
+<tr>
+<td><code>uuid</code></td>
+<td>UUID syntax.</td>
+</tr>
+<tr>
+<td><code>json-pointer</code></td>
+<td>JSON Pointer, such as <code>/issue/key</code>.</td>
+</tr>
+<tr>
+<td><code>json-pointer-uri-fragment</code></td>
+<td>Pointer as a fragment, such as <code>#/issue/key</code>.</td>
+</tr>
+<tr>
+<td><code>relative-json-pointer</code></td>
+<td>Relative JSON Pointer, such as <code>1/key</code>.</td>
+</tr>
+<tr>
+<td><code>byte</code></td>
+<td>Base64 syntax; does not decode or transform the string.</td>
+</tr>
+<tr>
+<td><code>int32</code></td>
+<td>Signed 32-bit integer. Use <code>type: integer</code>.</td>
+</tr>
+<tr>
+<td><code>int64</code></td>
+<td>Checks that the number is an integer; does not provide 64-bit precision or enforce JavaScript&#39;s safe integer range.</td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td>Accepts numbers; does not convert or impose IEEE 32-bit precision.</td>
+</tr>
+<tr>
+<td><code>double</code></td>
+<td>Accepts numbers; does not extend JavaScript precision.</td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>Recognized without additional validation. Does not encrypt or conceal values.</td>
+</tr>
+<tr>
+<td><code>binary</code></td>
+<td>Recognized without additional validation. Does not enable files, multipart, or binary transport.</td>
+</tr>
+</tbody></table></div>
+<p><code>idn-email</code>, <code>idn-hostname</code>, <code>iri</code>, and <code>iri-reference</code> exist in the standard but are not registered in this project. Do not use them without changing the validator.</p>
+<h3 id="format-bounds-ajv-formats-extension">Format bounds: ajv-formats extension<a class="heading-link" href="#format-bounds-ajv-formats-extension" aria-label="Link to Format bounds: ajv-formats extension">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Keyword</th>
+<th>Comparison</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>formatMinimum</code></td>
+<td>Greater than or equal to the bound.</td>
+</tr>
+<tr>
+<td><code>formatMaximum</code></td>
+<td>Less than or equal to the bound.</td>
+</tr>
+<tr>
+<td><code>formatExclusiveMinimum</code></td>
+<td>Strictly greater.</td>
+</tr>
+<tr>
+<td><code>formatExclusiveMaximum</code></td>
+<td>Strictly smaller.</td>
+</tr>
+</tbody></table></div>
+<p>Bounds are strings and require <code>format</code> in the same schema, with a comparison function. Installed formats providing it are <code>date</code>, <code>time</code>, <code>date-time</code>, <code>iso-time</code>, and <code>iso-date-time</code>. They cannot order emails or UUIDs. Without these keywords there are no additional range restrictions.</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;since&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;format&quot;: &quot;date&quot;, &quot;formatMinimum&quot;: &quot;2026-01-01&quot;, &quot;formatExclusiveMaximum&quot;: &quot;2027-01-01&quot; }
+  },
+  &quot;required&quot;: [&quot;since&quot;],
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<h2 id="arrays-tuples-and-matches">Arrays, tuples, and matches<a class="heading-link" href="#arrays-tuples-and-matches" aria-label="Link to Arrays, tuples, and matches">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Keyword</th>
+<th>Value</th>
+<th>Rule and behavior when omitted</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>items</code></td>
+<td>Subschema or boolean</td>
+<td>Validates all elements, or those following <code>prefixItems</code>. Omission does not constrain those elements. Cannot be an array of schemas in 2020-12.</td>
+</tr>
+<tr>
+<td><code>prefixItems</code></td>
+<td>Nonempty array of subschemas</td>
+<td>Validates initial elements by position. Does not require those positions to exist. Omission defines no tuple.</td>
+</tr>
+<tr>
+<td><code>minItems</code></td>
+<td>Integer ≥ 0</td>
+<td>Minimum length. Omitted: 0.</td>
+</tr>
+<tr>
+<td><code>maxItems</code></td>
+<td>Integer ≥ 0</td>
+<td>Maximum length. Omitted: no limit.</td>
+</tr>
+<tr>
+<td><code>uniqueItems</code></td>
+<td>Boolean</td>
+<td>When <code>true</code>, forbids JSON-equal elements; does not deduplicate. Omitted: <code>false</code>. Does not enforce uniqueness of one field such as <code>id</code>.</td>
+</tr>
+<tr>
+<td><code>contains</code></td>
+<td>Subschema</td>
+<td>Requires matching elements. At least one by default. Omission requires no matches.</td>
+</tr>
+<tr>
+<td><code>minContains</code></td>
+<td>Integer ≥ 0</td>
+<td>Minimum matches for <code>contains</code>; omitted: 1 when <code>contains</code> exists.</td>
+</tr>
+<tr>
+<td><code>maxContains</code></td>
+<td>Integer ≥ 0</td>
+<td>Maximum matches for <code>contains</code>; omitted: no limit.</td>
+</tr>
+<tr>
+<td><code>unevaluatedItems</code></td>
+<td>Boolean or subschema</td>
+<td>Validates elements not evaluated by other applicable rules, including compositions. Omission adds no restriction.</td>
+</tr>
+</tbody></table></div>
+<p>Strict mode rejects <code>minContains</code> and <code>maxContains</code> without <code>contains</code>. <code>contains</code> validates matches without filtering or extracting them. <code>minContains: 0</code>, <code>maxContains: 0</code> can forbid any matching element. <code>items: true</code> evaluates all remaining elements; an enclosing <code>unevaluatedItems: false</code> does not close them again.</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;tags&quot;: { &quot;type&quot;: &quot;array&quot;, &quot;items&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;minLength&quot;: 1 }, &quot;minItems&quot;: 1, &quot;maxItems&quot;: 5, &quot;uniqueItems&quot;: true },
+    &quot;coordinate&quot;: { &quot;type&quot;: &quot;array&quot;, &quot;prefixItems&quot;: [{ &quot;type&quot;: &quot;number&quot; }, { &quot;type&quot;: &quot;number&quot; }], &quot;minItems&quot;: 2, &quot;items&quot;: false },
+    &quot;states&quot;: { &quot;type&quot;: &quot;array&quot;, &quot;items&quot;: { &quot;type&quot;: &quot;string&quot; }, &quot;contains&quot;: { &quot;const&quot;: &quot;open&quot; }, &quot;minContains&quot;: 1, &quot;maxContains&quot;: 2 }
+  },
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p><code>{&quot;tags&quot;:[&quot;support&quot;],&quot;coordinate&quot;:[10,20],&quot;states&quot;:[&quot;open&quot;,&quot;closed&quot;]}</code> is valid. Duplicate tags, a three-element coordinate, or <code>states: [&quot;closed&quot;]</code> fail. Strict AJV requires consistently bounded tuples: for two fixed positions, use <code>minItems: 2</code> and either <code>items: false</code> or <code>maxItems: 2</code>.</p>
+<h2 id="combinations-and-conditions">Combinations and conditions<a class="heading-link" href="#combinations-and-conditions" aria-label="Link to Combinations and conditions">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Keyword</th>
+<th>Value</th>
+<th>Rule</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>allOf</code></td>
+<td>Nonempty array of schemas</td>
+<td>Must satisfy all. Does not merge, transform, or override properties.</td>
+</tr>
+<tr>
+<td><code>anyOf</code></td>
+<td>Nonempty array of schemas</td>
+<td>Must satisfy at least one; may satisfy several.</td>
+</tr>
+<tr>
+<td><code>oneOf</code></td>
+<td>Nonempty array of schemas</td>
+<td>Must satisfy exactly one. Two successful branches cause failure.</td>
+</tr>
+<tr>
+<td><code>not</code></td>
+<td>One schema</td>
+<td>Must fail that schema.</td>
+</tr>
+<tr>
+<td><code>if</code></td>
+<td>One schema</td>
+<td>Selects a branch without independently requiring the condition to hold.</td>
+</tr>
+<tr>
+<td><code>then</code></td>
+<td>One schema</td>
+<td>Applies when <code>if</code> succeeds.</td>
+</tr>
+<tr>
+<td><code>else</code></td>
+<td>One schema</td>
+<td>Applies when <code>if</code> fails.</td>
+</tr>
+</tbody></table></div>
+<p>Omission adds no conditions. Strict AJV rejects <code>then</code>/<code>else</code> without <code>if</code>, or <code>if</code> without either branch. Inside <code>if</code>, <code>properties</code> does not require presence: add <code>required</code> when testing whether the discriminator exists. Different <code>const</code> values in <code>oneOf</code> branches avoid overlaps.</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;mode&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;enum&quot;: [&quot;issue&quot;, &quot;search&quot;] },
+    &quot;issueKey&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;minLength&quot;: 1 },
+    &quot;jql&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;minLength&quot;: 1 }
+  },
+  &quot;required&quot;: [&quot;mode&quot;],
+  &quot;if&quot;: { &quot;properties&quot;: { &quot;mode&quot;: { &quot;const&quot;: &quot;issue&quot; } }, &quot;required&quot;: [&quot;mode&quot;] },
+  &quot;then&quot;: { &quot;required&quot;: [&quot;issueKey&quot;] },
+  &quot;else&quot;: { &quot;required&quot;: [&quot;jql&quot;] },
+  &quot;not&quot;: { &quot;properties&quot;: { &quot;issueKey&quot;: {}, &quot;jql&quot;: {} }, &quot;required&quot;: [&quot;issueKey&quot;, &quot;jql&quot;] },
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p>Valid: <code>{&quot;mode&quot;:&quot;issue&quot;,&quot;issueKey&quot;:&quot;CS-303&quot;}</code> and <code>{&quot;mode&quot;:&quot;search&quot;,&quot;jql&quot;:&quot;project = CS&quot;}</code>. Invalid: issue mode without <code>issueKey</code>, or both <code>issueKey</code> and <code>jql</code> present.</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;identifier&quot;: { &quot;anyOf&quot;: [{ &quot;type&quot;: &quot;string&quot;, &quot;minLength&quot;: 1 }, { &quot;type&quot;: &quot;integer&quot;, &quot;minimum&quot;: 1 }] },
+    &quot;result&quot;: {
+      &quot;oneOf&quot;: [
+        { &quot;type&quot;: &quot;object&quot;, &quot;properties&quot;: { &quot;status&quot;: { &quot;const&quot;: &quot;ok&quot; }, &quot;value&quot;: { &quot;type&quot;: &quot;string&quot; } }, &quot;required&quot;: [&quot;status&quot;, &quot;value&quot;], &quot;additionalProperties&quot;: false },
+        { &quot;type&quot;: &quot;object&quot;, &quot;properties&quot;: { &quot;status&quot;: { &quot;const&quot;: &quot;error&quot; }, &quot;message&quot;: { &quot;type&quot;: &quot;string&quot; } }, &quot;required&quot;: [&quot;status&quot;, &quot;message&quot;], &quot;additionalProperties&quot;: false }
+      ]
+    }
+  },
+  &quot;required&quot;: [&quot;identifier&quot;, &quot;result&quot;],
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p>Valid example: <code>{&quot;identifier&quot;:3,&quot;result&quot;:{&quot;status&quot;:&quot;ok&quot;,&quot;value&quot;:&quot;done&quot;}}</code>. A boolean identifier or an <code>&quot;ok&quot;</code> result without <code>value</code> fails.</p>
+<h3 id="field-dependencies">Field dependencies<a class="heading-link" href="#field-dependencies" aria-label="Link to Field dependencies">#</a></h3>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;cursor&quot;: { &quot;type&quot;: &quot;string&quot; },
+    &quot;jql&quot;: { &quot;type&quot;: &quot;string&quot; },
+    &quot;credentials&quot;: { &quot;type&quot;: &quot;boolean&quot; },
+    &quot;account&quot;: { &quot;type&quot;: &quot;string&quot; }
+  },
+  &quot;dependentRequired&quot;: { &quot;cursor&quot;: [&quot;jql&quot;] },
+  &quot;dependentSchemas&quot;: { &quot;credentials&quot;: { &quot;required&quot;: [&quot;account&quot;] } },
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p><code>{&quot;cursor&quot;:&quot;next&quot;,&quot;jql&quot;:&quot;project = CS&quot;}</code> is valid; <code>{&quot;cursor&quot;:&quot;next&quot;}</code> is not. If <code>credentials</code> exists, even with value <code>false</code>, <code>account</code> is required: these dependencies test presence. Use <code>if</code>/<code>then</code> to depend on its value.</p>
+<h2 id="references-identity-and-vocabularies">References, identity, and vocabularies<a class="heading-link" href="#references-identity-and-vocabularies" aria-label="Link to References, identity, and vocabularies">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Keyword</th>
+<th>Purpose and project support</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>$schema</code></td>
+<td>Declares the schema dialect. Omission uses AJV 2020-12. Use <code>https://json-schema.org/draft/2020-12/schema</code>; other drafts are not loaded automatically. The outer configuration&#39;s <code>$schema</code> is a separate editor hint.</td>
+</tr>
+<tr>
+<td><code>$id</code></td>
+<td>Identifies a schema resource and establishes a reference base. Does not download anything or register a global definition across tools. Omission assigns no explicit identifier. Avoid changing subschema bases unless necessary.</td>
+</tr>
+<tr>
+<td><code>$ref</code></td>
+<td>Applies a referenced schema. Only internal references starting with <code>#</code>, such as <code>#/$defs/issue</code>, are allowed. In 2020-12, sibling keywords also apply.</td>
+</tr>
+<tr>
+<td><code>$defs</code></td>
+<td>Reusable subschema map. Declaration alone does not require the data to satisfy them: they apply when referenced. Each input/output schema owns its map.</td>
+</tr>
+<tr>
+<td><code>$anchor</code></td>
+<td>The standard defines named anchors, but the installed AJV version/configuration rejects this as an unknown keyword in strict mode. Use <code>$defs</code> pointers.</td>
+</tr>
+<tr>
+<td><code>$dynamicAnchor</code></td>
+<td>Defines a named dynamic anchor for recursive/extensible references. Accepted by AJV; usually unnecessary for a simple integration.</td>
+</tr>
+<tr>
+<td><code>$dynamicRef</code></td>
+<td>Reference resolved through dynamic scope. Internal only (<code>#...</code>) in this server. Prefer <code>$ref</code> for ordinary reuse.</td>
+</tr>
+<tr>
+<td><code>$vocabulary</code></td>
+<td>In metaschemas, declares vocabularies and whether they are required (URI → boolean map). Does not install plugins or enable new keywords in this server. Cannot bypass strict mode.</td>
+</tr>
+<tr>
+<td><code>$comment</code></td>
+<td>Maintainer comment. Does not constrain data or execute as code; no logging callback is configured.</td>
+</tr>
+</tbody></table></div>
+<p>Aside from project root constraints, these keywords are optional. JSON Pointer escapes <code>/</code> as <code>~1</code> and <code>~</code> as <code>~0</code> in names; <code>#/...</code> is not a file path. References to URLs, other files, or other tools are forbidden. Unresolved internal references fail configuration loading. <code>$ref</code> is different from <code>${input...}</code>: templates are not resolved inside schemas.</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;$schema&quot;: &quot;https://json-schema.org/draft/2020-12/schema&quot;,
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: { &quot;issue&quot;: { &quot;$ref&quot;: &quot;#/$defs/issue&quot; } },
+  &quot;required&quot;: [&quot;issue&quot;],
+  &quot;additionalProperties&quot;: false,
+  &quot;$defs&quot;: {
+    &quot;issue&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;properties&quot;: { &quot;key&quot;: { &quot;type&quot;: &quot;string&quot; }, &quot;summary&quot;: { &quot;type&quot;: &quot;string&quot; } },
+      &quot;required&quot;: [&quot;key&quot;, &quot;summary&quot;],
+      &quot;additionalProperties&quot;: false
+    }
+  }
+}</code></pre></div>
+<p>Recursive structures can also be described without fetching schemas:</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;$dynamicAnchor&quot;: &quot;node&quot;,
+  &quot;properties&quot;: {
+    &quot;name&quot;: { &quot;type&quot;: &quot;string&quot; },
+    &quot;children&quot;: { &quot;type&quot;: &quot;array&quot;, &quot;items&quot;: { &quot;$dynamicRef&quot;: &quot;#node&quot; } }
+  },
+  &quot;required&quot;: [&quot;name&quot;],
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p>This accepts <code>{&quot;name&quot;:&quot;root&quot;,&quot;children&quot;:[{&quot;name&quot;:&quot;child&quot;}]}</code>. For recursive schemas or complex compositions, also check compatibility with the MCP client consuming the definition.</p>
+<h2 id="annotations-describe-without-transforming">Annotations: describe without transforming<a class="heading-link" href="#annotations-describe-without-transforming" aria-label="Link to Annotations: describe without transforming">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Keyword</th>
+<th>Value and effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>title</code></td>
+<td>Human-readable name of the described value. Does not automatically replace <code>tool.title</code>.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Explanation for agents, users, and editors. Not an executable rule.</td>
+</tr>
+<tr>
+<td><code>default</code></td>
+<td>Suggested value. This project does not insert it or make a required field optional.</td>
+</tr>
+<tr>
+<td><code>examples</code></td>
+<td>Array of illustrative values. Does not constrain like <code>enum</code>, nor imply AJV validates them when compiling.</td>
+</tr>
+<tr>
+<td><code>deprecated</code></td>
+<td>Boolean; <code>true</code> discourages use of the field without forbidding it. Omission does not mark it deprecated.</td>
+</tr>
+<tr>
+<td><code>readOnly</code></td>
+<td>Boolean describing a read field. The runtime does not remove it from inputs or block writes.</td>
+</tr>
+<tr>
+<td><code>writeOnly</code></td>
+<td>Boolean describing a write field. The runtime does not remove it from outputs or hide it.</td>
+</tr>
+<tr>
+<td><code>x-mcp-header</code></td>
+<td>Project extension, a string accepted as MCP metadata. Does not configure HTTP headers by itself; use <code>execution.headers</code>.</td>
+</tr>
+</tbody></table></div>
+<p>Omitting annotations adds no hints or constraints; <code>readOnly</code> and <code>writeOnly</code> are treated as <code>false</code>. Do not put secrets in <code>default</code>, <code>examples</code>, or descriptions: schemas are published to the MCP client. <code>readOnly</code>/<code>writeOnly</code> differ from tool annotations such as <code>readOnlyHint</code>.</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;properties&quot;: {
+    &quot;limit&quot;: { &quot;type&quot;: &quot;integer&quot;, &quot;minimum&quot;: 1, &quot;maximum&quot;: 100, &quot;default&quot;: 20, &quot;examples&quot;: [10, 20] },
+    &quot;note&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;description&quot;: &quot;Optional note&quot;, &quot;deprecated&quot;: true }
+  },
+  &quot;required&quot;: [&quot;limit&quot;],
+  &quot;additionalProperties&quot;: false
+}</code></pre></div>
+<p><code>{}</code> fails despite <code>limit</code> having <code>default: 20</code>. <code>{&quot;limit&quot;:10}</code> validates without changes. An execution template referencing an absent optional argument may also fail during resolution: the schema does not supply the missing value.</p>
+<h3 id="encoded-content">Encoded content<a class="heading-link" href="#encoded-content" aria-label="Link to Encoded content">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Keyword</th>
+<th>Meaning</th>
+<th>Actual effect here</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>contentEncoding</code></td>
+<td>String encoding, such as <code>base64</code>.</td>
+<td>Metadata; does not verify or decode.</td>
+</tr>
+<tr>
+<td><code>contentMediaType</code></td>
+<td>Content MIME type, such as <code>application/json</code>.</td>
+<td>Metadata; does not parse JSON or configure headers.</td>
+</tr>
+<tr>
+<td><code>contentSchema</code></td>
+<td>Schema of the decoded content.</td>
+<td>Metadata; does not validate that content with this AJV configuration.</td>
+</tr>
+</tbody></table></div>
+<p>For base64 validation, <code>format: byte</code> checks syntax. To parse and validate content, configure the parser/transformation and an effective <code>outputSchema</code>. These annotations do not enable uploads or binary responses either.</p>
+<h2 id="compatibility-and-disabled-options">Compatibility and disabled options<a class="heading-link" href="#compatibility-and-disabled-options" aria-label="Link to Compatibility and disabled options">#</a></h2>
+<p>This reference covers the 2020-12 Core, Applicator, Validation, Unevaluated, Metadata, Format, and Content vocabulary keywords, plus registered extensions. It does not imply universal support for all drafts, optional formats, or third-party extensions.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Name or construction</th>
+<th>Status / alternative</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>definitions</code></td>
+<td>Legacy form accepted by AJV. Prefer <code>$defs</code>.</td>
+</tr>
+<tr>
+<td><code>dependencies</code></td>
+<td>Accepted legacy form; arrays require fields and schemas apply to the entire object. Prefer <code>dependentRequired</code> / <code>dependentSchemas</code>.</td>
+</tr>
+<tr>
+<td><code>nullable</code></td>
+<td>OpenAPI extension accepted by AJV with <code>type</code>; <code>true</code> adds null to the type, but not to <code>enum</code>/<code>const</code>. Prefer <code>type: [&quot;string&quot;, &quot;null&quot;]</code> for nested fields.</td>
+</tr>
+<tr>
+<td><code>additionalItems</code></td>
+<td>Do not use in 2020-12; rejected in strict mode. Use <code>prefixItems</code> + <code>items</code>.</td>
+</tr>
+<tr>
+<td><code>items: [...]</code></td>
+<td>Tuple syntax from older drafts; rejected. Use <code>prefixItems</code>.</td>
+</tr>
+<tr>
+<td><code>$recursiveAnchor</code>, <code>$recursiveRef</code></td>
+<td>Old 2019-09 keywords. Do not use as a 2020-12 contract; <code>$recursiveAnchor: true</code> fails the installed metaschema. Use <code>$dynamicAnchor</code> / <code>$dynamicRef</code>.</td>
+</tr>
+<tr>
+<td><code>id</code></td>
+<td>Unsupported legacy form. Use <code>$id</code>.</td>
+</tr>
+<tr>
+<td><code>$async</code></td>
+<td>Forbidden by the loader, even when <code>false</code>: tools use synchronous validation.</td>
+</tr>
+<tr>
+<td><code>$data</code></td>
+<td>References to other field values are disabled. Use standard conditions where sufficient; arbitrary comparisons require additional logic.</td>
+</tr>
+<tr>
+<td><code>discriminator</code></td>
+<td>Disabled extension. Use <code>oneOf</code> with <code>const</code> discriminators.</td>
+</tr>
+<tr>
+<td><code>example</code>, <code>xml</code>, <code>externalDocs</code>, arbitrary <code>x-*</code></td>
+<td>Not directly accepted, except <code>x-mcp-header</code>. <code>examples</code> is accepted. The OpenAPI importer may convert or omit metadata.</td>
+</tr>
+<tr>
+<td><code>transform</code>, <code>errorMessage</code>, <code>select</code></td>
+<td>Extensions from plugins that are not installed. Use <code>response.transform</code> for output transformations.</td>
+</tr>
+<tr>
+<td>External metaschemas/drafts</td>
+<td>Not fetched or registered automatically. Normalize to 2020-12.</td>
+</tr>
+</tbody></table></div>
+<p>Strings inside <code>const</code>, <code>enum</code>, <code>default</code>, or <code>examples</code> are data, not keywords. A user field named <code>$ref</code> inside <code>properties</code> is not itself a schema reference.</p>
+<h3 id="openapi-import-and-execution-are-different-stages">OpenAPI import and execution are different stages<a class="heading-link" href="#openapi-import-and-execution-are-different-stages" aria-label="Link to OpenAPI import and execution are different stages">#</a></h3>
+<p>OpenAPI scripts do not necessarily accept everything AJV accepts. They normalize <code>nullable</code>, local references, and selected formats; they may discard metadata or reject binary schemas and keywords outside their allowlist. During import, <code>readOnly</code> fields are projected out of inputs and <code>writeOnly</code> fields out of outputs. This happens while <strong>generating configuration</strong>, not while validating a call. Review warnings and <a href="openapi-import.html">the import guide</a>.</p>
+<h2 id="validate-troubleshoot-and-maintain">Validate, troubleshoot, and maintain<a class="heading-link" href="#validate-troubleshoot-and-maintain" aria-label="Link to Validate, troubleshoot, and maintain">#</a></h2>
+<p>To check a complete configuration file:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm run build
+node dist/cli.js validate --config examples/cli.json</code></pre></div>
+<p>Replace the path with your file. <code>validate</code> compiles schemas and checks configuration/references/environment; <strong>it does not call APIs, execute tools, or check actual responses</strong>. Try valid and invalid calls in <a href="quick-start.html#test-with-mcp-inspector">MCP Inspector</a>. An MCP client may reject arguments before they reach the runtime.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Check</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Invalid or unsupported JSON Schema</code></td>
+<td>Missing/incompatible type, unknown keyword, bad reference, unregistered format, or an ignored condition rejected by strict mode.</td>
+</tr>
+<tr>
+<td><code>[input]</code> / invalid arguments</td>
+<td><code>required</code>, actual types, <code>enum</code>, bounds, patterns, and extra fields. Execution should not begin.</td>
+</tr>
+<tr>
+<td><code>[output]</code> / incompatible result</td>
+<td>Shape after parsing/JSONata, extra nested fields, nulls, and object root. The external operation already happened; do not automatically retry writes.</td>
+</tr>
+<tr>
+<td>Missing <code>default</code> value</td>
+<td>It is a schema hint, not an inserted value. Send it explicitly or change configuration.</td>
+</tr>
+<tr>
+<td>Unexpected <code>oneOf</code> failure</td>
+<td>Either zero or multiple branches succeeded. Check discriminators and required fields.</td>
+</tr>
+<tr>
+<td><code>allOf</code> rejects a declared field</td>
+<td>Check <code>additionalProperties</code> closures in branches; consider <code>unevaluatedProperties</code>.</td>
+</tr>
+</tbody></table></div>
+<p>Do not confuse <code>maxLength</code> or <code>maxItems</code> with <code>maxOutputBytes</code>: the latter limits transport/processing bytes and is configured outside the schema. Do not assume the worker timeout isolates AJV either: validation runs synchronously in the main process. Keep regexes and schemas reasonably bounded in cost.</p>
+<p>Examples and inventory are checked with <code>npm run docs:check-schema</code>; it compares both languages, compiles examples with the project validator, and checks valid and invalid cases. After editing guides, run <code>npm run docs:build</code> to regenerate HTML and verify links.</p>
+<p>Official references: <a href="https://json-schema.org/specification">JSON Schema 2020-12</a>, <a href="https://json-schema.org/draft/2020-12/json-schema-validation">Validation</a>, <a href="https://json-schema.org/draft/2020-12/json-schema-core">Core and Applicator</a>, <a href="https://ajv.js.org/strict-mode.html">AJV strict mode</a>, <a href="https://ajv.js.org/packages/ajv-formats.html">ajv-formats</a>. For this server&#39;s behavior, its validator configuration, lockfile, and the checks accompanying this guide take precedence.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../en/json-schema.md">Markdown source</a></footer></main>
+<aside class="toc" aria-label="On this page"><span class="nav-label">On this page</span><a class="depth-2" href="#what-is-validated-and-when">What is validated and when</a>
+<a class="depth-2" href="#how-to-read-a-schema">How to read a schema</a>
+<a class="depth-3" href="#types-fixed-values-and-absence">Types, fixed values, and absence</a>
+<a class="depth-2" href="#objects-and-extra-fields">Objects and extra fields</a>
+<a class="depth-3" href="#additionalproperties-false-true-or-a-schema">additionalProperties: false, true, or a schema</a>
+<a class="depth-3" href="#dictionaries-and-patterns">Dictionaries and patterns</a>
+<a class="depth-3" href="#composition-and-closed-objects">Composition and closed objects</a>
+<a class="depth-2" href="#strings-and-numbers">Strings and numbers</a>
+<a class="depth-3" href="#all-registered-formats">All registered formats</a>
+<a class="depth-3" href="#format-bounds-ajv-formats-extension">Format bounds: ajv-formats extension</a>
+<a class="depth-2" href="#arrays-tuples-and-matches">Arrays, tuples, and matches</a>
+<a class="depth-2" href="#combinations-and-conditions">Combinations and conditions</a>
+<a class="depth-3" href="#field-dependencies">Field dependencies</a>
+<a class="depth-2" href="#references-identity-and-vocabularies">References, identity, and vocabularies</a>
+<a class="depth-2" href="#annotations-describe-without-transforming">Annotations: describe without transforming</a>
+<a class="depth-3" href="#encoded-content">Encoded content</a>
+<a class="depth-2" href="#compatibility-and-disabled-options">Compatibility and disabled options</a>
+<a class="depth-3" href="#openapi-import-and-execution-are-different-stages">OpenAPI import and execution are different stages</a>
+<a class="depth-2" href="#validate-troubleshoot-and-maintain">Validate, troubleshoot, and maintain</a></aside></div></body></html>

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autenticación y variables de entorno · Underqubit Sidecar MCP</title><meta name="description" content="Autenticación y variables de entorno. Guías y referencia de Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="en" href="../en/authentication.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Ir al contenido</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Idioma"><a href="autenticacion.html" lang="es" hreflang="es" aria-current="true">ES</a><a href="../en/authentication.html" lang="en" hreflang="en">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentación</span><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html" aria-current="page">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Explorar guías</summary><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html" aria-current="page">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="autenticación-y-variables-de-entorno">Autenticación y variables de entorno</h1>
+<p><a href="../en/authentication.html">English</a></p>
+<p><a href="index.html">Volver al índice</a></p>
+<p>Hay dos direcciones de autenticación: <strong>servidor MCP hacia servicios externos</strong> y <strong>cliente hacia el endpoint MCP</strong>. Los perfiles de <code>auth</code> resuelven la primera. El acceso entrante HTTP se delega a una red privada o proxy; no lo protege declarar un perfil de API.</p>
+<h2 id="declarar-y-seleccionar-perfiles">Declarar y seleccionar perfiles<a class="heading-link" href="#declarar-y-seleccionar-perfiles" aria-label="Enlace a Declarar y seleccionar perfiles">#</a></h2>
+<p><strong>Fragmento</strong> de configuración:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">auth:
+  backend:
+    type: bearer
+    token: &#39;${env.API_TOKEN}&#39;</code></pre></div>
+<p>Una tool HTTP selecciona ese perfil mediante <code>execution.auth: backend</code>. El nombre es literal. Las tools pueden compartirlo. Si se omite <code>execution.auth</code> o se selecciona un perfil <code>type: none</code>, no se agregan credenciales; los headers que la configuración declare explícitamente se mantienen.</p>
+<p>Los secretos requieren una referencia completa <code>${env.VARIABLE}</code>, con nombre convencional de variable. No se admiten secretos literales, interpolación parcial ni argumentos <code>${input...}</code> en esos campos. La configuración y las referencias no se anuncian al modelo como parámetros MCP.</p>
+<h2 id="tipos-disponibles">Tipos disponibles<a class="heading-link" href="#tipos-disponibles" aria-label="Enlace a Tipos disponibles">#</a></h2>
+<p>Los siguientes son <strong>fragmentos</strong> del mapa <code>auth</code>:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">auth:
+  public_api:
+    type: none
+
+  key_in_header:
+    type: apiKey
+    in: header
+    name: X-API-Key
+    value: &#39;${env.API_KEY}&#39;
+
+  key_in_query:
+    type: apiKey
+    in: query
+    name: api_key
+    value: &#39;${env.API_KEY}&#39;
+
+  fixed_token:
+    type: bearer
+    token: &#39;${env.API_TOKEN}&#39;
+
+  username_password:
+    type: basic
+    username: &#39;${env.API_USERNAME}&#39;
+    password: &#39;${env.API_PASSWORD}&#39;
+
+  service_oauth:
+    type: oauth2
+    tokenUrl: &#39;${env.OAUTH_TOKEN_URL}&#39;
+    clientId: &#39;${env.OAUTH_CLIENT_ID}&#39;
+    clientSecret: &#39;${env.OAUTH_CLIENT_SECRET}&#39;
+    scopes: [users.read]
+    tokenAuthMethod: basic
+    timeoutMs: 10000</code></pre></div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Comportamiento</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>apiKey</code></td>
+<td>Inserta el secreto en el header o parámetro query de nombre fijo.</td>
+</tr>
+<tr>
+<td><code>bearer</code></td>
+<td>Escribe <code>Authorization: Bearer &lt;token&gt;</code>. El valor del entorno debe contener solo el token.</td>
+</tr>
+<tr>
+<td><code>basic</code></td>
+<td>Construye <code>Authorization: Basic ...</code> con usuario y contraseña.</td>
+</tr>
+<tr>
+<td><code>oauth2</code></td>
+<td>Obtiene un access token por client credentials y lo envía como Bearer.</td>
+</tr>
+<tr>
+<td><code>none</code></td>
+<td>No modifica la autenticación del request.</td>
+</tr>
+</tbody></table></div>
+<p>Auth reemplaza el header/query del mismo nombre que existiera antes. El adaptador HTTP configura posteriormente Content-Type cuando envía un body; no usar ese header como ubicación de una API key. No hay una lista de múltiples perfiles por tool.</p>
+<h2 id="oauth2-client-credentials">OAuth2 client credentials<a class="heading-link" href="#oauth2-client-credentials" aria-label="Enlace a OAuth2 client credentials">#</a></h2>
+<p>Se realiza un POST form URL-encoded a <code>tokenUrl</code> con <code>grant_type=client_credentials</code>. <code>scopes</code> es una lista de strings literales; se une con espacios en <code>scope</code>. Si está vacía, se omite ese campo.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Obligatorio / default</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>tokenUrl</code></td>
+<td>Obligatorio; HTTP/HTTPS, sin usuario/contraseña embebidos ni fragmento. Fijo o desde entorno.</td>
+</tr>
+<tr>
+<td><code>clientId</code></td>
+<td>Obligatorio, referencia a entorno.</td>
+</tr>
+<tr>
+<td><code>clientSecret</code></td>
+<td>Obligatorio, referencia a entorno.</td>
+</tr>
+<tr>
+<td><code>scopes</code></td>
+<td><code>[]</code>.</td>
+</tr>
+<tr>
+<td><code>tokenAuthMethod</code></td>
+<td><code>basic</code>; alternativa <code>body</code>.</td>
+</tr>
+<tr>
+<td><code>timeoutMs</code></td>
+<td><code>10000</code>.</td>
+</tr>
+</tbody></table></div>
+<p>Con <code>basic</code>, las credenciales se codifican para el header Basic del endpoint OAuth. Con <code>body</code>, se envían como <code>client_id</code> y <code>client_secret</code> en el formulario.</p>
+<p>La respuesta debe ser un objeto JSON con <code>access_token</code> string no vacío y <code>token_type</code> igual a Bearer, sin distinguir mayúsculas. Un <code>expires_in</code> numérico, finito y positivo habilita caché. Si falta o es inválido, el token se usa para los consumidores de esa obtención, pero no se conserva para futuras llamadas.</p>
+<p>La caché vive en memoria, por perfil y proceso. La vigencia efectiva resta al TTL el menor valor entre 30 segundos y el 10 % del TTL. No existe un timer de renovación: una llamada posterior solicita otro token cuando el anterior deja de estar vigente.</p>
+<p>Las llamadas concurrentes al mismo perfil comparten una obtención pendiente. Cancelar un consumidor no cancela los demás; cuando no quedan consumidores, se aborta la obtención. Al cerrar el runtime se cancelan requests pendientes y se elimina la caché.</p>
+<p>El endpoint OAuth admite solo estados 2xx, no sigue redirects y limita request/respuesta a 64 KiB. No hay refresh tokens, persistencia, login interactivo, almacenamiento por usuario ni retry automático de una operación después de un 401 del servicio.</p>
+<h2 id="credenciales-de-cli">Credenciales de CLI<a class="heading-link" href="#credenciales-de-cli" aria-label="Enlace a Credenciales de CLI">#</a></h2>
+<p>La autenticación la implementa el CLI existente. Usar <code>execution.env</code> o <code>execution.stdin</code> según su contrato. <strong>Fragmento</strong>:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">execution:
+  type: cli
+  command: service-cli
+  args: [account, show, --json]
+  env:
+    SERVICE_TOKEN: &#39;${env.SERVICE_TOKEN}&#39;
+    HOME: &#39;${env.HOME}&#39;</code></pre></div>
+<p>Si el programa lee un objeto JSON por stdin, el body podría ser <code>stdin: {token: &#39;${env.SERVICE_TOKEN}&#39;}</code>. Esto solo funciona si el CLI documenta ese protocolo. No se inyecta automáticamente un formato de login.</p>
+<h2 id="cargar-y-rotar-secretos">Cargar y rotar secretos<a class="heading-link" href="#cargar-y-rotar-secretos" aria-label="Enlace a Cargar y rotar secretos">#</a></h2>
+<p>El proceso puede recibir variables de su supervisor, del cliente stdio o de Node con <code>--env-file</code>. No existe carga automática de <code>.env</code> ni resolución contra un gestor de secretos externo.</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node --env-file=.env dist/cli.js validate --config examples/auth.yaml
+node --env-file=.env dist/cli.js serve --config examples/auth.yaml</code></pre></div>
+<p><a href="../../../examples/auth.yaml">examples/auth.yaml</a> incluye todos los perfiles, por lo que requiere todas sus variables, incluso si una tool solo usa OAuth. <a href="../../../.env.example">.env.example</a> contiene nombres y valores de muestra, no credenciales operativas.</p>
+<p>Para rotar credenciales, actualizar el entorno del proceso y reiniciarlo. No basta con editar un archivo <code>.env</code> mientras el servidor está en ejecución.</p>
+<p>Los mensajes de error evitan imprimir bodies de auth y secretos. Las respuestas exitosas provienen de la API o CLI: no existe un filtro universal que quite credenciales si el propio servicio las devuelve. Seleccionar únicamente los campos necesarios en la transformación y el esquema de salida.</p>
+<h2 id="autenticación-entrante-a-mcp">Autenticación entrante a MCP<a class="heading-link" href="#autenticación-entrante-a-mcp" aria-label="Enlace a Autenticación entrante a MCP">#</a></h2>
+<p><code>allowedHosts</code> y <code>allowedOrigins</code> verifican el destino y origen de requests; no identifican ni autorizan personas. No se valida un Bearer entrante, no existe un login propio y no se implementa descubrimiento OAuth entrante.</p>
+<p>Si se publica HTTP, el proxy debe autenticar clientes y restringir el acceso directo al backend. Los clientes admitidos comparten la configuración y credenciales de servicio del proceso. Ver <a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../autenticacion.md">Fuente Markdown</a></footer></main>
+<aside class="toc" aria-label="En esta página"><span class="nav-label">En esta página</span><a class="depth-2" href="#declarar-y-seleccionar-perfiles">Declarar y seleccionar perfiles</a>
+<a class="depth-2" href="#tipos-disponibles">Tipos disponibles</a>
+<a class="depth-2" href="#oauth2-client-credentials">OAuth2 client credentials</a>
+<a class="depth-2" href="#credenciales-de-cli">Credenciales de CLI</a>
+<a class="depth-2" href="#cargar-y-rotar-secretos">Cargar y rotar secretos</a>
+<a class="depth-2" href="#autenticación-entrante-a-mcp">Autenticación entrante a MCP</a></aside></div></body></html>

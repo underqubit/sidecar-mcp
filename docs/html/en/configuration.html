@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configuration reference · Underqubit Sidecar MCP</title><meta name="description" content="Configuration reference. Guides and reference for Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="es" href="../es/configuracion.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Language"><a href="../es/configuracion.html" lang="es" hreflang="es">ES</a><a href="configuration.html" lang="en" hreflang="en" aria-current="true">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentation</span><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html" aria-current="page">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Browse guides</summary><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html" aria-current="page">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="configuration-reference">Configuration reference</h1>
+<p><a href="index.html">Back to index</a> · <a href="../es/configuracion.html">Español</a></p>
+<h2 id="format-and-validation">Format and validation<a class="heading-link" href="#format-and-validation" aria-label="Link to Format and validation">#</a></h2>
+<p>The server loads a YAML or JSON integration file, or a composition referencing multiple integration files. Each file is limited to 4 MiB. Files are not merged and there is no hot reload. See <a href="tool-groups.html">Tool groups</a> for the composition format and its three publication modes. YAML rejects duplicate keys and aliases. Configuration blocks are strict: an unknown key is an error, except inside input/output JSON Schema documents.</p>
+<p>Zod validates the configuration file and applies its defaults. AJV validates tool schemas and data. These are separate layers: configuration defaults are applied; a <code>default</code> inside <code>inputSchema</code> does not automatically fill in a missing argument.</p>
+<p>For editor assistance, add the following comment to a YAML file located, for example, in <code>examples/</code>:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml"># yaml-language-server: $schema=../schema/config.schema.json</code></pre></div>
+<p>In JSON, you can declare <code>&quot;$schema&quot;: &quot;../schema/config.schema.json&quot;</code>. Adjust the path to the file&#39;s location. The generated schema helps the editor but does not replace the semantic checks performed by <code>validate</code>.</p>
+<h2 id="integration-root">Integration root<a class="heading-link" href="#integration-root" aria-label="Link to Integration root">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required / default</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>version</code></td>
+<td>Integer literal <code>1</code></td>
+<td>Required; configuration format version, not MCP protocol version.</td>
+</tr>
+<tr>
+<td><code>$schema</code></td>
+<td>String</td>
+<td>Optional; editor reference.</td>
+</tr>
+<tr>
+<td><code>server</code></td>
+<td>Object</td>
+<td>Optional; applies the defaults in the next section.</td>
+</tr>
+<tr>
+<td><code>auth</code></td>
+<td>Map of profiles by name</td>
+<td>Optional; <code>{}</code>. See <a href="authentication.html">Authentication</a>.</td>
+</tr>
+<tr>
+<td><code>tools</code></td>
+<td>List of tools</td>
+<td>Required; at least one.</td>
+</tr>
+</tbody></table></div>
+<h2 id="server">Server<a class="heading-link" href="#server" aria-label="Link to Server">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Field in <code>server</code></th>
+<th>Type</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>name</code></td>
+<td>Nonempty string</td>
+<td><code>underqubit-sidecar-mcp</code></td>
+<td>Identity exposed to the MCP client.</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>Nonempty string</td>
+<td><code>0.1.0</code></td>
+<td>Exposed server version.</td>
+</tr>
+<tr>
+<td><code>transport</code></td>
+<td><code>stdio</code> or <code>http</code></td>
+<td><code>stdio</code></td>
+<td>Can be overridden with <code>--transport</code>.</td>
+</tr>
+<tr>
+<td><code>timeoutMs</code></td>
+<td>Positive integer</td>
+<td><code>30000</code></td>
+<td>Execution deadline per tool, unless overridden.</td>
+</tr>
+<tr>
+<td><code>maxOutputBytes</code></td>
+<td>Positive integer</td>
+<td><code>1048576</code></td>
+<td>Byte limit per tool, unless overridden.</td>
+</tr>
+<tr>
+<td><code>http</code></td>
+<td>Object</td>
+<td>Defaults below</td>
+<td>Used only when serving over HTTP.</td>
+</tr>
+</tbody></table></div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Field in <code>server.http</code></th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>host</code></td>
+<td><code>127.0.0.1</code></td>
+<td>Listening interface.</td>
+</tr>
+<tr>
+<td><code>port</code></td>
+<td><code>3000</code></td>
+<td>Integer from 0 to 65535; <code>0</code> asks the system for an available port.</td>
+</tr>
+<tr>
+<td><code>allowedHosts</code></td>
+<td><code>[127.0.0.1, localhost, &#39;[::1]&#39;]</code></td>
+<td>Accepted hostnames without ports. These are not patterns or IP ranges.</td>
+</tr>
+<tr>
+<td><code>allowedOrigins</code></td>
+<td><code>[]</code></td>
+<td>Allowed full origins, matched exactly. Requests without Origin can proceed.</td>
+</tr>
+<tr>
+<td><code>maxRequestBytes</code></td>
+<td><code>1048576</code></td>
+<td>Maximum incoming MCP HTTP body size.</td>
+</tr>
+</tbody></table></div>
+<p>A standalone integration uses <code>/mcp</code>. Compositions can also publish <code>/mcp/&lt;group&gt;</code> depending on their mode. There are no CLI flags to change the host or port; edit the file. <code>allowedHosts</code> does not authenticate users. See <a href="operations-and-troubleshooting.html">HTTP operations</a>.</p>
+<p>HTTP server <strong>fragment</strong>:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">server:
+  transport: http
+  timeoutMs: 30000
+  http:
+    host: 127.0.0.1
+    port: 3000
+    allowedHosts: [localhost, 127.0.0.1, mcp.example.com]
+    allowedOrigins: [https://console.example.com]</code></pre></div>
+<h2 id="tool">Tool<a class="heading-link" href="#tool" aria-label="Link to Tool">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>name</code></td>
+<td>Unique within the server, 1–128 characters, pattern <code>^[A-Za-z0-9_.-]{1,128}$</code>. Case-sensitive.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Nonempty string; explain what it does, when to use it, and what it returns.</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>Optional nonempty string.</td>
+</tr>
+<tr>
+<td><code>inputSchema</code></td>
+<td>JSON Schema with root <code>type: object</code>. Required.</td>
+</tr>
+<tr>
+<td><code>outputSchema</code></td>
+<td>JSON Schema with root <code>type: object</code>. Required.</td>
+</tr>
+<tr>
+<td><code>annotations</code></td>
+<td>Optional MCP hints object.</td>
+</tr>
+<tr>
+<td><code>execution</code></td>
+<td>Object with <code>type: http</code> or <code>type: cli</code>. Required.</td>
+</tr>
+<tr>
+<td><code>response</code></td>
+<td>Optional object; defaults to a JSON parser and a 1000 ms worker budget.</td>
+</tr>
+</tbody></table></div>
+<p><code>annotations</code> accepts only <code>readOnlyHint</code>, <code>destructiveHint</code>, <code>idempotentHint</code>, and <code>openWorldHint</code>, all optional booleans. They are not inferred from the HTTP method or command. They inform the client but do not constrain execution.</p>
+<p>Tools are exposed sorted by name. Only the name, description, title, annotations, and schemas form part of the MCP definition; <code>execution</code> and authentication profiles are not exposed as arguments.</p>
+<h2 id="input-and-output-json-schema">Input and output JSON Schema<a class="heading-link" href="#input-and-output-json-schema" aria-label="Link to Input and output JSON Schema">#</a></h2>
+<p>The <a href="json-schema.html">complete JSON Schema reference</a> explains each keyword, its values, behavior when omitted, and project limitations. In particular, <code>additionalProperties: false</code> rejects extra fields; <code>true</code> or omission allows them unless other constraints apply. It also accepts a subschema for extra values. It neither removes fields nor changes <code>required</code>, and each nested object has its own rules.</p>
+<p>The server uses draft 2020-12 with AJV in strict mode and formats from <code>ajv-formats</code>. Internal references such as <code>#/$defs/user</code> and standard combinations supported by that validator are allowed. Remote schemas are not downloaded, and asynchronous <code>$async</code> validators are not supported.</p>
+<p>Input <strong>fragment</strong>:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">inputSchema:
+  type: object
+  properties:
+    id:
+      type: string
+      minLength: 1
+      description: User identifier.
+    limit:
+      type: integer
+      minimum: 1
+      maximum: 100
+  required: [id, limit]
+  additionalProperties: false</code></pre></div>
+<p>The client must send a number for <code>limit</code>: <code>&quot;10&quot;</code> is not converted to <code>10</code>. Extra properties are not removed. An output array at the root must be wrapped, for example, in <code>{&quot;items&quot;: [...]}</code>.</p>
+<p>For a tool without arguments, use <code>type: object</code> and <code>additionalProperties: false</code>. The client sends <code>{}</code>.</p>
+<p><strong>Fragment</strong> with a local reference:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">outputSchema:
+  type: object
+  properties:
+    user: { $ref: &#39;#/$defs/user&#39; }
+  required: [user]
+  additionalProperties: false
+  $defs:
+    user:
+      type: object
+      properties: { id: { type: string }, name: { type: string } }
+      required: [id, name]
+      additionalProperties: false</code></pre></div>
+<p><code>$defs</code> belongs to the schema containing the reference; there is no global schema registry across tools. Property names and literal data in <code>const</code>, <code>default</code>, or <code>examples</code> may contain fields called <code>$ref</code> or <code>$async</code>: these are not interpreted as keywords outside schema positions.</p>
+<h2 id="templates">Templates<a class="heading-link" href="#templates" aria-label="Link to Templates">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Syntax</th>
+<th>Source</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>${input.field}</code></td>
+<td>Validated call arguments</td>
+<td><code>${input.user.id}</code></td>
+</tr>
+<tr>
+<td><code>${input.list.0}</code></td>
+<td>Array element</td>
+<td><code>${input.tags.0}</code></td>
+</tr>
+<tr>
+<td><code>${env.VARIABLE}</code></td>
+<td>Process environment at startup</td>
+<td><code>${env.API_TOKEN}</code></td>
+</tr>
+</tbody></table></div>
+<p>A reference occupying the entire value preserves its original type. Inside a larger string, strings, booleans, and finite numbers are converted to text. Objects, arrays, and <code>null</code> cannot be interpolated into text.</p>
+<p>HTTP <strong>fragment</strong>:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">body:
+  enabled: &#39;${input.enabled}&#39;
+  metadata: &#39;${input.metadata}&#39;
+headers:
+  X-Request-Label: &#39;user-${input.id}&#39;</code></pre></div>
+<p>If <code>enabled</code> is <code>false</code>, the boolean is sent, not the string <code>&quot;false&quot;</code>. If <code>metadata</code> is an object, it remains an object.</p>
+<p>Templates are resolved recursively in object and array values, but not in their keys. Received values are not evaluated again as templates. This syntax has no filters, conditionals, defaults, or JavaScript expressions. No escape is defined for including a literal <code>${...}</code> sequence in a configuration template field.</p>
+<p>Paths use dots, not JSONPath or brackets. They cannot access inherited properties or the segments <code>__proto__</code>, <code>prototype</code>, or <code>constructor</code>. Use conventional environment variable names such as <code>SERVICE_TOKEN</code>.</p>
+<h3 id="where-templates-are-resolved">Where templates are resolved<a class="heading-link" href="#where-templates-are-resolved" aria-label="Link to Where templates are resolved">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Field</th>
+<th><code>${input...}</code></th>
+<th><code>${env...}</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HTTP: values in <code>pathParams</code>, <code>query</code>, <code>headers</code>, <code>body</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>HTTP: <code>baseUrl</code></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>HTTP: <code>path</code></td>
+<td>No; use <code>{name}</code> with <code>pathParams</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td>CLI: <code>args</code>, values in <code>env</code>, <code>stdin</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>CLI: <code>command</code>, <code>cwd</code></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Auth: secrets and <code>tokenUrl</code></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Auth: profile name, API key <code>name</code>, <code>scopes</code>, type/method selectors</td>
+<td>No</td>
+<td>No; declare literal values</td>
+</tr>
+<tr>
+<td><code>server</code>, schemas, descriptions, regex, and JSONata</td>
+<td>No</td>
+<td>No</td>
+</tr>
+</tbody></table></div>
+<p>Although the loader inspects execution and auth strings for references, only the listed fields are resolved at runtime. Do not use templates in <code>execution.auth</code>, header names, or other static selectors.</p>
+<p>Referenced variables are checked at startup, even in unused auth profiles. Missing or empty strings cause an error. To rotate them, update the environment and restart. A missing optional argument is not automatically replaced: if referenced during execution, the tool fails with an unavailable reference.</p>
+<h2 id="precedence-and-limits">Precedence and limits<a class="heading-link" href="#precedence-and-limits" aria-label="Link to Precedence and limits">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Rule</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Transport</td>
+<td><code>--transport</code> → <code>server.transport</code> → <code>stdio</code>.</td>
+</tr>
+<tr>
+<td>Tool timeout</td>
+<td><code>execution.timeoutMs</code> → <code>server.timeoutMs</code> → 30000 ms.</td>
+</tr>
+<tr>
+<td>Tool limit</td>
+<td><code>execution.maxOutputBytes</code> → <code>server.maxOutputBytes</code> → 1 MiB.</td>
+</tr>
+<tr>
+<td>OAuth timeout</td>
+<td><code>auth.&lt;profile&gt;.timeoutMs</code> → 10000 ms; also subject to cancellation by its consumers.</td>
+</tr>
+<tr>
+<td>Worker timeout</td>
+<td><code>response.workerTimeoutMs</code> → 1000 ms; the tool deadline can also cancel it.</td>
+</tr>
+<tr>
+<td>Incoming MCP HTTP request</td>
+<td><code>server.http.maxRequestBytes</code> → 1 MiB; independent of the response limit.</td>
+</tr>
+</tbody></table></div>
+<p>Configurable timeouts are integers from 1 to 2147483647 ms. Configurable byte limits are integers from 1 to 67108864 (64 MiB). <code>0</code> cannot disable these limits.</p>
+<p>For HTTP, the tool limit applies to the outgoing body, captured response, and final JSON. For CLI, it limits stdin, combined captured stdout and stderr, and final JSON. Exceeding a limit returns an error; a response is never truncated and presented as successful.</p>
+<p>The deadline starts after input validation and covers auth, execution, and processing. Cancellation in the main process is cooperative; regex and JSONata have their own terminable worker. This does not isolate all synchronous validation and serialization in a process with a strict deadline.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../en/configuration.md">Markdown source</a></footer></main>
+<aside class="toc" aria-label="On this page"><span class="nav-label">On this page</span><a class="depth-2" href="#format-and-validation">Format and validation</a>
+<a class="depth-2" href="#integration-root">Integration root</a>
+<a class="depth-2" href="#server">Server</a>
+<a class="depth-2" href="#tool">Tool</a>
+<a class="depth-2" href="#input-and-output-json-schema">Input and output JSON Schema</a>
+<a class="depth-2" href="#templates">Templates</a>
+<a class="depth-3" href="#where-templates-are-resolved">Where templates are resolved</a>
+<a class="depth-2" href="#precedence-and-limits">Precedence and limits</a></aside></div></body></html>

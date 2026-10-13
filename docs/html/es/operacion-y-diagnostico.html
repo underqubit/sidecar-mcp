@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Operación y diagnóstico · Underqubit Sidecar MCP</title><meta name="description" content="Operación y diagnóstico. Guías y referencia de Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="en" href="../en/operations-and-troubleshooting.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Ir al contenido</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Idioma"><a href="operacion-y-diagnostico.html" lang="es" hreflang="es" aria-current="true">ES</a><a href="../en/operations-and-troubleshooting.html" lang="en" hreflang="en">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentación</span><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html" aria-current="page">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Explorar guías</summary><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html" aria-current="page">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="operación-y-diagnóstico">Operación y diagnóstico</h1>
+<p><a href="../en/operations-and-troubleshooting.html">English</a></p>
+<p><a href="index.html">Volver al índice</a></p>
+<h2 id="elegir-cómo-ejecutar-el-servidor">Elegir cómo ejecutar el servidor<a class="heading-link" href="#elegir-cómo-ejecutar-el-servidor" aria-label="Enlace a Elegir cómo ejecutar el servidor">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Modalidad</th>
+<th>Uso</th>
+<th>Quién administra el proceso</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Stdio</td>
+<td>Integración local con un cliente MCP</td>
+<td>Normalmente el cliente inicia y detiene Node.</td>
+</tr>
+<tr>
+<td>Streamable HTTP</td>
+<td>Proceso compartido por clientes de una red o detrás de un proxy</td>
+<td>El operador o supervisor del servicio.</td>
+</tr>
+</tbody></table></div>
+<p>Cada proceso sirve un transporte. Para servir ambos simultáneamente, iniciar procesos separados; cada uno tendrá su propia caché OAuth y podrá ejecutar sus propios CLIs.</p>
+<p>La configuración se considera administrada por un operador de confianza. Los comandos se ejecutan con permisos del usuario del servidor, y los clientes HTTP admitidos acceden al mismo catálogo de tools. No hay permisos por tool, usuarios propios, rate limiting ni cuotas de concurrencia incorporadas.</p>
+<h2 id="preparar-una-ejecución-de-servicio">Preparar una ejecución de servicio<a class="heading-link" href="#preparar-una-ejecución-de-servicio" aria-label="Enlace a Preparar una ejecución de servicio">#</a></h2>
+<ol>
+<li>Instalar Node 24 y los CLIs requeridos en el host del servidor.</li>
+<li>Instalar dependencias y compilar con <code>npm ci</code> y <code>npm run build</code>.</li>
+<li>Ubicar configuración, scripts y secretos donde el usuario del proceso pueda leerlos.</li>
+<li>Ejecutar <code>validate</code> con el mismo entorno que tendrá el servicio.</li>
+<li>Iniciar Node mediante el supervisor elegido y configurar reinicio/logs allí.</li>
+</ol>
+<p>Ejemplo de comando, con rutas a reemplazar:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node --env-file=/ruta/sidecar/.env /ruta/sidecar/dist/cli.js serve \
+  --config /ruta/sidecar/config.yaml --transport http</code></pre></div>
+<p>No se requiere que el directorio de trabajo del supervisor sea el del proyecto si se usan rutas absolutas. Las rutas CLI relativas se resuelven según el archivo de configuración y su <code>cwd</code>, como se explica en <a href="tools-cli.html">Tools CLI</a>.</p>
+<p>El repositorio no instala un servicio del sistema ni contiene un despliegue Docker/Kubernetes preconfigurado. El servidor tampoco recarga automáticamente código o configuración.</p>
+<h2 id="http-proxy-y-controles-de-acceso">HTTP, proxy y controles de acceso<a class="heading-link" href="#http-proxy-y-controles-de-acceso" aria-label="Enlace a HTTP, proxy y controles de acceso">#</a></h2>
+<p>Defaults: escucha en <code>127.0.0.1:3000</code>, ruta <code>/mcp</code>, hosts locales permitidos y ninguna Origin explícita permitida.</p>
+<p>Para publicar detrás de un proxy:</p>
+<ul>
+<li>Mantener loopback si proxy y backend están en el mismo host. En otra topología, configurar el bind y restringir por red el acceso directo al backend.</li>
+<li>Terminar TLS y autenticar clientes en el proxy. El servidor MCP no valida tokens entrantes.</li>
+<li>Configurar <code>allowedHosts</code> con los hostnames que el backend realmente recibirá. Se verifica el Host del request; no se infiere autorización desde <code>X-Forwarded-Host</code>.</li>
+<li>Si los clientes envían Origin, declarar valores completos como <code>https://console.example.com</code>. Scheme y puerto importan. No usar comodines.</li>
+<li>Preservar método, body y headers MCP. El protocolo puede utilizar streaming; configurar el proxy según el transporte del cliente, sin asumir que todo intercambio es una respuesta REST simple.</li>
+<li>Ajustar timeout y límite de body del proxy para que sean coherentes con los del servidor.</li>
+</ul>
+<p><code>allowedHosts</code> protege la selección del host y <code>allowedOrigins</code> restringe orígenes presentes, pero no autentican al cliente. Una Origin ausente se acepta; presente pero vacía, <code>null</code> o no incluida produce 403. La lista de Origins no habilita automáticamente CORS ni respuestas a preflight de navegador.</p>
+<p>El servidor tiene un límite configurable de body entrante (<code>maxRequestBytes</code>). El listener Node usa 30 segundos para recepción del request y 10 segundos para headers; esos valores del listener no son el deadline de ejecución de la tool y no tienen campos de configuración propios.</p>
+<p>No existe una ruta <code>/health</code> implementada. Para comprobar disponibilidad funcional, conectar un cliente MCP y listar tools; para comprobar una integración, invocar una tool adecuada de solo lectura.</p>
+<h2 id="cambios-y-apagado">Cambios y apagado<a class="heading-link" href="#cambios-y-apagado" aria-label="Enlace a Cambios y apagado">#</a></h2>
+<p>Modificar YAML/JSON, credenciales o esquemas requiere reiniciar. Validar primero y después reiniciar mediante el cliente/supervisor. Cambiar <code>outputSchema</code> puede romper consumidores que esperan el contrato anterior; actualizar nombre o versión de la integración según las necesidades del sistema que lo usa.</p>
+<p>SIGINT y SIGTERM cancelan trabajo activo y cierran recursos. En modo stdio, terminar stdin también inicia el cierre. En HTTP, el cierre termina llamadas, handler, conexiones y listener; no es un drenaje que deje completar indefinidamente todos los trabajos.</p>
+<p>En POSIX se intenta finalizar el grupo de procesos de cada CLI cancelado, con escalamiento a SIGKILL. Revisar las limitaciones de descendientes en <a href="tools-cli.html">Tools CLI</a>.</p>
+<h2 id="logs">Logs<a class="heading-link" href="#logs" aria-label="Enlace a Logs">#</a></h2>
+<p>El runtime emite líneas JSON por stderr, por ejemplo:</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{&quot;tool&quot;:&quot;users_get&quot;,&quot;durationMs&quot;:123,&quot;ok&quot;:true}</code></pre></div>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{&quot;tool&quot;:&quot;users_get&quot;,&quot;durationMs&quot;:30001,&quot;ok&quot;:false,&quot;stage&quot;:&quot;execution&quot;}</code></pre></div>
+<p>No se registran argumentos, bodies, stdout/stderr del CLI ni valores de credenciales. La salida del servicio upstream sí puede contener datos sensibles y formar parte del resultado exitoso; limitarla mediante la transformación y el esquema.</p>
+<p>Stderr también puede contener mensajes de arranque, validación y del SDK en texto plano. Un recolector no debe asumir que todas las líneas son JSON. La duración corresponde a cada llamada que llega al runtime; no todos los rechazos del protocolo generan un log de tool.</p>
+<p>Para guardar diagnósticos en una terminal POSIX:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node dist/cli.js serve --config examples/cli.yaml 2&gt;sidecar.log</code></pre></div>
+<p>En stdio no mezclar stderr con stdout mediante <code>2&gt;&amp;1</code>, porque stdout transporta MCP. No hay rotación de logs ni endpoint de métricas incorporados; gestionarlos externamente si se necesitan.</p>
+<h2 id="diagnóstico-por-etapa">Diagnóstico por etapa<a class="heading-link" href="#diagnóstico-por-etapa" aria-label="Enlace a Diagnóstico por etapa">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Etapa / síntoma</th>
+<th>Qué revisar</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>[config]</code> al iniciar</td>
+<td>Extensión, YAML/JSON válido, campos desconocidos, versión 1, tools no vacías y nombres únicos.</td>
+</tr>
+<tr>
+<td>Variable de entorno requerida</td>
+<td>Variable ausente/vacía, entorno del cliente/supervisor, posición de <code>--env-file</code>; también perfiles no utilizados.</td>
+</tr>
+<tr>
+<td>JSON Schema inválido/no soportado</td>
+<td>Raíz objeto, tipos correctos, referencias internas y restricciones del validador AJV estricto.</td>
+</tr>
+<tr>
+<td>Regex/JSONata inválido</td>
+<td>Sintaxis, grupos nombrados, flags y presupuesto de compilación del worker.</td>
+</tr>
+<tr>
+<td><code>[input]</code> o error de validación del SDK</td>
+<td>Argumentos requeridos, tipos reales, límites y <code>additionalProperties</code>; los defaults del schema no rellenan datos.</td>
+</tr>
+<tr>
+<td><code>[parameters]</code></td>
+<td>Referencia inexistente, objeto donde se esperaba escalar, ruta <code>.</code>/<code>..</code>, stdin excesivo.</td>
+</tr>
+<tr>
+<td><code>[auth]</code></td>
+<td>Endpoint OAuth, credenciales, scopes, método Basic/body y contrato de respuesta Bearer.</td>
+</tr>
+<tr>
+<td>HTTP 401/403 dentro de error de tool</td>
+<td>Credenciales o autorización del servicio remoto. Un Bearer estático no se renueva solo.</td>
+</tr>
+<tr>
+<td>HTTP 301/302 dentro de error de tool</td>
+<td>Se necesita la URL final del servicio; no se siguen redirecciones.</td>
+</tr>
+<tr>
+<td>Falló el request HTTP</td>
+<td>Conectividad, DNS/TLS, deadline y límite de bytes. No se usan proxies salientes del entorno.</td>
+</tr>
+<tr>
+<td>No se pudo iniciar ejecutable</td>
+<td>PATH, ruta, permisos, directorio de trabajo e intérprete disponible.</td>
+</tr>
+<tr>
+<td>Código de salida de CLI no aceptado</td>
+<td>Ejecutar el CLI directamente con el mismo cwd/entorno para ver su diagnóstico. El servidor no devuelve stderr.</td>
+</tr>
+<tr>
+<td><code>[parse]</code></td>
+<td>Body/stdout vacío, JSON malformado, logs mezclados o regex sin coincidencia en modo <code>first</code>.</td>
+</tr>
+<tr>
+<td><code>[transform]</code></td>
+<td>Campos inexistentes, conversiones inválidas, ausencia de resultado, timeout o recursos del worker.</td>
+</tr>
+<tr>
+<td><code>[output]</code></td>
+<td>Objeto final incompatible, array raíz sin envolver o exceso de bytes después de transformar.</td>
+</tr>
+</tbody></table></div>
+<p>Los mensajes genéricos evitan exponer detalles del servicio o credenciales. Reproducir el request/CLI con herramientas propias puede ser necesario para diagnosticar el upstream; no copiar automáticamente su salida completa a logs compartidos.</p>
+<h2 id="diagnóstico-de-transporte">Diagnóstico de transporte<a class="heading-link" href="#diagnóstico-de-transporte" aria-label="Enlace a Diagnóstico de transporte">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Síntoma</th>
+<th>Interpretación y acción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Proceso stdio sin texto en pantalla</td>
+<td>Puede estar funcionando normalmente y esperando un cliente MCP.</td>
+</tr>
+<tr>
+<td><code>Cannot find module .../dist/cli.js</code> o worker faltante</td>
+<td>Compilar y conservar el directorio <code>dist/</code> completo.</td>
+</tr>
+<tr>
+<td><code>node</code> o CLI no encontrado desde una app gráfica</td>
+<td>Revisar PATH del proceso o utilizar ruta absoluta al ejecutable.</td>
+</tr>
+<tr>
+<td>HTTP 403 del endpoint MCP</td>
+<td>Revisar Host/Origin y proxy antes de investigar auth del servicio remoto.</td>
+</tr>
+<tr>
+<td>HTTP 404 del endpoint MCP</td>
+<td>Usar una ruta publicada por el modo: <code>/mcp</code> y/o <code>/mcp/&lt;grupo&gt;</code>. No existen rutas por nombre de tool.</td>
+</tr>
+<tr>
+<td>HTTP 413</td>
+<td>El body entrante supera <code>server.http.maxRequestBytes</code> o el límite del proxy.</td>
+</tr>
+<tr>
+<td>HTTP 400/405 o fallo de negociación</td>
+<td>Usar cliente Streamable HTTP y mensajes MCP válidos; no invocar como endpoint REST.</td>
+</tr>
+<tr>
+<td>Puerto ocupado</td>
+<td>Detener el proceso anterior o cambiar <code>server.http.port</code>.</td>
+</tr>
+<tr>
+<td><code>listen EPERM</code> en pruebas TCP</td>
+<td>El entorno prohíbe abrir sockets. Ejecutar la suite en una terminal/CI donde esté permitido.</td>
+</tr>
+</tbody></table></div>
+<p>Las 18 pruebas de red que dependen de listeners quedaron bloqueadas por <code>EPERM</code> durante la verificación local en este entorno. El workflow incluye su ejecución en CI, pero no se considera que hayan pasado aquí. La suite en memoria permite verificar protocolo y guards sin abrir un puerto.</p>
+<h2 id="límites-funcionales-actuales">Límites funcionales actuales<a class="heading-link" href="#límites-funcionales-actuales" aria-label="Enlace a Límites funcionales actuales">#</a></h2>
+<p>La importación de OpenAPI está disponible mediante <a href="importar-openapi.html">scripts de generación</a>. No hay recarga en caliente, configuración TypeScript ejecutable, módulos Zod externos, workflows de múltiples requests, paginación automática, parsers CSV/XML, carga binaria/multipart, login OAuth por usuario, autorización por tool ni autenticación entrante propia.</p>
+<p>Las tools dinámicas son dinámicas <strong>por configuración al iniciar</strong>. Elegir manualmente sus contratos y transformaciones es parte de integrar una API o CLI existente.</p>
+<p>Ver <a href="desarrollo.html">Desarrollo</a> para agregar capacidades y <a href="configuracion.html">Configuración</a> para los límites ya disponibles.</p>
+<h2 id="operar-varios-grupos">Operar varios grupos<a class="heading-link" href="#operar-varios-grupos" aria-label="Enlace a Operar varios grupos">#</a></h2>
+<p>Ver <a href="grupos-de-tools.html">Grupos de tools</a> para <code>unified</code>, <code>separate</code> y <code>both</code>. Iniciar un proceso y usar los endpoints impresos por stderr. Todas las rutas comparten guards HTTP principales, puerto y ciclo de vida; las conexiones separadas no aportan control de acceso ni aislamiento de fallos. Configurar la autorización entrante en un proxy confiable para cada ruta publicada, incluyendo <code>/mcp</code> si publica el catálogo completo.</p>
+<p>La configuración se valida de forma completa al iniciar. Un archivo hijo o una variable requerida faltante impide iniciar todos los grupos. Reiniciar para aplicar cambios; no hay recarga en caliente. Los logs de llamadas incluyen <code>group</code> y el nombre original de la tool. Operaciones duplicadas en un cliente suelen indicar conexiones simultáneas al endpoint unificado y al de su grupo.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../operacion-y-diagnostico.md">Fuente Markdown</a></footer></main>
+<aside class="toc" aria-label="En esta página"><span class="nav-label">En esta página</span><a class="depth-2" href="#elegir-cómo-ejecutar-el-servidor">Elegir cómo ejecutar el servidor</a>
+<a class="depth-2" href="#preparar-una-ejecución-de-servicio">Preparar una ejecución de servicio</a>
+<a class="depth-2" href="#http-proxy-y-controles-de-acceso">HTTP, proxy y controles de acceso</a>
+<a class="depth-2" href="#cambios-y-apagado">Cambios y apagado</a>
+<a class="depth-2" href="#logs">Logs</a>
+<a class="depth-2" href="#diagnóstico-por-etapa">Diagnóstico por etapa</a>
+<a class="depth-2" href="#diagnóstico-de-transporte">Diagnóstico de transporte</a>
+<a class="depth-2" href="#límites-funcionales-actuales">Límites funcionales actuales</a>
+<a class="depth-2" href="#operar-varios-grupos">Operar varios grupos</a></aside></div></body></html>

@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parseo, transformación y salida MCP · Underqubit Sidecar MCP</title><meta name="description" content="Parseo, transformación y salida MCP. Guías y referencia de Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="en" href="../en/responses.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Ir al contenido</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Idioma"><a href="respuestas.html" lang="es" hreflang="es" aria-current="true">ES</a><a href="../en/responses.html" lang="en" hreflang="en">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentación</span><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html" aria-current="page">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Explorar guías</summary><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html" aria-current="page">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="parseo-transformación-y-salida-mcp">Parseo, transformación y salida MCP</h1>
+<p><a href="../en/responses.html">English</a></p>
+<p><a href="index.html">Volver al índice</a></p>
+<p>La respuesta de una API o CLI pasa por tres pasos: <strong>parsear el texto</strong>, <strong>transformar el dato si se configuró JSONata</strong> y <strong>validar contra <code>outputSchema</code></strong>. El esquema describe el resultado final, no necesariamente la respuesta original del servicio.</p>
+<h2 id="referencia-de-response">Referencia de <code>response</code><a class="heading-link" href="#referencia-de-response" aria-label="Enlace a Referencia de response">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Default</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>parser</code></td>
+<td><code>{type: json}</code></td>
+<td>Objeto discriminado por <code>type: json</code>, <code>text</code> o <code>regex</code>.</td>
+</tr>
+<tr>
+<td><code>transform</code></td>
+<td>Omitido</td>
+<td>Expresión JSONata; sin ella se conserva el dato parseado.</td>
+</tr>
+<tr>
+<td><code>workerTimeoutMs</code></td>
+<td><code>1000</code></td>
+<td>Presupuesto del worker cuando se utiliza regex o JSONata.</td>
+</tr>
+</tbody></table></div>
+<p>Un parser JSON/texto sin transformación se procesa en el hilo principal. Si hay regex o transformación, el parseo y la transformación se ejecutan en un worker.</p>
+<h2 id="json">JSON<a class="heading-link" href="#json" aria-label="Enlace a JSON">#</a></h2>
+<p><strong>Fragmento</strong>:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">response:
+  parser: { type: json }</code></pre></div>
+<p>Se aplica <code>JSON.parse</code> al texto completo. Un body vacío, varias líneas JSON independientes, un banner antes del JSON o texto que no sea JSON producen error. Content-Type no cambia el parser seleccionado.</p>
+<p>Si la respuesta ya es un objeto compatible con <code>outputSchema</code>, no hace falta transformación. Para una lista raíz, envolverla:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">response:
+  parser: { type: json }
+  transform: &#39;{&quot;items&quot;: data}&#39;</code></pre></div>
+<h2 id="texto">Texto<a class="heading-link" href="#texto" aria-label="Enlace a Texto">#</a></h2>
+<p>El parser <code>text</code> conserva el string completo. Como <code>outputSchema</code> debe tener raíz objeto, una tool que lo use normalmente necesita envolverlo.</p>
+<p><strong>Fragmento</strong>:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">response:
+  parser: { type: text }
+  transform: &#39;{&quot;text&quot;: $trim(data)}&#39;
+outputSchema:
+  type: object
+  properties: { text: { type: string } }
+  required: [text]
+  additionalProperties: false</code></pre></div>
+<p><code>$trim</code> es opcional: omitirlo si espacios y saltos de línea forman parte del resultado que se quiere preservar.</p>
+<h2 id="regex-con-grupos-nombrados">Regex con grupos nombrados<a class="heading-link" href="#regex-con-grupos-nombrados" aria-label="Enlace a Regex con grupos nombrados">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Campo de <code>parser</code></th>
+<th>Default / requisito</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>type</code></td>
+<td>Literal <code>regex</code>.</td>
+</tr>
+<tr>
+<td><code>pattern</code></td>
+<td>String obligatorio, con grupos nombrados <code>(?&lt;nombre&gt;...)</code>.</td>
+</tr>
+<tr>
+<td><code>flags</code></td>
+<td>String vacío. Se permiten <code>i</code>, <code>m</code>, <code>s</code>, <code>u</code>, sin repeticiones.</td>
+</tr>
+<tr>
+<td><code>mode</code></td>
+<td><code>first</code>; alternativa <code>all</code>.</td>
+</tr>
+</tbody></table></div>
+<p>No agregar <code>g</code> a flags: se incorpora internamente cuando <code>mode</code> es <code>all</code>. Se utiliza la sintaxis RegExp de JavaScript.</p>
+<p>Para el texto <code>requests=120 errors=3</code>:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">response:
+  parser:
+    type: regex
+    pattern: &#39;requests=(?&lt;requests&gt;\d+) errors=(?&lt;errors&gt;\d+)&#39;
+  transform: &#39;{&quot;requests&quot;: $number(data.requests), &quot;errors&quot;: $number(data.errors)}&#39;
+outputSchema:
+  type: object
+  properties:
+    requests: { type: integer }
+    errors: { type: integer }
+  required: [requests, errors]
+  additionalProperties: false</code></pre></div>
+<p>Resultado: <code>{&quot;requests&quot;:120,&quot;errors&quot;:3}</code>. Antes de JSONata, los grupos son strings. En YAML, las comillas simples preservan las barras de la regex; en JSON se escriben como <code>&quot;\\d+&quot;</code> dentro del string JSON.</p>
+<p>En modo <code>first</code>, se usa la primera coincidencia y no encontrar ninguna es error. En modo <code>all</code>, se obtiene un array de objetos y no encontrar coincidencias devuelve <code>[]</code>.</p>
+<p>Para una línea por elemento:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">response:
+  parser:
+    type: regex
+    pattern: &#39;^(?&lt;name&gt;\w+)=(?&lt;count&gt;\d+)$&#39;
+    flags: m
+    mode: all
+  transform: &#39;{&quot;items&quot;: [data.{&quot;name&quot;: name, &quot;count&quot;: $number(count)}]}&#39;</code></pre></div>
+<p>Con <code>cpu=2</code> y <code>memory=4</code> en líneas separadas, el resultado contiene una lista de dos objetos. Declarar <code>outputSchema.properties.items</code> como array de objetos con <code>name: string</code> y <code>count: integer</code>.</p>
+<h2 id="contexto-de-jsonata">Contexto de JSONata<a class="heading-link" href="#contexto-de-jsonata" aria-label="Enlace a Contexto de JSONata">#</a></h2>
+<p>El documento raíz de la expresión contiene:</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;data&quot;: {&quot;id&quot;: 42, &quot;name&quot;: &quot;Ada&quot;},
+  &quot;metadata&quot;: {&quot;status&quot;: 200, &quot;headers&quot;: {&quot;content-type&quot;: &quot;application/json&quot;}}
+}</code></pre></div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Origen</th>
+<th>Metadata disponible</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HTTP</td>
+<td><code>status</code>, <code>headers.&quot;content-type&quot;</code> y <code>headers.&quot;retry-after&quot;</code>, si esos headers existen.</td>
+</tr>
+<tr>
+<td>CLI</td>
+<td><code>exitCode</code>.</td>
+</tr>
+</tbody></table></div>
+<p>No se incorporan input, variables de entorno, perfiles de auth, cookies ni stderr al contexto. No hay funciones registradas que accedan a filesystem o red. <code>${input...}</code> y <code>${env...}</code> no se interpolan en la expresión.</p>
+<p>Recetas de transformación:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Necesidad</th>
+<th>Expresión</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Elegir y normalizar campos</td>
+<td><code>{&quot;id&quot;: $string(data.id), &quot;name&quot;: data.name}</code></td>
+</tr>
+<tr>
+<td>Mantener una lista aun con cero o un resultado</td>
+<td><code>{&quot;users&quot;: [data.items.{&quot;id&quot;: $string(id), &quot;name&quot;: name}]}</code></td>
+</tr>
+<tr>
+<td>Filtrar una lista</td>
+<td><code>{&quot;active&quot;: [data.items[active = true]]}</code></td>
+</tr>
+<tr>
+<td>Incorporar estado HTTP</td>
+<td><code>{&quot;result&quot;: data, &quot;status&quot;: metadata.status}</code></td>
+</tr>
+<tr>
+<td>Convertir un grupo regex</td>
+<td><code>{&quot;count&quot;: $number(data.count)}</code></td>
+</tr>
+<tr>
+<td>Respuesta vacía aceptada, usando parser texto</td>
+<td><code>{&quot;ok&quot;: true}</code></td>
+</tr>
+</tbody></table></div>
+<p>Los corchetes explícitos ayudan a preservar arrays en JSONata. Es importante comprobar cero, uno y varios elementos, porque algunas expresiones de selección producen secuencias o valores únicos.</p>
+<p>La expresión debe producir un valor serializable como JSON. Un resultado ausente (<code>undefined</code>), un fallo de evaluación o una conversión numérica inválida generan error. Después de serializar, se valida el objeto final con <code>outputSchema</code>.</p>
+<h2 id="resultado-mcp">Resultado MCP<a class="heading-link" href="#resultado-mcp" aria-label="Enlace a Resultado MCP">#</a></h2>
+<p>El runtime construye una respuesta exitosa con contenido estructurado y una copia textual del mismo JSON. Ejemplo del resultado interno, antes de cualquier adaptación de compatibilidad del SDK:</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;resultType&quot;: &quot;complete&quot;,
+  &quot;content&quot;: [{&quot;type&quot;: &quot;text&quot;, &quot;text&quot;: &quot;{\&quot;message\&quot;:\&quot;hola\&quot;}&quot;}],
+  &quot;structuredContent&quot;: {&quot;message&quot;: &quot;hola&quot;}
+}</code></pre></div>
+<p>Un fallo de tool devuelve <code>isError: true</code>, texto con etapa y mensaje seguro, sin un <code>structuredContent</code> de éxito. Los errores de validación que detecta el SDK pueden usar su propio texto de error.</p>
+<h2 id="presupuestos-y-límites">Presupuestos y límites<a class="heading-link" href="#presupuestos-y-límites" aria-label="Enlace a Presupuestos y límites">#</a></h2>
+<p>Cada worker tiene entorno vacío, límite de generación vieja del heap de 64 MiB y stack de 4 MiB. Ese límite de heap no equivale a un límite total de memoria de todo el proceso. El tiempo configurado incluye inicio del worker y serialización; también se aplica al compilar regex/JSONata durante <code>validate</code>.</p>
+<p>Un worker que excede tiempo o recursos se termina. El deadline de la tool también puede cancelarlo. Regex/JSONata se compilan para comprobar sintaxis al iniciar; eso no garantiza que la transformación funcione con cualquier respuesta real.</p>
+<p>El JSON final debe caber en <code>maxOutputBytes</code>. La respuesta MCP incluye tanto su forma estructurada como textual, por lo que el tamaño total transmitido puede superar el tamaño de ese JSON individual. No se trunca salida para forzar su validación.</p>
+<p>Ver <a href="operacion-y-diagnostico.html">Operación y diagnóstico</a> para resolver errores de parseo y salida.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../respuestas.md">Fuente Markdown</a></footer></main>
+<aside class="toc" aria-label="En esta página"><span class="nav-label">En esta página</span><a class="depth-2" href="#referencia-de-response">Referencia de response</a>
+<a class="depth-2" href="#json">JSON</a>
+<a class="depth-2" href="#texto">Texto</a>
+<a class="depth-2" href="#regex-con-grupos-nombrados">Regex con grupos nombrados</a>
+<a class="depth-2" href="#contexto-de-jsonata">Contexto de JSONata</a>
+<a class="depth-2" href="#resultado-mcp">Resultado MCP</a>
+<a class="depth-2" href="#presupuestos-y-límites">Presupuestos y límites</a></aside></div></body></html>

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Underqubit Sidecar MCP documentation · Underqubit Sidecar MCP</title><meta name="description" content="Underqubit Sidecar MCP documentation. Guides and reference for Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="es" href="../es/index.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Language"><a href="../es/index.html" lang="es" hreflang="es">ES</a><a href="index.html" lang="en" hreflang="en" aria-current="true">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentation</span><nav aria-label="Documentation"><a href="index.html" aria-current="page">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Browse guides</summary><nav aria-label="Documentation"><a href="index.html" aria-current="page">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="underqubit-sidecar-mcp-documentation">Underqubit Sidecar MCP documentation</h1>
+<p><a href="../es/index.html">Español</a></p>
+<p>Underqubit Sidecar MCP exposes MCP tools from a YAML or JSON file. Each tool validates its arguments, performs an HTTP request or runs a local CLI, structures the response, and checks it against the output schema.</p>
+<p>The configuration file defines the integration: adding a tool does not require changing TypeScript. Changes take effect when the server restarts.</p>
+<h2 id="guides">Guides<a class="heading-link" href="#guides" aria-label="Link to Guides">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Document</th>
+<th>What it covers</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="json-schema.html">JSON Schema reference</a></td>
+<td>Keywords, extra fields, formats, examples, and actual validator limitations.</td>
+</tr>
+<tr>
+<td><a href="documentation-site.html">HTML site and deployment</a></td>
+<td>Build the bilingual site, maintain styles, and publish to GitHub Pages.</td>
+</tr>
+<tr>
+<td><a href="npm-publishing.html">npm publishing and license</a></td>
+<td>Apache 2.0, package verification, npx usage, and release steps.</td>
+</tr>
+<tr>
+<td><a href="quick-start.html">Quick start</a></td>
+<td>Installation, first run, client connections, and available commands.</td>
+</tr>
+<tr>
+<td><a href="openapi-import.html">Import OpenAPI</a></td>
+<td>Generate integration files from Swagger 2.0 and OpenAPI 3.x.</td>
+</tr>
+<tr>
+<td><a href="tool-groups.html">Tool groups</a></td>
+<td>Multiple files in one process, unified catalog, separate endpoints, and Inspector.</td>
+</tr>
+<tr>
+<td><a href="configuration.html">Configuration</a></td>
+<td>Common fields, JSON Schema, variables, templates, defaults, and limits.</td>
+</tr>
+<tr>
+<td><a href="tools-http.html">HTTP tools</a></td>
+<td>Mapping arguments to a REST API using Axios.</td>
+</tr>
+<tr>
+<td><a href="tools-cli.html">CLI tools</a></td>
+<td>Executables, arguments, stdin, environment, paths, and exit codes.</td>
+</tr>
+<tr>
+<td><a href="authentication.html">Authentication</a></td>
+<td>API keys, Bearer, Basic, OAuth2, and CLI credentials.</td>
+</tr>
+<tr>
+<td><a href="responses.html">Responses</a></td>
+<td>JSON/text/regex parsers, JSONata transformations, and MCP responses.</td>
+</tr>
+<tr>
+<td><a href="architecture.html">Architecture</a></td>
+<td>Modules, data flow, shared state, and cancellation.</td>
+</tr>
+<tr>
+<td><a href="development.html">Development</a></td>
+<td>Development environment, tests, extensions, schema generation, and CI.</td>
+</tr>
+<tr>
+<td><a href="operations-and-troubleshooting.html">Operations and troubleshooting</a></td>
+<td>HTTP deployment, logs, maintenance, errors, and limitations.</td>
+</tr>
+</tbody></table></div>
+<h2 id="where-to-start">Where to start<a class="heading-link" href="#where-to-start" aria-label="Link to Where to start">#</a></h2>
+<p><strong>To use the server:</strong> follow <a href="quick-start.html">Quick start</a>, choose <a href="tools-http.html">HTTP</a> or <a href="tools-cli.html">CLI</a>, and configure <a href="responses.html">response processing</a>.</p>
+<p><strong>To develop:</strong> read <a href="architecture.html">Architecture</a> and <a href="development.html">Development</a>. The <a href="configuration.html">configuration reference</a> describes the contract to preserve when changing the code.</p>
+<p><strong>To deploy or investigate a failure:</strong> see <a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>.</p>
+<h2 id="repository-resources">Repository resources<a class="heading-link" href="#repository-resources" aria-label="Link to Repository resources">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="../../../skills/underqubit-sidecar-mcp/SKILL.md">AI agent skill</a></td>
+<td>English instructions for using, configuring, and troubleshooting server integrations.</td>
+</tr>
+<tr>
+<td><a href="../../../examples/cli.yaml">YAML CLI example</a></td>
+<td>Two local tools with no external services or credentials.</td>
+</tr>
+<tr>
+<td><a href="../../../examples/cli.json">JSON CLI example</a></td>
+<td>A tool that receives and returns a message.</td>
+</tr>
+<tr>
+<td><a href="../../../examples/http.yaml">HTTP example</a></td>
+<td>User lookup with Bearer authentication and response transformation.</td>
+</tr>
+<tr>
+<td><a href="../../../examples/jira.json">Jira Cloud example</a></td>
+<td>Four read-only issue tools with authentication and pagination. See <a href="tools-http.html#jira-cloud-example">Jira setup</a>.</td>
+</tr>
+<tr>
+<td><a href="../../../examples/auth.yaml">Authentication example</a></td>
+<td>All supported profiles and a tool using OAuth2.</td>
+</tr>
+<tr>
+<td><a href="../../../.env.example">Example variables</a></td>
+<td>Variable names used by the HTTP examples.</td>
+</tr>
+<tr>
+<td><a href="../../../schema/config.schema.json">Configuration JSON Schema</a></td>
+<td>Editor completion and structural validation.</td>
+</tr>
+<tr>
+<td><a href="../../../evaluations/questions.xml">Evaluations</a></td>
+<td>Questions about a fixed dataset for evaluating tool use.</td>
+</tr>
+</tbody></table></div>
+<h2 id="scope-of-this-documentation">Scope of this documentation<a class="heading-link" href="#scope-of-this-documentation" aria-label="Link to Scope of this documentation">#</a></h2>
+<p>This documentation describes configuration format <code>version: 1</code> and the implementation in this repository. It does not assume the package is published on npm: commands use the local build in <code>dist/</code>.</p>
+<p>Run all commands from the project root unless stated otherwise. Blocks labeled <strong>fragment</strong> belong inside a complete configuration; they are not standalone executable files. URLs using <code>example.com</code> and <code>example.org</code> represent services you must replace.</p>
+<p>The source of truth for fields is <a href="../../../src/config-schema.ts">src/config-schema.ts</a>. Rules that require additional logic—references, URLs, environment variables, and parser compilation—are in <a href="../../../src/config.ts">src/config.ts</a>.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../en/README.md">Markdown source</a></footer></main>
+<aside class="toc" aria-label="On this page"><span class="nav-label">On this page</span><a class="depth-2" href="#guides">Guides</a>
+<a class="depth-2" href="#where-to-start">Where to start</a>
+<a class="depth-2" href="#repository-resources">Repository resources</a>
+<a class="depth-2" href="#scope-of-this-documentation">Scope of this documentation</a></aside></div></body></html>

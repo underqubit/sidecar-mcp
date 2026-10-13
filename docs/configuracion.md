@@ -81,6 +81,8 @@ Las tools se publican ordenadas por nombre. Solo nombre, descripción, título, 
 
 ## JSON Schema de entrada y salida
 
+La [referencia completa de JSON Schema](json-schema.md) explica cada palabra clave, sus valores, su efecto al omitirla y las limitaciones del proyecto. En particular, `additionalProperties: false` rechaza campos extra; `true` o su omisión los permiten salvo otras restricciones. También acepta un subesquema para validar los valores extra. No elimina campos ni modifica `required`, y cada objeto anidado tiene sus propias reglas.
+
 Se utiliza draft 2020-12 con AJV en modo estricto y formatos de `ajv-formats`. Se admiten referencias internas, como `#/$defs/user`, y combinaciones estándar compatibles con ese validador. No se descargan esquemas remotos ni se admiten validadores asíncronos `$async`.
 
 **Fragmento** de entrada:

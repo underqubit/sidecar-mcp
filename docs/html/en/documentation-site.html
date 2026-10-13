@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HTML documentation site · Underqubit Sidecar MCP</title><meta name="description" content="HTML documentation site. Guides and reference for Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="es" href="../es/sitio-documentacion.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Language"><a href="../es/sitio-documentacion.html" lang="es" hreflang="es">ES</a><a href="documentation-site.html" lang="en" hreflang="en" aria-current="true">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentation</span><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html" aria-current="page">HTML documentation site</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Browse guides</summary><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html" aria-current="page">HTML documentation site</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="html-documentation-site">HTML documentation site</h1>
+<p><a href="../es/sitio-documentacion.html">Español</a> · <a href="index.html">Back to index</a></p>
+<p>The HTML documentation is generated from Markdown in <code>docs/</code> and <code>docs/en/</code>. Both languages include sidebar navigation, a section index, permanent links, and a language switch that opens the translation of the same guide. The layout adapts to mobile screens and supports printing.</p>
+<h2 id="build-and-open-the-site">Build and open the site<a class="heading-link" href="#build-and-open-the-site" aria-label="Link to Build and open the site">#</a></h2>
+<p>From a complete checkout with Node.js 24 or later:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm ci
+npm run docs:build</code></pre></div>
+<p>Open <code>docs/html/index.html</code> in a browser and choose Español or English. You can also serve <code>docs/html</code> with any static web server. Guide links are relative, so they work on both a custom domain and a GitHub Pages project prefix.</p>
+<p>The generator removes and rebuilds only <code>docs/html</code>. Generated HTML is included in the repository for direct browsing; do not edit it manually. After editing Markdown, regenerate it before committing. GitHub Actions always rebuilds from source before publishing.</p>
+<p>Building HTML does not require compiling the MCP server. The additional <code>npm run docs:check-schema</code> verification does compile the project to test documented schemas against the actual validator. The workflow runs this check before generating and deploying. The <code>marked</code> development dependency converts Markdown, tables, and code blocks into HTML. Literal HTML tags are escaped. The build validates local links, images, and anchors; invalid destinations cause it to fail.</p>
+<h2 id="edit-content-and-navigation">Edit content and navigation<a class="heading-link" href="#edit-content-and-navigation" aria-label="Link to Edit content and navigation">#</a></h2>
+<ol>
+<li>Edit the Spanish guide and its counterpart in <code>docs/en/</code>.</li>
+<li>For a new guide, register both paths in <code>docs/site/pages.json</code>. Their order defines the navigation. Every guide in both directories must be registered.</li>
+<li>Run <code>npm run docs:build</code> and review both languages, including a narrow viewport.</li>
+</ol>
+<p>Page titles and section indexes come from Markdown headings. Guide links become <code>.html</code> links while preserving fragments. Code blocks include a copy button when the browser provides clipboard access.</p>
+<p>Source and example links point to the checkout in local builds. In GitHub Actions, the build automatically uses the current repository and commit. To generate a site outside Actions with links to a public repository:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">DOCS_REPOSITORY_URL=https://github.com/OWNER/REPOSITORY \
+DOCS_SOURCE_REF=main npm run docs:build</code></pre></div>
+<p>Repository files are not copied into the site. References to files absent from the checkout, such as an untracked local integration, retain their label without a download link.</p>
+<h2 id="visual-identity">Visual identity<a class="heading-link" href="#visual-identity" aria-label="Link to Visual identity">#</a></h2>
+<p>The styles adapt the <code>underqubit-proposals</code> skill from <code>underqubit-skills</code>: navy <code>#0B243F</code>, green <code>#4DBE94</code>, Lato headings, and navy table headers. The logo was extracted from its <code>assets/portada.pdf</code>; Lato Regular and Bold were copied from the skill, with their SIL OFL license. Asset origins are recorded in <code>docs/site/assets/PROVENANCE.txt</code>.</p>
+<p>Assets live in <code>docs/site/assets/</code> and are copied to <code>docs/html/assets/</code>. Building does not require the skill to be installed. Fonts, logo, and styles are served locally, without Google Fonts.</p>
+<p>Mermaid diagrams use the pinned <code>11.12.1</code> renderer from jsDelivr and require a connection. If the renderer cannot load, the original diagram source remains visible. The rest of the site works offline; clipboard functionality depends on browser capabilities and permissions.</p>
+<h2 id="deploy-with-github-pages">Deploy with GitHub Pages<a class="heading-link" href="#deploy-with-github-pages" aria-label="Link to Deploy with GitHub Pages">#</a></h2>
+<p>In the GitHub repository, configure <strong>Settings → Pages → Build and deployment → Source → GitHub Actions</strong> once. This setting requires administrative access. No personal token is needed: the workflow uses <code>GITHUB_TOKEN</code> and the <code>github-pages</code> environment.</p>
+<p>The <code>.github/workflows/docs.yml</code> workflow:</p>
+<ul>
+<li>Builds and validates pull requests changing <code>docs/**</code>, the generator, schema verifier, <code>src/config.ts</code>, <code>src/config-schema.ts</code>, dependencies, or the workflow itself, without deploying.</li>
+<li>Publishes to GitHub Pages when those changes reach <code>main</code>.</li>
+<li>Supports manual runs through <strong>Actions → Documentation → Run workflow</strong> from <code>main</code>.</li>
+<li>Uploads only <code>docs/html</code>, with Pages write permissions restricted to the deployment job.</li>
+<li>Exposes the final URL in the run&#39;s <code>github-pages</code> environment.</li>
+</ul>
+<p>Server CI continues in <code>.github/workflows/ci.yml</code>. Documentation deployment depends on its own build and validation, independently of the server test suite. Any protection rules on the <code>github-pages</code> environment still apply. The workflow is ready in the repository; publication happens after the changes reach GitHub and Pages is enabled.</p>
+<p>If <code>Configure Pages</code> fails, check the setting above and Pages availability for the repository. For build errors, the log identifies the guide or link to fix. If the primary branch changes, update the branch filter and <code>refs/heads/main</code> conditions in the workflow.</p>
+<p>Reference: <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages">custom GitHub Pages workflows</a>.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../en/documentation-site.md">Markdown source</a></footer></main>
+<aside class="toc" aria-label="On this page"><span class="nav-label">On this page</span><a class="depth-2" href="#build-and-open-the-site">Build and open the site</a>
+<a class="depth-2" href="#edit-content-and-navigation">Edit content and navigation</a>
+<a class="depth-2" href="#visual-identity">Visual identity</a>
+<a class="depth-2" href="#deploy-with-github-pages">Deploy with GitHub Pages</a></aside></div></body></html>

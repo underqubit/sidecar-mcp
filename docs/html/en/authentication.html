@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Authentication and environment variables · Underqubit Sidecar MCP</title><meta name="description" content="Authentication and environment variables. Guides and reference for Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="es" href="../es/autenticacion.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Skip to content</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Language"><a href="../es/autenticacion.html" lang="es" hreflang="es">ES</a><a href="authentication.html" lang="en" hreflang="en" aria-current="true">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentation</span><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html" aria-current="page">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Browse guides</summary><nav aria-label="Documentation"><a href="index.html">Overview</a>
+<a href="quick-start.html">Quick start</a>
+<a href="configuration.html">Configuration reference</a>
+<a href="json-schema.html">JSON Schema reference for tools</a>
+<a href="tool-groups.html">Multiple tool groups in one process</a>
+<a href="tools-http.html">HTTP tools: adapt a REST API</a>
+<a href="tools-cli.html">CLI tools: adapt a local executable</a>
+<a href="authentication.html" aria-current="page">Authentication and environment variables</a>
+<a href="responses.html">Parsing, transformation, and MCP output</a>
+<a href="openapi-import.html">Generate configurations from Swagger and OpenAPI</a>
+<a href="architecture.html">Architecture and internals</a>
+<a href="development.html">Developer guide</a>
+<a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>
+<a href="npm-publishing.html">License and npm publishing</a>
+<a href="documentation-site.html">HTML documentation site</a></nav></details><div class="eyebrow">Underqubit / Documentation</div><article><h1 id="authentication-and-environment-variables">Authentication and environment variables</h1>
+<p><a href="index.html">Back to index</a> · <a href="../es/autenticacion.html">Español</a></p>
+<p>Authentication has two directions: <strong>MCP server to external services</strong> and <strong>client to the MCP endpoint</strong>. The <code>auth</code> profiles handle the first. Incoming HTTP access is delegated to a private network or proxy; declaring an API profile does not protect it.</p>
+<h2 id="declare-and-select-profiles">Declare and select profiles<a class="heading-link" href="#declare-and-select-profiles" aria-label="Link to Declare and select profiles">#</a></h2>
+<p>Configuration <strong>fragment</strong>:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">auth:
+  backend:
+    type: bearer
+    token: &#39;${env.API_TOKEN}&#39;</code></pre></div>
+<p>An HTTP tool selects that profile with <code>execution.auth: backend</code>. The name is literal. Tools can share a profile. If <code>execution.auth</code> is omitted or a <code>type: none</code> profile is selected, no credentials are added; headers explicitly declared in the configuration remain in place.</p>
+<p>Secrets require a complete <code>${env.VARIABLE}</code> reference with a conventional variable name. Literal secrets, partial interpolation, and <code>${input...}</code> arguments are not accepted in these fields. Configuration and references are not advertised to the model as MCP parameters.</p>
+<h2 id="available-types">Available types<a class="heading-link" href="#available-types" aria-label="Link to Available types">#</a></h2>
+<p>The following are <strong>fragments</strong> of the <code>auth</code> map:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">auth:
+  public_api:
+    type: none
+
+  key_in_header:
+    type: apiKey
+    in: header
+    name: X-API-Key
+    value: &#39;${env.API_KEY}&#39;
+
+  key_in_query:
+    type: apiKey
+    in: query
+    name: api_key
+    value: &#39;${env.API_KEY}&#39;
+
+  fixed_token:
+    type: bearer
+    token: &#39;${env.API_TOKEN}&#39;
+
+  username_password:
+    type: basic
+    username: &#39;${env.API_USERNAME}&#39;
+    password: &#39;${env.API_PASSWORD}&#39;
+
+  service_oauth:
+    type: oauth2
+    tokenUrl: &#39;${env.OAUTH_TOKEN_URL}&#39;
+    clientId: &#39;${env.OAUTH_CLIENT_ID}&#39;
+    clientSecret: &#39;${env.OAUTH_CLIENT_SECRET}&#39;
+    scopes: [users.read]
+    tokenAuthMethod: basic
+    timeoutMs: 10000</code></pre></div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>apiKey</code></td>
+<td>Inserts the secret into a header or query parameter with a fixed name.</td>
+</tr>
+<tr>
+<td><code>bearer</code></td>
+<td>Writes <code>Authorization: Bearer &lt;token&gt;</code>. The environment value must contain only the token.</td>
+</tr>
+<tr>
+<td><code>basic</code></td>
+<td>Builds <code>Authorization: Basic ...</code> from the username and password.</td>
+</tr>
+<tr>
+<td><code>oauth2</code></td>
+<td>Obtains an access token using client credentials and sends it as Bearer.</td>
+</tr>
+<tr>
+<td><code>none</code></td>
+<td>Does not modify request authentication.</td>
+</tr>
+</tbody></table></div>
+<p>Auth replaces an existing header/query parameter of the same name. The HTTP adapter subsequently sets Content-Type when sending a body; do not use that header for an API key. A tool cannot select a list of multiple profiles.</p>
+<h2 id="oauth2-client-credentials">OAuth2 client credentials<a class="heading-link" href="#oauth2-client-credentials" aria-label="Link to OAuth2 client credentials">#</a></h2>
+<p>The adapter sends a form URL-encoded POST to <code>tokenUrl</code> with <code>grant_type=client_credentials</code>. <code>scopes</code> is a list of literal strings joined with spaces in <code>scope</code>. If empty, that field is omitted.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required / default</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>tokenUrl</code></td>
+<td>Required; HTTP/HTTPS without embedded username/password or a fragment. Fixed or from the environment.</td>
+</tr>
+<tr>
+<td><code>clientId</code></td>
+<td>Required environment reference.</td>
+</tr>
+<tr>
+<td><code>clientSecret</code></td>
+<td>Required environment reference.</td>
+</tr>
+<tr>
+<td><code>scopes</code></td>
+<td><code>[]</code>.</td>
+</tr>
+<tr>
+<td><code>tokenAuthMethod</code></td>
+<td><code>basic</code>; alternative: <code>body</code>.</td>
+</tr>
+<tr>
+<td><code>timeoutMs</code></td>
+<td><code>10000</code>.</td>
+</tr>
+</tbody></table></div>
+<p>With <code>basic</code>, credentials are encoded for the OAuth endpoint&#39;s Basic header. With <code>body</code>, they are sent as <code>client_id</code> and <code>client_secret</code> in the form.</p>
+<p>The response must be a JSON object with a nonempty string <code>access_token</code> and <code>token_type</code> equal to Bearer, case-insensitively. A numeric, finite, positive <code>expires_in</code> enables caching. If it is missing or invalid, the token is used for consumers of that retrieval but is not retained for future calls.</p>
+<p>The cache lives in memory, per profile and process. Its effective lifetime subtracts the smaller of 30 seconds or 10% of the TTL. There is no renewal timer: a subsequent call requests another token when the previous one is no longer valid.</p>
+<p>Concurrent calls to the same profile share a pending retrieval. Canceling one consumer does not cancel the others; when no consumers remain, retrieval is aborted. Closing the runtime cancels pending requests and clears the cache.</p>
+<p>The OAuth endpoint accepts only 2xx statuses, does not follow redirects, and limits requests/responses to 64 KiB. There are no refresh tokens, persistence, interactive login, per-user storage, or automatic operation retries after a service returns 401.</p>
+<h2 id="cli-credentials">CLI credentials<a class="heading-link" href="#cli-credentials" aria-label="Link to CLI credentials">#</a></h2>
+<p>The existing CLI implements authentication. Use <code>execution.env</code> or <code>execution.stdin</code> according to its contract. <strong>Fragment</strong>:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">execution:
+  type: cli
+  command: service-cli
+  args: [account, show, --json]
+  env:
+    SERVICE_TOKEN: &#39;${env.SERVICE_TOKEN}&#39;
+    HOME: &#39;${env.HOME}&#39;</code></pre></div>
+<p>If the program reads a JSON object from stdin, the body could be <code>stdin: {token: &#39;${env.SERVICE_TOKEN}&#39;}</code>. This only works if the CLI documents that protocol. No login format is injected automatically.</p>
+<h2 id="load-and-rotate-secrets">Load and rotate secrets<a class="heading-link" href="#load-and-rotate-secrets" aria-label="Link to Load and rotate secrets">#</a></h2>
+<p>The process can receive variables from its supervisor, stdio client, or Node with <code>--env-file</code>. There is no automatic <code>.env</code> loading or external secret manager resolution.</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node --env-file=.env dist/cli.js validate --config examples/auth.yaml
+node --env-file=.env dist/cli.js serve --config examples/auth.yaml</code></pre></div>
+<p><a href="../../../examples/auth.yaml">examples/auth.yaml</a> includes all profiles, so it requires all their variables, even if a tool only uses OAuth. <a href="../../../.env.example">.env.example</a> contains sample names and values, not operational credentials.</p>
+<p>To rotate credentials, update the process environment and restart it. Editing an <code>.env</code> file while the server is running is not sufficient.</p>
+<p>Error messages avoid printing auth bodies and secrets. Successful responses come from the API or CLI: there is no universal filter that removes credentials if the service itself returns them. Select only the necessary fields in the transformation and output schema.</p>
+<h2 id="incoming-mcp-authentication">Incoming MCP authentication<a class="heading-link" href="#incoming-mcp-authentication" aria-label="Link to Incoming MCP authentication">#</a></h2>
+<p><code>allowedHosts</code> and <code>allowedOrigins</code> check request destinations and origins; they do not identify or authorize people. Incoming Bearer tokens are not validated, there is no built-in login, and incoming OAuth discovery is not implemented.</p>
+<p>When exposing HTTP, the proxy must authenticate clients and restrict direct backend access. Accepted clients share the process configuration and service credentials. See <a href="operations-and-troubleshooting.html">Operations and troubleshooting</a>.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../en/authentication.md">Markdown source</a></footer></main>
+<aside class="toc" aria-label="On this page"><span class="nav-label">On this page</span><a class="depth-2" href="#declare-and-select-profiles">Declare and select profiles</a>
+<a class="depth-2" href="#available-types">Available types</a>
+<a class="depth-2" href="#oauth2-client-credentials">OAuth2 client credentials</a>
+<a class="depth-2" href="#cli-credentials">CLI credentials</a>
+<a class="depth-2" href="#load-and-rotate-secrets">Load and rotate secrets</a>
+<a class="depth-2" href="#incoming-mcp-authentication">Incoming MCP authentication</a></aside></div></body></html>

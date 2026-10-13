@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inicio rápido · Underqubit Sidecar MCP</title><meta name="description" content="Inicio rápido. Guías y referencia de Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="en" href="../en/quick-start.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Ir al contenido</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Idioma"><a href="inicio-rapido.html" lang="es" hreflang="es" aria-current="true">ES</a><a href="../en/quick-start.html" lang="en" hreflang="en">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentación</span><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html" aria-current="page">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Explorar guías</summary><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html" aria-current="page">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="inicio-rápido">Inicio rápido</h1>
+<p><a href="../en/quick-start.html">English</a></p>
+<p><a href="index.html">Volver al índice</a></p>
+<p>Para una versión publicada en npm, ver <a href="publicacion-npm.html">instalación npm y npx</a>. Los comandos siguientes usan un checkout del código fuente.</p>
+<h2 id="requisitos">Requisitos<a class="heading-link" href="#requisitos" aria-label="Enlace a Requisitos">#</a></h2>
+<ul>
+<li>Node.js 24 o superior y npm.</li>
+<li>Un cliente MCP que pueda iniciar procesos por stdio o conectarse mediante Streamable HTTP.</li>
+<li>Para tools CLI: el ejecutable o intérprete instalado en la máquina donde corre el servidor.</li>
+<li>Para tools HTTP: acceso desde esa misma máquina a la API y, cuando corresponda, a su endpoint OAuth2.</li>
+</ul>
+<p>Una tool CLI se ejecuta en el host del servidor MCP. Si MCP está desplegado remotamente, no ejecuta comandos en la computadora del cliente.</p>
+<h2 id="instalar-y-compilar">Instalar y compilar<a class="heading-link" href="#instalar-y-compilar" aria-label="Enlace a Instalar y compilar">#</a></h2>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm ci
+npm run build
+node dist/cli.js --help</code></pre></div>
+<p><code>npm ci</code> usa las versiones de <code>package-lock.json</code>. La compilación genera JavaScript, declaraciones de tipos y source maps en <code>dist/</code>, incluido el worker de respuestas.</p>
+<h2 id="probar-sin-apis-externas">Probar sin APIs externas<a class="heading-link" href="#probar-sin-apis-externas" aria-label="Enlace a Probar sin APIs externas">#</a></h2>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node dist/cli.js validate --config examples/cli.yaml
+node dist/cli.js serve --config examples/cli.yaml</code></pre></div>
+<p>La validación informa por stderr que hay dos tools válidas. <code>serve</code> queda esperando mensajes MCP por stdio; no es una consola interactiva de comandos.</p>
+<p>El ejemplo publica:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Argumentos</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>local_node_version</code></td>
+<td><code>{}</code></td>
+<td>Objeto con <code>version</code>, obtenida ejecutando <code>node --version</code> y parseando una regex.</td>
+</tr>
+<tr>
+<td><code>local_echo</code></td>
+<td><code>{&quot;message&quot;:&quot;hola&quot;}</code></td>
+<td><code>{&quot;message&quot;:&quot;hola&quot;}</code>, obtenido de un proceso Node que recibe JSON por stdin.</td>
+</tr>
+</tbody></table></div>
+<p>La versión concreta de Node depende de la instalación local.</p>
+<h2 id="probar-con-mcp-inspector">Probar con MCP Inspector<a class="heading-link" href="#probar-con-mcp-inspector" aria-label="Enlace a Probar con MCP Inspector">#</a></h2>
+<p>El Inspector permite descubrir e invocar las tools desde una interfaz web. Desde la raíz del proyecto, con las dependencias instaladas, ejecutar:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm run build
+npx -y @modelcontextprotocol/inspector node dist/cli.js -- \
+  serve --config examples/cli.yaml --transport stdio</code></pre></div>
+<p>El separador <code>--</code> hace que los argumentos posteriores se pasen al servidor. Es necesario porque el Inspector también reconoce <code>--config</code> y <code>--transport</code>: sin el separador, podría interpretar el YAML de tools como su propia configuración de cliente. Ver la <a href="https://modelcontextprotocol.io/docs/2026-07-28/tools/inspector/configuration#the--separator">referencia oficial de argumentos del Inspector</a>.</p>
+<p>El Inspector inicia el servidor como proceso hijo mediante stdio; no hace falta ejecutar <code>serve</code> previamente en otra terminal. <code>npx</code> obtiene el Inspector y este ejecuta la compilación local del proyecto. No requiere publicar Sidecar en npm.</p>
+<ol>
+<li>Abrir la URL completa que imprime el Inspector, incluido su token de sesión.</li>
+<li>Conectarse al servidor desde la interfaz y abrir <strong>Tools</strong>.</li>
+<li>Listar las tools e invocar <code>local_node_version</code> con <code>{}</code> o <code>local_echo</code> con <code>{&quot;message&quot;:&quot;hola&quot;}</code>.</li>
+<li>Comprobar el resultado estructurado: la segunda tool debe devolver <code>{&quot;message&quot;:&quot;hola&quot;}</code>.</li>
+</ol>
+<p>La URL impresa permite acceder a la sesión del Inspector; usarla completa en lugar de escribir solo el host y puerto. Ver la <a href="https://modelcontextprotocol.io/docs/2026-07-28/tools/inspector/web">guía oficial de la interfaz web</a>.</p>
+<h3 id="probar-tools-de-api-rest-con-env">Probar tools de API REST con <code>.env</code><a class="heading-link" href="#probar-tools-de-api-rest-con-env" aria-label="Enlace a Probar tools de API REST con .env">#</a></h3>
+<p>Crear <code>.env</code> a partir de <code>.env.example</code> y configurar <code>API_BASE_URL</code> y <code>API_TOKEN</code> con los datos del servicio real, como se explica en <a href="#cargar-variables-de-entorno">Cargar variables de entorno</a>. Después ejecutar:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npx -y @modelcontextprotocol/inspector node -- \
+  --env-file=.env dist/cli.js \
+  serve --config examples/http.yaml --transport stdio</code></pre></div>
+<p>En este comando, <code>--env-file</code> se pasa a Node antes del archivo JavaScript. <code>--transport stdio</code> define la conexión entre Inspector y MCP y sobrescribe el transporte HTTP declarado en el ejemplo. La tool <code>api_get_user</code> sigue llamando a la API REST mediante Axios; probarla con un argumento como <code>{&quot;id&quot;:&quot;42&quot;}</code> que corresponda al servicio configurado.</p>
+<p>Después de cambiar código, volver a compilar. Después de cambiar configuración o variables, reiniciar la conexión/proceso del servidor desde el Inspector para cargar los nuevos valores.</p>
+<h2 id="conectar-un-cliente-mediante-stdio">Conectar un cliente mediante stdio<a class="heading-link" href="#conectar-un-cliente-mediante-stdio" aria-label="Enlace a Conectar un cliente mediante stdio">#</a></h2>
+<p>En clientes que utilizan un objeto <code>mcpServers</code>, la configuración tiene esta forma. Reemplazar las rutas por las rutas absolutas de la instalación; otros clientes pueden requerir una estructura distinta.</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;underqubit&quot;: {
+      &quot;command&quot;: &quot;node&quot;,
+      &quot;args&quot;: [
+        &quot;/ruta/underqubit-sidecar-mcp/dist/cli.js&quot;,
+        &quot;serve&quot;,
+        &quot;--config&quot;,
+        &quot;/ruta/underqubit-sidecar-mcp/examples/cli.yaml&quot;
+      ]
+    }
+  }
+}</code></pre></div>
+<p>El cliente inicia el proceso y descubre las tools. Pedirle que invoque <code>local_echo</code> con <code>message: hola</code>. El contenido estructurado esperado es:</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{&quot;message&quot;:&quot;hola&quot;}</code></pre></div>
+<p>Si una aplicación gráfica no encuentra <code>node</code>, usar la ruta absoluta del ejecutable. El PATH de una aplicación gráfica puede diferir del de la terminal.</p>
+<h2 id="conectar-mediante-http">Conectar mediante HTTP<a class="heading-link" href="#conectar-mediante-http" aria-label="Enlace a Conectar mediante HTTP">#</a></h2>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node dist/cli.js serve --config examples/cli.yaml --transport http</code></pre></div>
+<p>El proceso informa el endpoint por stderr. Con los defaults es <code>http://127.0.0.1:3000/mcp</code>. Configurar esa URL como servidor <strong>Streamable HTTP</strong> en el cliente MCP.</p>
+<p>HTTP no sirve una página web ni una API REST de tools. Las operaciones de descubrimiento e invocación se realizan mediante MCP. Abrir la URL en un navegador no equivale a invocar una tool.</p>
+<p><code>--transport</code> prevalece sobre <code>server.transport</code>. Cada proceso inicia un solo transporte. Consultar <a href="operacion-y-diagnostico.html">Operación</a> antes de exponer el endpoint fuera de localhost.</p>
+<h2 id="cargar-variables-de-entorno">Cargar variables de entorno<a class="heading-link" href="#cargar-variables-de-entorno" aria-label="Enlace a Cargar variables de entorno">#</a></h2>
+<p>El proyecto no carga archivos <code>.env</code> automáticamente. Node permite hacerlo explícitamente:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">cp .env.example .env</code></pre></div>
+<p>Editar <code>.env</code> con los valores del servicio real y después ejecutar:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node --env-file=.env dist/cli.js validate --config examples/http.yaml
+node --env-file=.env dist/cli.js serve --config examples/http.yaml</code></pre></div>
+<p>La opción <code>--env-file</code> pertenece a Node y se ubica antes de <code>dist/cli.js</code>. <code>validate</code> comprueba que las variables existan; no comprueba que las credenciales funcionen ni llama al servicio remoto.</p>
+<p>Para usar <code>.env</code> desde un cliente stdio, agregar <code>--env-file=/ruta/absoluta/.env</code> como primer argumento de Node, antes del archivo JavaScript. También se pueden proporcionar variables mediante el entorno que el cliente asigna al proceso.</p>
+<h2 id="referencia-de-comandos">Referencia de comandos<a class="heading-link" href="#referencia-de-comandos" aria-label="Enlace a Referencia de comandos">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Efecto</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>node dist/cli.js --help</code></td>
+<td>Muestra ayuda y termina. También admite <code>-h</code>.</td>
+</tr>
+<tr>
+<td><code>node dist/cli.js validate --config archivo.yaml</code></td>
+<td>Valida y termina, sin ejecutar tools.</td>
+</tr>
+<tr>
+<td><code>node dist/cli.js serve --config archivo.yaml</code></td>
+<td>Sirve el transporte declarado; stdio si se omite.</td>
+</tr>
+<tr>
+<td><code>node dist/cli.js serve --config archivo.json --transport http</code></td>
+<td>Fuerza HTTP para esa ejecución.</td>
+</tr>
+<tr>
+<td><code>npm start -- serve --config examples/cli.yaml</code></td>
+<td>Atajo de terminal; requiere compilación previa.</td>
+</tr>
+<tr>
+<td><code>npm run dev -- serve --config examples/cli.yaml</code></td>
+<td>Compila y ejecuta con source maps. No observa cambios automáticamente.</td>
+</tr>
+</tbody></table></div>
+<p>Para clientes stdio se recomienda invocar <code>node</code> directamente, como en el ejemplo: los mensajes de los scripts npm no deben mezclarse con el canal de protocolo.</p>
+<p><code>--config</code> es obligatorio y no tiene una ruta predeterminada. Los archivos admitidos terminan en <code>.json</code>, <code>.yaml</code> o <code>.yml</code>. Un error de arranque o validación termina con código de salida <code>1</code>; una validación correcta termina con <code>0</code>.</p>
+<h2 id="agregar-la-primera-integración">Agregar la primera integración<a class="heading-link" href="#agregar-la-primera-integración" aria-label="Enlace a Agregar la primera integración">#</a></h2>
+<ol>
+<li>Elegir una operación concreta de la API o CLI.</li>
+<li>Declarar sus argumentos y resultado con JSON Schema.</li>
+<li>Mapear los argumentos en <code>execution</code>.</li>
+<li>Elegir parser y, si hace falta, transformación en <code>response</code>.</li>
+<li>Ejecutar <code>validate</code>, iniciar el servidor y probar con un cliente MCP.</li>
+<li>Reiniciar el proceso después de cambiar configuración o variables.</li>
+</ol>
+<p>Continuar con <a href="configuracion.html">Configuración</a>, <a href="tools-http.html">Tools HTTP</a> o <a href="tools-cli.html">Tools CLI</a>.</p>
+<h2 id="varios-archivos-de-integración">Varios archivos de integración<a class="heading-link" href="#varios-archivos-de-integración" aria-label="Enlace a Varios archivos de integración">#</a></h2>
+<p>Usar <a href="grupos-de-tools.html">grupos de tools</a> para cargar varios archivos en un proceso. Los ejemplos no requieren credenciales de APIs:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node dist/cli.js validate --config examples/composition.json
+node dist/cli.js serve --config examples/composition.json</code></pre></div>
+<p>El ejemplo JSON publica un catálogo unificado por stdio. Para HTTP con catálogo completo y endpoints por grupo, ejecutar <code>node dist/cli.js serve --config examples/composition.yaml</code>. La guía incluye conexiones con Inspector y nombres esperados de tools. <code>--transport</code> cambia el transporte, no el modo de publicación; solo <code>unified</code> admite stdio.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../inicio-rapido.md">Fuente Markdown</a></footer></main>
+<aside class="toc" aria-label="En esta página"><span class="nav-label">En esta página</span><a class="depth-2" href="#requisitos">Requisitos</a>
+<a class="depth-2" href="#instalar-y-compilar">Instalar y compilar</a>
+<a class="depth-2" href="#probar-sin-apis-externas">Probar sin APIs externas</a>
+<a class="depth-2" href="#probar-con-mcp-inspector">Probar con MCP Inspector</a>
+<a class="depth-3" href="#probar-tools-de-api-rest-con-env">Probar tools de API REST con .env</a>
+<a class="depth-2" href="#conectar-un-cliente-mediante-stdio">Conectar un cliente mediante stdio</a>
+<a class="depth-2" href="#conectar-mediante-http">Conectar mediante HTTP</a>
+<a class="depth-2" href="#cargar-variables-de-entorno">Cargar variables de entorno</a>
+<a class="depth-2" href="#referencia-de-comandos">Referencia de comandos</a>
+<a class="depth-2" href="#agregar-la-primera-integración">Agregar la primera integración</a>
+<a class="depth-2" href="#varios-archivos-de-integración">Varios archivos de integración</a></aside></div></body></html>

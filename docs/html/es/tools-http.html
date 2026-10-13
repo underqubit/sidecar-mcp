@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tools HTTP: adaptar una API REST · Underqubit Sidecar MCP</title><meta name="description" content="Tools HTTP: adaptar una API REST. Guías y referencia de Underqubit Sidecar MCP.">
+<link rel="stylesheet" href="../assets/site.css"><link rel="alternate" hreflang="en" href="../en/tools-http.html"><script src="../assets/site.js" defer></script></head>
+<body><a class="skip" href="#main">Ir al contenido</a>
+<header class="topbar"><div class="topbar-inner"><a class="brand" href="index.html" aria-label="Underqubit Sidecar MCP"><img src="../assets/underqubit-logo.png" alt="Underqubit" width="600" height="116"><span class="product">SIDECAR MCP</span></a><nav class="languages" aria-label="Idioma"><a href="tools-http.html" lang="es" hreflang="es" aria-current="true">ES</a><a href="../en/tools-http.html" lang="en" hreflang="en">EN</a></nav></div></header>
+<div class="layout"><aside class="sidebar"><span class="nav-label">Documentación</span><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html" aria-current="page">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav><small>v0.1.0 · Node.js 24+<br>Apache License 2.0</small></aside>
+<main id="main"><details class="mobile-nav"><summary>Explorar guías</summary><nav aria-label="Documentación"><a href="index.html">Introducción</a>
+<a href="inicio-rapido.html">Inicio rápido</a>
+<a href="configuracion.html">Referencia de configuración</a>
+<a href="json-schema.html">Referencia de JSON Schema para las tools</a>
+<a href="grupos-de-tools.html">Varios grupos de tools en un proceso</a>
+<a href="tools-http.html" aria-current="page">Tools HTTP: adaptar una API REST</a>
+<a href="tools-cli.html">Tools CLI: adaptar un ejecutable local</a>
+<a href="autenticacion.html">Autenticación y variables de entorno</a>
+<a href="respuestas.html">Parseo, transformación y salida MCP</a>
+<a href="importar-openapi.html">Generar configuraciones desde Swagger y OpenAPI</a>
+<a href="arquitectura.html">Arquitectura y funcionamiento interno</a>
+<a href="desarrollo.html">Guía para desarrolladores</a>
+<a href="operacion-y-diagnostico.html">Operación y diagnóstico</a>
+<a href="publicacion-npm.html">Licencia y publicación en npm</a>
+<a href="sitio-documentacion.html">Sitio HTML de documentación</a></nav></details><div class="eyebrow">Underqubit / Documentación</div><article><h1 id="tools-http-adaptar-una-api-rest">Tools HTTP: adaptar una API REST</h1>
+<p><a href="../en/tools-http.html">English</a></p>
+<p><a href="index.html">Volver al índice</a> · <a href="configuracion.html">Configuración común</a></p>
+<p>Cada tool HTTP realiza un request mediante Axios. Los argumentos MCP se mapean explícitamente a ruta, query, headers o body. El servidor no descubre endpoints ni importa OpenAPI automáticamente.</p>
+<h2 id="referencia-de-execution">Referencia de <code>execution</code><a class="heading-link" href="#referencia-de-execution" aria-label="Enlace a Referencia de execution">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo / default</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>type</code></td>
+<td>Literal <code>http</code></td>
+<td>Selecciona el adaptador.</td>
+</tr>
+<tr>
+<td><code>baseUrl</code></td>
+<td>String obligatorio</td>
+<td>HTTP/HTTPS fijo o desde entorno. Sin query, fragmento o credenciales embebidas.</td>
+</tr>
+<tr>
+<td><code>method</code></td>
+<td><code>GET</code></td>
+<td>GET, POST, PUT, PATCH, DELETE, HEAD u OPTIONS.</td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td>String, <code>&quot;&quot;</code></td>
+<td>Ruta fija con placeholders <code>{nombre}</code> opcionales.</td>
+</tr>
+<tr>
+<td><code>pathParams</code></td>
+<td>Objeto, <code>{}</code></td>
+<td>Valores de placeholders, con plantillas opcionales.</td>
+</tr>
+<tr>
+<td><code>query</code></td>
+<td>Objeto, <code>{}</code></td>
+<td>Parámetros de consulta.</td>
+</tr>
+<tr>
+<td><code>headers</code></td>
+<td>Mapa de strings, <code>{}</code></td>
+<td>Nombres fijos, valores con plantillas opcionales.</td>
+</tr>
+<tr>
+<td><code>body</code></td>
+<td>Valor JSON, omitido</td>
+<td>Cuerpo con plantillas opcionales.</td>
+</tr>
+<tr>
+<td><code>bodyEncoding</code></td>
+<td><code>json</code></td>
+<td>También <code>form</code> o <code>text</code>.</td>
+</tr>
+<tr>
+<td><code>auth</code></td>
+<td>Nombre de perfil, omitido</td>
+<td>Referencia a <code>auth.&lt;nombre&gt;</code>; no admite selección dinámica por input.</td>
+</tr>
+<tr>
+<td><code>successStatuses</code></td>
+<td>Lista de enteros, omitida</td>
+<td>Sin lista se aceptan 200–299. Una lista reemplaza ese rango.</td>
+</tr>
+<tr>
+<td><code>timeoutMs</code></td>
+<td>Hereda del servidor</td>
+<td>Deadline de tool y timeout del request.</td>
+</tr>
+<tr>
+<td><code>maxOutputBytes</code></td>
+<td>Hereda del servidor</td>
+<td>Límite de body, respuesta capturada y resultado.</td>
+</tr>
+</tbody></table></div>
+<p>No se acepta un objeto Axios arbitrario: solo los campos declarados arriba. Opciones como interceptores, agentes TLS, proxy, multipart, redirects y retries no tienen configuración pública en esta versión.</p>
+<h2 id="ejemplo-completo-obtener-un-usuario">Ejemplo completo: obtener un usuario<a class="heading-link" href="#ejemplo-completo-obtener-un-usuario" aria-label="Enlace a Ejemplo completo: obtener un usuario">#</a></h2>
+<p>Guardar como <code>usuario.yaml</code> en la raíz. El contrato remoto esperado es un endpoint <code>GET /users/{id}</code> que devuelve un objeto con <code>id</code> y <code>name</code>.</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">version: 1
+auth:
+  users_service:
+    type: bearer
+    token: &#39;${env.API_TOKEN}&#39;
+tools:
+  - name: users_get
+    description: Consulta un usuario por su identificador y devuelve ID y nombre.
+    inputSchema:
+      type: object
+      properties:
+        id: { type: string, minLength: 1, description: Identificador del usuario. }
+      required: [id]
+      additionalProperties: false
+    outputSchema:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+      required: [id, name]
+      additionalProperties: false
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: true
+    execution:
+      type: http
+      baseUrl: &#39;${env.API_BASE_URL}&#39;
+      method: GET
+      path: /users/{id}
+      pathParams: { id: &#39;${input.id}&#39; }
+      headers: { Accept: application/json }
+      auth: users_service
+    response:
+      parser: { type: json }
+      transform: &#39;{&quot;id&quot;: $string(data.id), &quot;name&quot;: data.name}&#39;</code></pre></div>
+<p>Definir <code>API_BASE_URL</code> y <code>API_TOKEN</code> en el entorno o en <code>.env</code>, con los datos del servicio real:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node --env-file=.env dist/cli.js validate --config usuario.yaml
+node --env-file=.env dist/cli.js serve --config usuario.yaml</code></pre></div>
+<p>Argumentos MCP: <code>{&quot;id&quot;:&quot;42&quot;}</code>. Si la API devuelve <code>{&quot;id&quot;:42,&quot;name&quot;:&quot;Ada&quot;,&quot;email&quot;:&quot;ada@example.org&quot;}</code>, la tool devuelve <code>{&quot;id&quot;:&quot;42&quot;,&quot;name&quot;:&quot;Ada&quot;}</code>. El esquema comprueba el resultado después de la transformación.</p>
+<p>El repositorio también incluye <a href="../../../examples/http.yaml">examples/http.yaml</a>, preparado para servir por HTTP.</p>
+<h2 id="ejemplo-jira-cloud">Ejemplo Jira Cloud<a class="heading-link" href="#ejemplo-jira-cloud" aria-label="Enlace a Ejemplo Jira Cloud">#</a></h2>
+<p><a href="../../../examples/jira.json">examples/jira.json</a> publica cuatro tools con requests GET a Jira Cloud REST API v3:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>jira_search_issues</code></td>
+<td>Buscar tickets con JQL y recorrer páginas por token.</td>
+</tr>
+<tr>
+<td><code>jira_get_issue</code></td>
+<td>Consultar detalle, descripción, responsables, estado y fechas.</td>
+</tr>
+<tr>
+<td><code>jira_list_issue_comments</code></td>
+<td>Leer comentarios paginados.</td>
+</tr>
+<tr>
+<td><code>jira_list_issue_changelog</code></td>
+<td>Revisar cambios de campos paginados.</td>
+</tr>
+</tbody></table></div>
+<p>Configurar <code>JIRA_BASE_URL</code>, <code>JIRA_EMAIL</code> y <code>JIRA_API_TOKEN</code> en <code>.env</code>, usando <a href="../../../.env.example">.env.example</a> como referencia. La autenticación Basic usa el correo de Atlassian y un API token, no la contraseña de la cuenta. Para tokens sin scopes, la base es <code>https://your-domain.atlassian.net</code>; para tokens con scopes, usar <code>https://api.atlassian.com/ex/jira/YOUR_CLOUD_ID</code> y permisos de lectura adecuados. Las rutas del ejemplo son relativas para preservar ese prefijo. Ver <a href="https://developer.atlassian.com/cloud/jira/platform/basic-auth-for-rest-apis/">autenticación</a> y <a href="https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/">tokens de Atlassian</a>.</p>
+<p>Desde la raíz del proyecto, con las dependencias instaladas:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npm run build
+node --env-file=.env dist/cli.js validate --config examples/jira.json
+npx -y @modelcontextprotocol/inspector node -- \
+  --env-file=.env dist/cli.js serve --config examples/jira.json --transport stdio</code></pre></div>
+<p>Argumentos de ejemplo para <code>jira_search_issues</code>:</p>
+<div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{&quot;jql&quot;:&quot;project = DEMO ORDER BY updated DESC&quot;,&quot;maxResults&quot;:25,&quot;nextPageToken&quot;:null}</code></pre></div>
+<p>Reemplazar <code>DEMO</code> por un proyecto real. En la siguiente página enviar el token recibido con el mismo JQL; terminar cuando <code>isLast</code> sea <code>true</code>. Se usa la <a href="https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-search/#api-rest-api-3-search-jql-get">búsqueda mejorada <code>search/jql</code></a>, sin inventar un total de resultados. Los cambios recientes pueden tardar en aparecer.</p>
+<p>Para detalle, enviar <code>{&quot;issueIdOrKey&quot;:&quot;DEMO-42&quot;}</code>. Para comentarios o historial, enviar <code>{&quot;issueIdOrKey&quot;:&quot;DEMO-42&quot;,&quot;startAt&quot;:0,&quot;maxResults&quot;:25}</code> y continuar con <code>nextStartAt</code> hasta que sea <code>null</code>. Todos los argumentos mostrados son obligatorios: el runtime no aplica defaults de los esquemas de entrada. Si llega una página vacía, detenerse aunque el total haya cambiado durante la consulta.</p>
+<p>Las descripciones y los comentarios mantienen su estructura ADF. Las transformaciones seleccionan campos útiles y conservan listas vacías o de un elemento. El acceso depende de los permisos de la cuenta y las restricciones del ticket/comentario. El ejemplo está dirigido a Jira Cloud; no presupone compatibilidad con Jira Data Center. <code>validate</code> comprueba la configuración, pero no verifica credenciales ni conectividad reales.</p>
+<h3 id="diagnosticar-errores-de-jira">Diagnosticar errores de Jira<a class="heading-link" href="#diagnosticar-errores-de-jira" aria-label="Enlace a Diagnosticar errores de Jira">#</a></h3>
+<p>El runtime muestra el estado HTTP sin publicar el body de error del servicio. Para investigar un 400/404 localmente, ejecutar el diagnóstico con una clave real de ticket y su proyecto; <code>PROJECT-123</code> y <code>PROJECT</code> son marcadores a reemplazar:</p>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node --env-file=.env scripts/diagnose-jira.mjs \
+  --issue PROJECT-123 --jql &#39;project = PROJECT ORDER BY updated DESC&#39;</code></pre></div>
+<p>Requiere la compilación en <code>dist/</code>. Lee <code>examples/jira.json</code>, comprueba la identidad con <code>GET /rest/api/3/myself</code> y reproduce las consultas de detalle/búsqueda con el mismo mapeo y autenticación. La búsqueda diagnóstica usa la primera página con un máximo de un resultado. Sin argumentos, solo comprueba identidad. No modifica tickets.</p>
+<p>La salida incluye estados y los campos <code>errorMessages</code>, <code>errors</code> o <code>message</code> devueltos por Jira; oculta los valores de las credenciales y no imprime cuerpos completos, tickets ni headers. Termina con código <code>1</code> si alguna comprobación falla. El runtime MCP conserva sus mensajes habituales.</p>
+<p>Un 404 puede indicar ticket inexistente o no visible para la cuenta. Un 400 requiere leer el mensaje de Jira: por ejemplo, JQL inválido, proyecto desconocido/no accesible o cursor inválido. Usar un ticket que la cuenta del API token pueda abrir y reemplazar los valores <code>DEMO</code> de los ejemplos. Un fallo de <code>/myself</code> también puede deberse a los scopes específicos de ese endpoint; no demuestra por sí solo que todas las tools carezcan de acceso. Ver <a href="https://support.atlassian.com/jira/kb/webhooks-or-web-requests-fail-with-http-status-code-400-401-or-403-in-jira/">diagnóstico HTTP de Atlassian</a>.</p>
+<h2 id="construcción-de-la-url">Construcción de la URL<a class="heading-link" href="#construcción-de-la-url" aria-label="Enlace a Construcción de la URL">#</a></h2>
+<p>Con <code>baseUrl: https://api.example.com/v1</code>:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th><code>path</code></th>
+<th>URL resultante</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>users</code></td>
+<td><code>https://api.example.com/v1/users</code></td>
+</tr>
+<tr>
+<td><code>/users</code></td>
+<td><code>https://api.example.com/users</code></td>
+</tr>
+<tr>
+<td>Vacío</td>
+<td><code>https://api.example.com/v1</code></td>
+</tr>
+</tbody></table></div>
+<p>Una ruta con <code>/</code> inicial reemplaza el path de la base. Una ruta relativa se agrega tratando la base como directorio. Si se declara una URL completa en <code>path</code>, debe conservar el mismo origen de <code>baseUrl</code>.</p>
+<p>Los placeholders de ruta usan <code>{nombre}</code>, y sus nombres admiten letras, números, <code>_</code> y <code>-</code>. Cada nombre utilizado necesita una entrada en <code>pathParams</code>. Pasar el valor sin codificar: el adaptador aplica <code>encodeURIComponent</code>. <code>/</code>, <code>?</code>, <code>#</code> y espacios dentro de un parámetro se codifican; los valores exactos <code>.</code> y <code>..</code> se rechazan.</p>
+<p>La URL final no puede cambiar el origen configurado ni incorporar credenciales o fragmentos. El cliente MCP no puede decidir el host mediante <code>${input...}</code> en <code>baseUrl</code>.</p>
+<h2 id="query-headers-y-body">Query, headers y body<a class="heading-link" href="#query-headers-y-body" aria-label="Enlace a Query, headers y body">#</a></h2>
+<p><strong>Fragmento</strong> de consulta:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">query:
+  limit: &#39;${input.limit}&#39;
+  active: &#39;${input.active}&#39;
+  tag: [backend, &#39;needs review&#39;]
+  unused: null</code></pre></div>
+<p>Con <code>limit: 10</code> y <code>active: true</code>, se genera <code>limit=10&amp;active=true&amp;tag=backend&amp;tag=needs+review</code>. Las listas repiten la clave; <code>null</code> omite la clave completa. No se admiten objetos anidados ni elementos <code>null</code> dentro de listas de query/formulario. La paginación se expone mediante argumentos como <code>limit</code>, <code>offset</code> o <code>cursor</code>; el servidor no recorre páginas automáticamente.</p>
+<p><strong>Fragmento</strong> de escritura JSON, suponiendo que los campos están declarados en <code>inputSchema</code>:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">execution:
+  type: http
+  baseUrl: &#39;${env.API_BASE_URL}&#39;
+  path: /users
+  method: POST
+  bodyEncoding: json
+  body:
+    name: &#39;${input.name}&#39;
+    enabled: &#39;${input.enabled}&#39;
+    tags: &#39;${input.tags}&#39;
+  successStatuses: [201]</code></pre></div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Codificación</th>
+<th>Body esperado</th>
+<th>Content-Type aplicado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>json</code></td>
+<td>Cualquier valor JSON resoluble</td>
+<td><code>application/json</code></td>
+</tr>
+<tr>
+<td><code>form</code></td>
+<td>Objeto de escalares/listas de escalares</td>
+<td><code>application/x-www-form-urlencoded</code></td>
+</tr>
+<tr>
+<td><code>text</code></td>
+<td>String, número finito o booleano</td>
+<td><code>text/plain; charset=utf-8</code></td>
+</tr>
+</tbody></table></div>
+<p>Cuando hay body, el adaptador establece su Content-Type según <code>bodyEncoding</code>, reemplazando un Content-Type configurado en headers. Los perfiles de auth se aplican sobre headers/query y reemplazan credenciales del mismo nombre. Evitar usar <code>Content-Type</code> como nombre de una API key: es un header controlado también por la codificación del body.</p>
+<h2 id="respuesta-y-errores">Respuesta y errores<a class="heading-link" href="#respuesta-y-errores" aria-label="Enlace a Respuesta y errores">#</a></h2>
+<p>Axios captura la respuesta como texto. <code>response.parser</code> decide cómo interpretarla; no se selecciona automáticamente según Content-Type.</p>
+<p>Los estados fuera de <code>successStatuses</code> producen un error como <code>[execution] The API returned HTTP 404.</code>. El body de error remoto no se publica ni pasa por la transformación. Para tratar un estado específico como un resultado estructurado, incluirlo explícitamente en <code>successStatuses</code> y adaptar parser/esquema al contrato real.</p>
+<p>Una respuesta 204/HEAD puede tener body vacío: el parser JSON fallará. Si ese es el contrato esperado, usar este <strong>fragmento</strong> y un <code>outputSchema</code> con <code>ok: boolean</code>:</p>
+<div class="code-block"><span class="code-label">yaml</span><pre><code class="language-yaml">response:
+  parser: { type: text }
+  transform: &#39;{&quot;ok&quot;: true}&#39;</code></pre></div>
+<p>No se siguen redirecciones, no se reintentan fallos y no se usa el proxy saliente de variables de entorno (<code>proxy: false</code>). TLS conserva la verificación de certificados de Node/Axios. Cancelación, deadline o exceso de bytes terminan el request con error.</p>
+<p>Continuar con <a href="autenticacion.html">Autenticación</a> y <a href="respuestas.html">Respuestas</a>.</p>
+</article><footer class="page-footer"><span>Underqubit · Sidecar MCP</span><a href="../../tools-http.md">Fuente Markdown</a></footer></main>
+<aside class="toc" aria-label="En esta página"><span class="nav-label">En esta página</span><a class="depth-2" href="#referencia-de-execution">Referencia de execution</a>
+<a class="depth-2" href="#ejemplo-completo-obtener-un-usuario">Ejemplo completo: obtener un usuario</a>
+<a class="depth-2" href="#ejemplo-jira-cloud">Ejemplo Jira Cloud</a>
+<a class="depth-3" href="#diagnosticar-errores-de-jira">Diagnosticar errores de Jira</a>
+<a class="depth-2" href="#construcción-de-la-url">Construcción de la URL</a>
+<a class="depth-2" href="#query-headers-y-body">Query, headers y body</a>
+<a class="depth-2" href="#respuesta-y-errores">Respuesta y errores</a></aside></div></body></html>
