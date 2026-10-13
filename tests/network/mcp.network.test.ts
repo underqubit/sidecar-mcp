@@ -1,3 +1,4 @@
+import { request } from 'node:http';
 import { resolve } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
@@ -10,6 +11,15 @@ import { cliTool, runtime } from '../helpers.js';
 
 const cleanup: (() => Promise<void>)[] = [];
 afterEach(async () => { for (const close of cleanup.splice(0).reverse()) await close(); });
+
+// fetch() replaces a caller-supplied Host header (a forbidden header), so forge it with node:http.
+function statusWithHost(url: string, host: string, method = 'GET'): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const req = request(url, { method, headers: { Host: host, 'Content-Type': 'application/json' } }, res => { res.resume(); resolve(res.statusCode!); });
+    req.on('error', reject);
+    req.end(method === 'GET' ? undefined : '{}');
+  });
+}
 
 describe('MCP transports', () => {
   it('discovers and calls configured tools through a real stdio child process', async () => {
@@ -38,7 +48,8 @@ describe('MCP transports', () => {
     const results = await Promise.all(clients.map((client, i) => client.callTool({ name: 'local_echo', arguments: { message: `client-${i}` } })));
     expect(results.map(result => result.structuredContent)).toEqual([{ message: 'client-0' }, { message: 'client-1' }]);
     expect((await fetch(http.url, { method: 'POST', headers: { Origin: 'https://untrusted.example' }, body: '{}' })).status).toBe(403);
-    expect((await fetch(http.url, { method: 'POST', headers: { Host: 'untrusted.example' }, body: '{}' })).status).toBe(403);
+    expect(await statusWithHost(http.url, 'untrusted.example', 'POST')).toBe(403);
+    expect(await statusWithHost(http.url, new URL(http.url).host, 'POST')).not.toBe(403);
     expect((await fetch(http.url.replace('/mcp', '/missing'))).status).toBe(404);
   });
 
@@ -66,7 +77,7 @@ describe('composition HTTP listener', () => {
       const unified = new URL(url).pathname === '/mcp';
       expect((await client.listTools()).tools.length).toBeGreaterThan(0);
       results.push(await client.callTool({ name: unified ? 'echo.local_echo' : 'local_echo', arguments: { message: url } }));
-      expect((await fetch(url, { headers: { Host: 'untrusted.example' } })).status).toBe(403);
+      expect(await statusWithHost(url, 'untrusted.example')).toBe(403);
     }
     expect(results.map(result => result.structuredContent)).toEqual(http.urls.map(url => ({ message: url })));
     await Promise.all([http.close(), http.close()]);
