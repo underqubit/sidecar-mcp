@@ -71,6 +71,10 @@ El [Inicio rápido](inicio-rapido.md) explica cómo conectar un cliente MCP, fij
 
 Describe el formato de configuración `version: 1` del paquete publicado en npm. El [Inicio rápido](inicio-rapido.md) usa el comando instalado por el paquete. Las demás guías muestran `node dist/cli.js`, la forma equivalente desde un checkout del código fuente; con el paquete instalado, reemplazarlo por `npx underqubit-sidecar-mcp` (o `pnpm exec` / `yarn` según el gestor). Los ejemplos que esas guías ubican en `examples/` se encuentran en `node_modules/underqubit-sidecar-mcp/examples/`, salvo el ejemplo de Jira, que solo está en el repositorio.
 
+Si un comando usa `node --env-file=.env`, conservar Node y cambiar la ruta del ejecutable a `node_modules/underqubit-sidecar-mcp/dist/cli.js`; no pasar `--env-file` como opción de Sidecar. Ver [Cargar variables de entorno](inicio-rapido.md#cargar-variables-de-entorno).
+
+Al leer los Markdown directamente, reemplazar los marcadores de versión entre llaves dobles por la versión de `package.json` antes de copiar un comando. El generador HTML realiza esa sustitución automáticamente.
+
 Los comandos con rutas relativas se ejecutan desde la raíz del proyecto salvo indicación contraria. Los bloques rotulados como **fragmento** se incorporan a una configuración completa; no son archivos ejecutables por sí solos. Las URLs `example.com` y `example.org` representan servicios a reemplazar.
 
 La fuente de verdad de los campos es [src/config-schema.ts](../src/config-schema.ts). Las reglas que requieren lógica adicional —referencias, URLs, entorno y compilación de parsers— están en [src/config.ts](../src/config.ts).

@@ -10,11 +10,28 @@ La documentación completa está en [docs/README.md](docs/README.md): guías de 
 
 Para agentes de IA, la skill de uso está en [skills/underqubit-sidecar-mcp/SKILL.md](skills/underqubit-sidecar-mcp/SKILL.md), en inglés.
 
-Cargá varios archivos de integración en un proceso con [grupos de tools](docs/grupos-de-tools.md): un catálogo unificado, servidores HTTP separados o ambos.
+Cargá varios archivos de integración en un proceso con [grupos de tools](docs/grupos-de-tools.md): un catálogo unificado, endpoints HTTP separados en el mismo listener o ambos.
 
 Generá archivos de integración desde Swagger 2.0 u OpenAPI 3.x con los [scripts de importación OpenAPI](docs/importar-openapi.md).
 
 ## Inicio rápido
+
+Requiere Node.js 24 o superior.
+
+### Usar el paquete npm
+
+Con un archivo de configuración existente:
+
+```sh
+npx -y underqubit-sidecar-mcp@1.0.0 validate --config /ruta/absoluta/config.yaml
+npx -y underqubit-sidecar-mcp@1.0.0 serve --config /ruta/absoluta/config.yaml --transport stdio
+```
+
+Para probar los ejemplos incluidos, instalar `underqubit-sidecar-mcp@1.0.0` en un directorio de trabajo y usar `node_modules/underqubit-sidecar-mcp/examples/cli.yaml` como ruta de configuración. Ver [Inicio rápido](docs/inicio-rapido.md) para npm, pnpm, Yarn, conexión de clientes y variables de entorno. El paquete no carga `.env` automáticamente.
+
+### Ejecutar desde el código fuente
+
+Ejecutar los siguientes comandos desde un checkout de este repositorio. Los demás ejemplos con `node dist/cli.js` de este README también presuponen ese checkout.
 
 ```sh
 npm ci
@@ -27,7 +44,7 @@ El último comando inicia MCP por stdio: espera mensajes de un cliente MCP, no c
 
 Para probar las tools desde una interfaz web, seguir la guía de [MCP Inspector](docs/inicio-rapido.md#probar-con-mcp-inspector), con ejemplos locales y de API REST usando `.env`.
 
-Configuración de un cliente MCP con soporte de stdio (reemplazar las rutas):
+Configuración de un cliente MCP que usa la compilación local por stdio (reemplazar las rutas):
 
 ```json
 {
@@ -82,7 +99,7 @@ tools: [] # Reemplazar por al menos una tool.
 
 | Campo | Descripción |
 | --- | --- |
-| `name` | Único, 1–128 caracteres: letras ASCII, números, `_`, `-`, `.`. |
+| `name` | Único dentro de una integración, 1–128 caracteres: letras ASCII, números, `_`, `-`, `.`. |
 | `description` | Descripción de la operación visible al modelo. Obligatoria. |
 | `title` | Título opcional para clientes MCP. |
 | `inputSchema` / `outputSchema` | JSON Schema 2020-12, raíz `type: object`. Ambos obligatorios. |
@@ -90,7 +107,7 @@ tools: [] # Reemplazar por al menos una tool.
 | `execution` | Configuración HTTP o CLI. |
 | `response` | Parser y transformación opcional. Por defecto, parser JSON. |
 
-Zod valida la configuración; AJV valida las entradas y salidas de cada tool. Los JSON Schemas admiten `$defs` y referencias internas `#...`; no referencias remotas ni validadores asíncronos. La validación no convierte tipos, agrega defaults ni elimina propiedades. Para rechazar campos extra, declarar `additionalProperties: false`.
+Zod valida la configuración; AJV valida las entradas y salidas de cada tool. Los JSON Schemas admiten `$defs` y referencias internas `#...`; no referencias remotas ni validadores asíncronos. La validación no convierte tipos, agrega defaults ni elimina propiedades. Para rechazar campos extra, declarar `additionalProperties: false`. `true` o su omisión permiten campos extra salvo otras restricciones; cada objeto anidado tiene sus propias reglas. La [referencia JSON Schema](docs/json-schema.md) explica las palabras clave, formatos, ejemplos y límites del validador.
 
 ### Plantillas
 
@@ -101,6 +118,21 @@ Zod valida la configuración; AJV valida las entradas y salidas de cada tool. Lo
 - Referencias ausentes fallan explícitamente. No hay expresiones JavaScript, evaluación recursiva del texto recibido, ni sustituciones de shell.
 
 Los campos que permiten plantillas son los parámetros de ejecución y credenciales. Descripciones, JSON Schemas, regex y expresiones JSONata no se interpolan. Ejecutable, directorio y origen HTTP no aceptan argumentos de entrada.
+
+## Varios grupos de tools
+
+Una composición referencia archivos de integración sin mezclar sus perfiles de autenticación ni ajustes de ejecución:
+
+```sh
+node dist/cli.js validate --config examples/composition.json
+node dist/cli.js serve --config examples/composition.json
+```
+
+- `unified`: un catálogo en `/mcp` o por stdio, con nombres como `local.local_echo`.
+- `separate`: solo HTTP, un endpoint por grupo en `/mcp/<grupo>`, conservando los nombres originales de las tools.
+- `both`: solo HTTP, expone el catálogo unificado y los endpoints de grupos en el mismo puerto.
+
+Las rutas relativas de configuración se resuelven desde el archivo de composición. Ver [Grupos de tools](docs/grupos-de-tools.md) para ejemplos completos y conexiones de clientes.
 
 ## APIs REST con Axios
 
@@ -221,15 +253,20 @@ HTTP escucha en loopback por defecto. Para acceso externo, configurar bind, `all
 npm run check          # build, typecheck y suite sin puertos TCP
 npm run test:network   # integración con servidores HTTP reales en localhost
 npm run schema        # regenera el JSON Schema de configuración
+npm run check:package # verifica el tarball y la instalación de producción
+npm run docs:check-schema # verifica ejemplos JSON Schema y cobertura en ambos idiomas
+npm run docs:build    # genera HTML y valida enlaces de documentación
 ```
 
 Las pruebas se ejecutan contra `dist`, incluido el worker distribuido. La suite predeterminada usa Axios con interceptores HTTP, un cliente MCP real por stdio y el transporte Streamable HTTP mediante fetch en memoria. Las pruebas TCP separadas verifican sockets, Host/Origin y límites de requests, y necesitan permiso para abrir puertos. No llaman servicios externos ni requieren credenciales reales.
+
+Ver [Repository Guidelines](AGENTS.md) y la [Guía de desarrollo](docs/desarrollo.md) para convenciones de contribución y comprobaciones específicas. Estos comandos de desarrollo requieren el checkout completo con dependencias de desarrollo.
 
 Los módulos de `src` separan configuración, plantillas, autenticación, adaptadores, procesamiento de respuesta, runtime y transporte. Para cambios de configuración, actualizar Zod y regenerar `schema/config.schema.json`.
 
 [evaluations/questions.xml](evaluations/questions.xml) contiene diez preguntas de solo lectura sobre una muestra operativa fija. Para evaluar el uso de las tools por un agente, conectarlo con `--config tests/fixtures/evaluation.yaml`. La suite verifica las respuestas esperadas mediante llamadas MCP reales; no ejecuta una evaluación con un modelo externo ni genera costos de API.
 
-Fuera de esta versión: recarga en caliente, importación OpenAPI, OAuth por usuario, pipelines de múltiples ejecuciones, CSV/XML, multipart y archivos binarios.
+Fuera de esta versión: recarga en caliente, OAuth por usuario, pipelines de múltiples ejecuciones, CSV/XML, multipart y archivos binarios.
 
 Referencias: [SDK MCP v2](https://ts.sdk.modelcontextprotocol.io/v2/), [JSON Schema](https://json-schema.org/draft/2020-12), [JSONata](https://docs.jsonata.org/overview), [Axios](https://axios-http.com/docs/req_config).
 
@@ -241,10 +278,14 @@ El paquete se distribuye públicamente en npm:
 npx -y underqubit-sidecar-mcp@1.0.0 serve --config /ruta/absoluta/config.yaml
 ```
 
-Ver [Publicación npm](docs/publicacion-npm.md) para instalación en producción, verificación del paquete y pasos de lanzamiento. La publicación es una acción separada.
+Ver [Publicación npm](docs/publicacion-npm.md) para instalación en producción, verificación del paquete y pasos de lanzamiento. El paquete incluye los scripts de importación OpenAPI; el ejemplo de Jira, los tests y los scripts de desarrollo están disponibles en el repositorio de código fuente.
 
 ## Licencia
 
 Distribuido bajo la [licencia Apache, versión 2.0](LICENSE). Sidecar MCP está desarrollado por [Underqubit](https://underqubit.com).
 
-La [documentación HTML](docs/html/index.html) está disponible en español e inglés. Para regenerarla y configurar GitHub Pages, ver [Sitio HTML de documentación](docs/sitio-documentacion.md).
+## Documentación HTML
+
+Desde el checkout, ejecutar `npm run docs:build` y abrir `docs/html/index.html` para consultar las guías en español e inglés. El HTML se genera desde Markdown; editar las fuentes en `docs/` y `docs/en/`. El paquete npm incluye las guías Markdown, pero no el HTML generado.
+
+El workflow documental valida las pull requests relevantes y despliega en GitHub Pages cuando los cambios correspondientes llegan a `main`. Pages debe usar **GitHub Actions** como origen de publicación. Ver [Sitio HTML de documentación](docs/sitio-documentacion.md) para generación, navegación y despliegue.

@@ -10,11 +10,28 @@ Complete documentation is available in [docs/en/README.md](docs/en/README.md): u
 
 For AI agents, the usage skill is available in [skills/underqubit-sidecar-mcp/SKILL.md](skills/underqubit-sidecar-mcp/SKILL.md).
 
-Load multiple integration files in one process with [tool groups](docs/en/tool-groups.md): a unified catalog, separate HTTP servers, or both.
+Load multiple integration files in one process with [tool groups](docs/en/tool-groups.md): a unified catalog, separate HTTP endpoints on the same listener, or both.
 
 Generate integration files from Swagger 2.0 or OpenAPI 3.x with the [OpenAPI import scripts](docs/en/openapi-import.md).
 
 ## Quick start
+
+Requires Node.js 24 or later.
+
+### Use the npm package
+
+With an existing configuration file:
+
+```sh
+npx -y underqubit-sidecar-mcp@1.0.0 validate --config /absolute/path/config.yaml
+npx -y underqubit-sidecar-mcp@1.0.0 serve --config /absolute/path/config.yaml --transport stdio
+```
+
+To try the bundled examples, install `underqubit-sidecar-mcp@1.0.0` in a working directory and use `node_modules/underqubit-sidecar-mcp/examples/cli.yaml` as the configuration path. See [Quick start](docs/en/quick-start.md) for npm, pnpm, Yarn, client setup, and environment variables. The package does not load `.env` automatically.
+
+### Run from source
+
+Run the following commands from a checkout of this repository. The remaining `node dist/cli.js` examples in this README also assume a source checkout.
 
 ```sh
 npm ci
@@ -27,7 +44,7 @@ The last command starts MCP over stdio: it waits for messages from an MCP client
 
 To test tools through a web interface, follow the [MCP Inspector guide](docs/en/quick-start.md#test-with-mcp-inspector), covering local examples and REST APIs using `.env`.
 
-Configuration for an MCP client with stdio support (replace the paths):
+Configuration for an MCP client using the source build over stdio (replace the paths):
 
 ```json
 {
@@ -82,7 +99,7 @@ tools: [] # Replace with at least one tool.
 
 | Field | Description |
 | --- | --- |
-| `name` | Unique, 1–128 characters: ASCII letters, numbers, `_`, `-`, `.`. |
+| `name` | Unique within an integration, 1–128 characters: ASCII letters, numbers, `_`, `-`, `.`. |
 | `description` | Operation description visible to the model. Required. |
 | `title` | Optional title for MCP clients. |
 | `inputSchema` / `outputSchema` | JSON Schema 2020-12 with root `type: object`. Both required. |
@@ -90,7 +107,7 @@ tools: [] # Replace with at least one tool.
 | `execution` | HTTP or CLI configuration. |
 | `response` | Parser and optional transformation. Defaults to the JSON parser. |
 
-Zod validates configuration; AJV validates each tool's input and output. JSON Schemas support `$defs` and internal `#...` references, but not remote references or asynchronous validators. Validation does not convert types, add defaults, or remove properties. Declare `additionalProperties: false` to reject extra fields.
+Zod validates configuration; AJV validates each tool's input and output. JSON Schemas support `$defs` and internal `#...` references, but not remote references or asynchronous validators. Validation does not convert types, add defaults, or remove properties. Declare `additionalProperties: false` to reject extra fields. `true` or omission permits extra fields unless another rule constrains them; nested objects have their own rules. The [JSON Schema reference](docs/en/json-schema.md) explains keywords, formats, examples, and validator limitations.
 
 ### Templates
 
@@ -101,6 +118,21 @@ Zod validates configuration; AJV validates each tool's input and output. JSON Sc
 - Missing references fail explicitly. There are no JavaScript expressions, recursive evaluation of received text, or shell substitutions.
 
 Execution parameters and credentials support templates. Descriptions, JSON Schemas, regex, and JSONata expressions are not interpolated. The executable, directory, and HTTP origin do not accept input arguments.
+
+## Multiple tool groups
+
+A composition references integration files without merging their authentication or execution settings:
+
+```sh
+node dist/cli.js validate --config examples/composition.json
+node dist/cli.js serve --config examples/composition.json
+```
+
+- `unified`: one catalog at `/mcp` or over stdio, with names such as `local.local_echo`.
+- `separate`: HTTP only, one endpoint per group at `/mcp/<group>`, retaining original tool names.
+- `both`: HTTP only, exposes the unified catalog and group endpoints on the same port.
+
+Relative configuration paths resolve from the composition file. See [Tool groups](docs/en/tool-groups.md) for complete examples and client connections.
 
 ## REST APIs with Axios
 
@@ -221,15 +253,20 @@ HTTP listens on loopback by default. For external access, configure binding, `al
 npm run check          # build, typecheck, and the suite without TCP ports
 npm run test:network   # integration with real HTTP servers on localhost
 npm run schema        # regenerate the configuration JSON Schema
+npm run check:package # verify the tarball and production installation
+npm run docs:check-schema # verify bilingual JSON Schema examples and coverage
+npm run docs:build    # generate HTML and validate documentation links
 ```
 
 Tests run against `dist`, including the distributed worker. The default suite uses Axios with HTTP interceptors, a real MCP client over stdio, and Streamable HTTP through in-memory fetch. Separate TCP tests verify sockets, Host/Origin, and request limits and require permission to open ports. They do not call external services or require real credentials.
+
+See [Repository Guidelines](AGENTS.md) and the [Developer guide](docs/en/development.md) for contribution conventions and targeted checks. These development commands require the full checkout with development dependencies.
 
 Modules in `src` separate configuration, templates, authentication, adapters, response processing, runtime, and transport. For configuration changes, update Zod and regenerate `schema/config.schema.json`.
 
 [evaluations/questions.xml](evaluations/questions.xml) contains ten read-only questions about a fixed operations dataset. To evaluate an agent's tool use, connect it with `--config tests/fixtures/evaluation.yaml`. The suite verifies expected answers through real MCP calls; it does not run an external model evaluation or incur API costs.
 
-Outside this version's scope: hot reload, OpenAPI import, per-user OAuth, multi-execution pipelines, CSV/XML, multipart, and binary files.
+Outside this version's scope: hot reload, per-user OAuth, multi-execution pipelines, CSV/XML, multipart, and binary files.
 
 References: [MCP SDK v2](https://ts.sdk.modelcontextprotocol.io/v2/), [JSON Schema](https://json-schema.org/draft/2020-12), [JSONata](https://docs.jsonata.org/overview), [Axios](https://axios-http.com/docs/req_config).
 
@@ -241,10 +278,14 @@ The package is distributed publicly on npm:
 npx -y underqubit-sidecar-mcp@1.0.0 serve --config /absolute/path/config.yaml
 ```
 
-See [npm publishing](docs/en/npm-publishing.md) for production installation, package verification, and release steps. Publication is a separate action.
+See [npm publishing](docs/en/npm-publishing.md) for production installation, package verification, and release steps. OpenAPI import scripts are included in the package; the Jira example, tests, and development scripts are available in the source repository.
 
 ## License
 
 Licensed under the [Apache License, Version 2.0](LICENSE). Sidecar MCP is developed by [Underqubit](https://underqubit.com).
 
-The [HTML documentation](docs/html/index.html) is available in Spanish and English. To rebuild it and configure GitHub Pages, see [HTML documentation site](docs/en/documentation-site.md).
+## HTML documentation
+
+From the checkout, run `npm run docs:build` and open `docs/html/index.html` for the Spanish and English guides. HTML is generated from Markdown; edit the sources in `docs/` and `docs/en/`. Generated HTML is not included in the npm package; its Markdown guides are.
+
+The documentation workflow validates relevant pull requests and deploys to GitHub Pages when matching changes reach `main`. Pages must use **GitHub Actions** as its publishing source. See [HTML documentation site](docs/en/documentation-site.md) for the build, navigation, and deployment setup.

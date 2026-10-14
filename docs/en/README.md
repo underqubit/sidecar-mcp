@@ -71,6 +71,10 @@ The [Quick start](quick-start.md) explains how to connect an MCP client, pin the
 
 This documentation describes configuration format `version: 1` of the package published on npm. The [Quick start](quick-start.md) uses the command installed by the package. The other guides show `node dist/cli.js`, the equivalent form from a source checkout; with the package installed, replace it with `npx underqubit-sidecar-mcp` (or `pnpm exec` / `yarn`, depending on the package manager). Examples those guides place in `examples/` are in `node_modules/underqubit-sidecar-mcp/examples/`, except the Jira example, which is only in the repository.
 
+If a command uses `node --env-file=.env`, keep Node and change the executable path to `node_modules/underqubit-sidecar-mcp/dist/cli.js`; do not pass `--env-file` as a Sidecar option. See [Load environment variables](quick-start.md#load-environment-variables).
+
+When reading Markdown directly, replace version placeholders in double braces with the version from `package.json` before copying a command. The HTML generator performs this substitution automatically.
+
 Run commands with relative paths from the project root unless stated otherwise. Blocks labeled **fragment** belong inside a complete configuration; they are not standalone executable files. URLs using `example.com` and `example.org` represent services you must replace.
 
 The source of truth for fields is [src/config-schema.ts](../../src/config-schema.ts). Rules that require additional logic—references, URLs, environment variables, and parser compilation—are in [src/config.ts](../../src/config.ts).
