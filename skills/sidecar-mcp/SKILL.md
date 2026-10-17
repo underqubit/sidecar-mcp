@@ -1,16 +1,16 @@
 ---
-name: underqubit-sidecar-mcp
-description: Configure, run, troubleshoot, and use Underqubit Sidecar MCP tools backed by REST APIs or local CLIs. Use when an agent needs to call an existing Sidecar integration, create or update its YAML/JSON tool configuration, connect an MCP client or Inspector, or diagnose tool failures.
+name: sidecar-mcp
+description: Configure, run, troubleshoot, and use @underqubit/sidecar-mcp tools backed by REST APIs or local CLIs. Use when an agent needs to call an existing Sidecar integration, create or update its YAML/JSON tool configuration, connect an MCP client or Inspector, or diagnose tool failures.
 ---
 
-# Underqubit Sidecar MCP
+# @underqubit/sidecar-mcp
 
 Use Sidecar to expose existing REST or CLI operations as MCP tools. Tools are defined in YAML/JSON and loaded at startup; their names and contracts depend on the active configuration. Prefer configuration changes over TypeScript changes when the existing adapters support the requested operation.
 
 ## Choose the workflow
 
 - **Use an already connected server:** discover its tools and follow the invocation workflow below. A local checkout is not needed.
-- **Configure or run Sidecar:** locate the checkout by its `package.json` name, `underqubit-sidecar-mcp`. Run shell commands from that root, not from the skill directory. When this skill remains inside the repository, the root is two directories above it. If the skill was copied elsewhere, locate the checkout separately.
+- **Configure or run Sidecar:** locate the checkout by its `package.json` name, `@underqubit/sidecar-mcp`. Run shell commands from that root, not from the skill directory. When this skill remains inside the repository, the root is two directories above it. If the skill was copied elsewhere, locate the checkout separately.
 - **Change server capabilities:** consult the repository's developer guide only when configuration cannot express the requirement. Do not assume unsupported execution fields will pass through to Axios or `spawn`.
 
 ## Invoke configured tools
@@ -104,7 +104,7 @@ node dist/cli.js serve --config config.yaml --transport stdio
 
 If it needs `.env`, put `--env-file=.env` before `dist/cli.js`. Validation checks configuration, schemas, required variables, and parser/expression syntax. It does not test credentials, connectivity, executable availability, or real response compatibility.
 
-For MCP clients, launch `node` directly with absolute paths to the compiled CLI and configuration. Reserve stdout for MCP and use stderr for diagnostics. The package is configured for public npm distribution; verify the desired version exists before using `npx`. Published installations contain a prebuilt CLI and do not need a local build. See [npm distribution](../../docs/en/npm-publishing.md) for installation and release checks.
+For MCP clients, launch `node` directly with absolute paths to the compiled CLI and configuration. Reserve stdout for MCP and use stderr for diagnostics. The `@underqubit/sidecar-mcp` package is configured for public npm distribution; verify the desired version exists before using `npx`. Install with `npm install @underqubit/sidecar-mcp`; the installed command is `underqubit-sidecar-mcp`. Published installations contain a prebuilt CLI at `node_modules/@underqubit/sidecar-mcp/dist/cli.js` and do not need a local build. See [npm distribution](../../docs/en/npm-publishing.md) for installation and release checks.
 
 To inspect the bundled local tools from the project root:
 

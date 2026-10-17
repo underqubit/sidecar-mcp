@@ -35,7 +35,7 @@
 <p>El archivo de configuración es la integración: agregar una tool no requiere modificar TypeScript. Los cambios se aplican al reiniciar el servidor.</p>
 <p>Sidecar MCP está desarrollado por <a href="https://underqubit.com">Underqubit</a>.</p>
 <h2 id="instalación">Instalación<a class="heading-link" href="#instalación" aria-label="Enlace a Instalación">#</a></h2>
-<p>El paquete <code>underqubit-sidecar-mcp</code> está publicado en npm, requiere Node.js 24 o superior e instala el comando <code>underqubit-sidecar-mcp</code>. Se puede ejecutar sin instalarlo o agregarlo a un proyecto:</p>
+<p>El paquete npm <code>@underqubit/sidecar-mcp</code> requiere Node.js 24 o superior e instala el comando <code>underqubit-sidecar-mcp</code>. Se puede ejecutar sin instalarlo o agregarlo a un proyecto:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -47,25 +47,25 @@
 </thead>
 <tbody><tr>
 <td>npm</td>
-<td><code>npx -y underqubit-sidecar-mcp &lt;comando&gt;</code></td>
-<td><code>npm install underqubit-sidecar-mcp</code></td>
-<td><code>npx underqubit-sidecar-mcp &lt;comando&gt;</code></td>
+<td><code>npx -y @underqubit/sidecar-mcp &lt;comando&gt;</code></td>
+<td><code>npm install @underqubit/sidecar-mcp</code></td>
+<td><code>npx @underqubit/sidecar-mcp &lt;comando&gt;</code></td>
 </tr>
 <tr>
 <td>pnpm</td>
-<td><code>pnpm dlx underqubit-sidecar-mcp &lt;comando&gt;</code></td>
-<td><code>pnpm add underqubit-sidecar-mcp</code></td>
+<td><code>pnpm dlx @underqubit/sidecar-mcp &lt;comando&gt;</code></td>
+<td><code>pnpm add @underqubit/sidecar-mcp</code></td>
 <td><code>pnpm exec underqubit-sidecar-mcp &lt;comando&gt;</code></td>
 </tr>
 <tr>
 <td>Yarn</td>
 <td>No admitido</td>
-<td><code>yarn add underqubit-sidecar-mcp</code></td>
+<td><code>yarn add @underqubit/sidecar-mcp</code></td>
 <td><code>yarn underqubit-sidecar-mcp &lt;comando&gt;</code></td>
 </tr>
 </tbody></table></div>
 <p><code>&lt;comando&gt;</code> es <code>serve</code>, <code>validate</code> o <code>--help</code>. Por ejemplo:</p>
-<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npx -y underqubit-sidecar-mcp validate --config ./config.yaml</code></pre></div>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npx -y @underqubit/sidecar-mcp validate --config ./config.yaml</code></pre></div>
 <p>Yarn 2 o superior requiere <code>nodeLinker: node-modules</code> en <code>.yarnrc.yml</code>: con Plug&#39;n&#39;Play, el worker que procesa regex y JSONata no puede cargar sus dependencias y la configuración falla al validarse. Por el mismo motivo, <code>yarn dlx</code> no está admitido. Yarn 1 instala en <code>node_modules</code> y no requiere cambios.</p>
 <p>El <a href="inicio-rapido.html">Inicio rápido</a> explica cómo conectar un cliente MCP, fijar la versión, cargar variables de entorno y usar los ejemplos incluidos en el paquete.</p>
 <h2 id="guías">Guías<a class="heading-link" href="#guías" aria-label="Enlace a Guías">#</a></h2>
@@ -138,7 +138,7 @@
 </tr>
 </thead>
 <tbody><tr>
-<td><a href="../../../skills/underqubit-sidecar-mcp/SKILL.md">Skill para agentes de IA</a></td>
+<td><a href="../../../skills/sidecar-mcp/SKILL.md">Skill para agentes de IA</a></td>
 <td>Guía en inglés para usar, configurar y diagnosticar las integraciones del servidor.</td>
 </tr>
 <tr>
@@ -175,8 +175,8 @@
 </tr>
 </tbody></table></div>
 <h2 id="alcance-de-esta-documentación">Alcance de esta documentación<a class="heading-link" href="#alcance-de-esta-documentación" aria-label="Enlace a Alcance de esta documentación">#</a></h2>
-<p>Describe el formato de configuración <code>version: 1</code> del paquete publicado en npm. El <a href="inicio-rapido.html">Inicio rápido</a> usa el comando instalado por el paquete. Las demás guías muestran <code>node dist/cli.js</code>, la forma equivalente desde un checkout del código fuente; con el paquete instalado, reemplazarlo por <code>npx underqubit-sidecar-mcp</code> (o <code>pnpm exec</code> / <code>yarn</code> según el gestor). Los ejemplos que esas guías ubican en <code>examples/</code> se encuentran en <code>node_modules/underqubit-sidecar-mcp/examples/</code>, salvo el ejemplo de Jira, que solo está en el repositorio.</p>
-<p>Si un comando usa <code>node --env-file=.env</code>, conservar Node y cambiar la ruta del ejecutable a <code>node_modules/underqubit-sidecar-mcp/dist/cli.js</code>; no pasar <code>--env-file</code> como opción de Sidecar. Ver <a href="inicio-rapido.html#cargar-variables-de-entorno">Cargar variables de entorno</a>.</p>
+<p>Describe el formato de configuración <code>version: 1</code> del paquete npm <code>@underqubit/sidecar-mcp</code>. El <a href="inicio-rapido.html">Inicio rápido</a> usa el comando instalado por el paquete. Las demás guías muestran <code>node dist/cli.js</code>, la forma equivalente desde un checkout del código fuente; con el paquete instalado, reemplazarlo por <code>npx @underqubit/sidecar-mcp</code> (o <code>pnpm exec underqubit-sidecar-mcp</code> / <code>yarn underqubit-sidecar-mcp</code> según el gestor). Los ejemplos que esas guías ubican en <code>examples/</code> se encuentran en <code>node_modules/@underqubit/sidecar-mcp/examples/</code>, salvo el ejemplo de Jira, que solo está en el repositorio.</p>
+<p>Si un comando usa <code>node --env-file=.env</code>, conservar Node y cambiar la ruta del ejecutable a <code>node_modules/@underqubit/sidecar-mcp/dist/cli.js</code>; no pasar <code>--env-file</code> como opción de Sidecar. Ver <a href="inicio-rapido.html#cargar-variables-de-entorno">Cargar variables de entorno</a>.</p>
 <p>Al leer los Markdown directamente, reemplazar los marcadores de versión entre llaves dobles por la versión de <code>package.json</code> antes de copiar un comando. El generador HTML realiza esa sustitución automáticamente.</p>
 <p>Los comandos con rutas relativas se ejecutan desde la raíz del proyecto salvo indicación contraria. Los bloques rotulados como <strong>fragmento</strong> se incorporan a una configuración completa; no son archivos ejecutables por sí solos. Las URLs <code>example.com</code> y <code>example.org</code> representan servicios a reemplazar.</p>
 <p>La fuente de verdad de los campos es <a href="../../../src/config-schema.ts">src/config-schema.ts</a>. Las reglas que requieren lógica adicional —referencias, URLs, entorno y compilación de parsers— están en <a href="../../../src/config.ts">src/config.ts</a>.</p>

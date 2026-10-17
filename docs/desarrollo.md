@@ -149,7 +149,7 @@ Antes de entregar un cambio, correr las suites afectadas, comprobar el esquema g
 
 ## Distribución
 
-El paquete CLI público usa Apache-2.0 y expone `underqubit-sidecar-mcp` mediante `dist/cli.js`. `prepack` construye una distribución limpia y `prepublishOnly` ejecuta las verificaciones. Ver [Publicación npm](publicacion-npm.md) para la lista de archivos, la prueba de instalación en producción y los pasos de lanzamiento.
+El paquete CLI público `@underqubit/sidecar-mcp` usa Apache-2.0 y expone `underqubit-sidecar-mcp` mediante `dist/cli.js`. `prepack` construye una distribución limpia y `prepublishOnly` ejecuta las verificaciones. Ver [Publicación npm](publicacion-npm.md) para la lista de archivos, la prueba de instalación en producción y los pasos de lanzamiento.
 
 Para una instalación de servicio, construir con dependencias de desarrollo y conservar en ejecución Node, dependencias de producción, `dist/`, configuración y los ejecutables/scripts referenciados. No alcanza con copiar `dist/cli.js` aislado.
 

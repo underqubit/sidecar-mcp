@@ -149,7 +149,7 @@ Before delivering a change, run affected suites, check the generated schema if Z
 
 ## Distribution
 
-The public CLI package uses Apache-2.0 and exposes `underqubit-sidecar-mcp` through `dist/cli.js`. `prepack` builds a clean distribution and `prepublishOnly` runs the checks. See [npm publishing](npm-publishing.md) for the file allowlist, production installation test, and release steps.
+The public CLI package `@underqubit/sidecar-mcp` uses Apache-2.0 and exposes `underqubit-sidecar-mcp` through `dist/cli.js`. `prepack` builds a clean distribution and `prepublishOnly` runs the checks. See [npm publishing](npm-publishing.md) for the file allowlist, production installation test, and release steps.
 
 For a service installation, build with development dependencies and retain Node, production dependencies, `dist/`, configuration, and referenced executables/scripts at runtime. Copying `dist/cli.js` alone is insufficient.
 

@@ -1,3 +1,3 @@
 interface:
-  display_name: "Underqubit Sidecar MCP"
+  display_name: "@underqubit/sidecar-mcp"
   short_description: "Configure and use dynamic REST and CLI MCP tools"

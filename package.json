@@ -1,5 +1,5 @@
 {
-  "name": "underqubit-sidecar-mcp",
+  "name": "@underqubit/sidecar-mcp",
   "version": "1.0.0",
   "description": "Configurable MCP server for REST APIs and local CLIs",
   "type": "module",
@@ -65,8 +65,8 @@
     "schema/config.schema.json",
     "README.es.md",
     "docs/**/*.md",
-    "skills/underqubit-sidecar-mcp/SKILL.md",
-    "skills/underqubit-sidecar-mcp/agents/openai.yaml",
+    "skills/sidecar-mcp/SKILL.md",
+    "skills/sidecar-mcp/agents/openai.yaml",
     "examples/auth.yaml",
     "examples/cli.json",
     "examples/cli.yaml",

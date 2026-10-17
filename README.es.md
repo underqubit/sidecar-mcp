@@ -8,7 +8,7 @@ Soporta stdio y Streamable HTTP, autenticación de servicio, JSON Schema de entr
 
 La documentación completa está en [docs/README.md](docs/README.md): guías de uso, referencia de configuración, autenticación, respuestas, arquitectura, desarrollo y operación.
 
-Para agentes de IA, la skill de uso está en [skills/underqubit-sidecar-mcp/SKILL.md](skills/underqubit-sidecar-mcp/SKILL.md), en inglés.
+Para agentes de IA, la skill de uso está en [skills/sidecar-mcp/SKILL.md](skills/sidecar-mcp/SKILL.md), en inglés.
 
 Cargá varios archivos de integración en un proceso con [grupos de tools](docs/grupos-de-tools.md): un catálogo unificado, endpoints HTTP separados en el mismo listener o ambos.
 
@@ -20,14 +20,16 @@ Requiere Node.js 24 o superior.
 
 ### Usar el paquete npm
 
+El paquete npm es `@underqubit/sidecar-mcp`; el comando CLI instalado es `underqubit-sidecar-mcp`.
+
 Con un archivo de configuración existente:
 
 ```sh
-npx -y underqubit-sidecar-mcp@1.0.0 validate --config /ruta/absoluta/config.yaml
-npx -y underqubit-sidecar-mcp@1.0.0 serve --config /ruta/absoluta/config.yaml --transport stdio
+npx -y @underqubit/sidecar-mcp@1.0.0 validate --config /ruta/absoluta/config.yaml
+npx -y @underqubit/sidecar-mcp@1.0.0 serve --config /ruta/absoluta/config.yaml --transport stdio
 ```
 
-Para probar los ejemplos incluidos, instalar `underqubit-sidecar-mcp@1.0.0` en un directorio de trabajo y usar `node_modules/underqubit-sidecar-mcp/examples/cli.yaml` como ruta de configuración. Ver [Inicio rápido](docs/inicio-rapido.md) para npm, pnpm, Yarn, conexión de clientes y variables de entorno. El paquete no carga `.env` automáticamente.
+Para probar los ejemplos incluidos, instalar `@underqubit/sidecar-mcp@1.0.0` en un directorio de trabajo y usar `node_modules/@underqubit/sidecar-mcp/examples/cli.yaml` como ruta de configuración. Ver [Inicio rápido](docs/inicio-rapido.md) para npm, pnpm, Yarn, conexión de clientes y variables de entorno. El paquete no carga `.env` automáticamente.
 
 ### Ejecutar desde el código fuente
 
@@ -275,7 +277,7 @@ Referencias: [SDK MCP v2](https://ts.sdk.modelcontextprotocol.io/v2/), [JSON Sch
 El paquete se distribuye públicamente en npm:
 
 ```sh
-npx -y underqubit-sidecar-mcp@1.0.0 serve --config /ruta/absoluta/config.yaml
+npx -y @underqubit/sidecar-mcp@1.0.0 serve --config /ruta/absoluta/config.yaml
 ```
 
 Ver [Publicación npm](docs/publicacion-npm.md) para instalación en producción, verificación del paquete y pasos de lanzamiento. El paquete incluye los scripts de importación OpenAPI; el ejemplo de Jira, los tests y los scripts de desarrollo están disponibles en el repositorio de código fuente.

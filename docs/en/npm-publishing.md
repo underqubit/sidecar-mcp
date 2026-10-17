@@ -2,37 +2,37 @@
 
 [Español](../publicacion-npm.md) · [Back to index](README.md)
 
-The project is distributed under the [Apache License 2.0](../../LICENSE). The manifest declares `license: Apache-2.0` and is configured to publish `underqubit-sidecar-mcp` as a public package. Preparing the repository does not mean a version is already available on the registry.
+The project is distributed under the [Apache License 2.0](../../LICENSE). The manifest declares `license: Apache-2.0` and is configured to publish `@underqubit/sidecar-mcp` as a public package. Preparing the repository does not mean a version is already available on the registry.
 
 ## Use a published version
 
 Requires Node.js 24 or later. Once the specified version has been published:
 
 ```sh
-npx -y underqubit-sidecar-mcp@1.0.0 serve \
+npx -y @underqubit/sidecar-mcp@1.0.0 serve \
   --config /absolute/path/config.yaml --transport stdio
 ```
 
 You can also install it locally:
 
 ```sh
-npm install underqubit-sidecar-mcp@1.0.0
-npx underqubit-sidecar-mcp validate --config ./config.yaml
+npm install @underqubit/sidecar-mcp@1.0.0
+npx @underqubit/sidecar-mcp validate --config ./config.yaml
 ```
 
 Configuration belongs to the user; the package does not create or load `.env` automatically. To load it with a local installation:
 
 ```sh
-node --env-file=.env node_modules/underqubit-sidecar-mcp/dist/cli.js \
+node --env-file=.env node_modules/@underqubit/sidecar-mcp/dist/cli.js \
   serve --config ./config.yaml --transport stdio
 ```
 
-Examples live in `node_modules/underqubit-sidecar-mcp/examples`. If you copy a CLI configuration elsewhere, also copy its referenced scripts or adjust their paths. Compositions retain the relative path behavior documented in [Tool groups](tool-groups.md).
+Examples live in `node_modules/@underqubit/sidecar-mcp/examples`. If you copy a CLI configuration elsewhere, also copy its referenced scripts or adjust their paths. Compositions retain the relative path behavior documented in [Tool groups](tool-groups.md).
 
 The package includes the import scripts, ready to run without building:
 
 ```sh
-node node_modules/underqubit-sidecar-mcp/scripts/openapi-to-config.mjs \
+node node_modules/@underqubit/sidecar-mcp/scripts/openapi-to-config.mjs \
   --input ./api.yaml --output ./tools.json
 ```
 
@@ -73,12 +73,12 @@ CI also runs `check:package`. To retain a tarball for manual review, run `npm pa
 Before publishing, confirm the name is available or belongs to the publishing account:
 
 ```sh
-npm view underqubit-sidecar-mcp name version maintainers
+npm view @underqubit/sidecar-mcp name version maintainers
 npm login
 npm whoami
 ```
 
-DNS or connection failures do not establish availability. An existing name requires publication permissions. If choosing a scoped name, update `name` and synchronize `package-lock.json`; the CLI command can remain `underqubit-sidecar-mcp`.
+DNS or connection failures do not establish availability. The account must have permission to publish `@underqubit/sidecar-mcp` within the `@underqubit` scope. The name is synchronized in `package.json` and `package-lock.json`; the CLI command remains `underqubit-sidecar-mcp`.
 
 The manifest declares `homepage` and `author` with the Underqubit website (`https://underqubit.com`). Add `repository` and `bugs` once a confirmed public repository URL exists; npm does not require them, and they are not filled with invented URLs.
 

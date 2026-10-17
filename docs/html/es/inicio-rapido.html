@@ -43,14 +43,14 @@
 <h2 id="instalar">Instalar<a class="heading-link" href="#instalar" aria-label="Enlace a Instalar">#</a></h2>
 <div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">mkdir sidecar &amp;&amp; cd sidecar
 npm init -y
-npm install underqubit-sidecar-mcp
-npx underqubit-sidecar-mcp --help</code></pre></div>
-<p>Con pnpm, usar <code>pnpm add underqubit-sidecar-mcp</code> y <code>pnpm exec underqubit-sidecar-mcp --help</code>. Con Yarn, usar <code>yarn add underqubit-sidecar-mcp</code> y <code>yarn underqubit-sidecar-mcp --help</code>; en Yarn 2 o superior, configurar antes <code>nodeLinker: node-modules</code> en <code>.yarnrc.yml</code> (ver <a href="index.html#instalación">Instalación</a>).</p>
-<p>Instalar el paquete en un proyecto fija su versión en el lockfile y deja los ejemplos en <code>node_modules/underqubit-sidecar-mcp/examples/</code>. También se puede ejecutar sin instalar, con <code>npx -y underqubit-sidecar-mcp</code> o <code>pnpm dlx underqubit-sidecar-mcp</code>; en ese caso, <code>--config</code> debe apuntar a un archivo propio.</p>
-<p>Los comandos de esta guía usan npm y se ejecutan desde el directorio <code>sidecar</code>. Con otro gestor, reemplazar <code>npx underqubit-sidecar-mcp</code> según la <a href="index.html#instalación">tabla de instalación</a>.</p>
+npm install @underqubit/sidecar-mcp
+npx @underqubit/sidecar-mcp --help</code></pre></div>
+<p>Con pnpm, usar <code>pnpm add @underqubit/sidecar-mcp</code> y <code>pnpm exec underqubit-sidecar-mcp --help</code>. Con Yarn, usar <code>yarn add @underqubit/sidecar-mcp</code> y <code>yarn underqubit-sidecar-mcp --help</code>; en Yarn 2 o superior, configurar antes <code>nodeLinker: node-modules</code> en <code>.yarnrc.yml</code> (ver <a href="index.html#instalación">Instalación</a>).</p>
+<p>Instalar el paquete en un proyecto fija su versión en el lockfile y deja los ejemplos en <code>node_modules/@underqubit/sidecar-mcp/examples/</code>. También se puede ejecutar sin instalar, con <code>npx -y @underqubit/sidecar-mcp</code> o <code>pnpm dlx @underqubit/sidecar-mcp</code>; en ese caso, <code>--config</code> debe apuntar a un archivo propio.</p>
+<p>Los comandos de esta guía usan npm y se ejecutan desde el directorio <code>sidecar</code>. Con otro gestor, reemplazar <code>npx @underqubit/sidecar-mcp</code> según la <a href="index.html#instalación">tabla de instalación</a>.</p>
 <h2 id="probar-sin-apis-externas">Probar sin APIs externas<a class="heading-link" href="#probar-sin-apis-externas" aria-label="Enlace a Probar sin APIs externas">#</a></h2>
-<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npx underqubit-sidecar-mcp validate --config node_modules/underqubit-sidecar-mcp/examples/cli.yaml
-npx underqubit-sidecar-mcp serve --config node_modules/underqubit-sidecar-mcp/examples/cli.yaml</code></pre></div>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npx @underqubit/sidecar-mcp validate --config node_modules/@underqubit/sidecar-mcp/examples/cli.yaml
+npx @underqubit/sidecar-mcp serve --config node_modules/@underqubit/sidecar-mcp/examples/cli.yaml</code></pre></div>
 <p>La validación informa por stderr que hay dos tools válidas. <code>serve</code> queda esperando mensajes MCP por stdio; no es una consola interactiva de comandos.</p>
 <p>El ejemplo publica:</p>
 <div class="table-wrap"><table>
@@ -75,8 +75,8 @@ npx underqubit-sidecar-mcp serve --config node_modules/underqubit-sidecar-mcp/ex
 <p>La versión concreta de Node depende de la instalación local. Para usar el ejemplo como punto de partida, copiar <code>cli.yaml</code> junto con <code>echo.mjs</code>: las rutas relativas de una tool CLI se resuelven desde el directorio del archivo de configuración.</p>
 <h2 id="probar-con-mcp-inspector">Probar con MCP Inspector<a class="heading-link" href="#probar-con-mcp-inspector" aria-label="Enlace a Probar con MCP Inspector">#</a></h2>
 <p>El Inspector permite descubrir e invocar las tools desde una interfaz web. Desde el directorio <code>sidecar</code>, ejecutar:</p>
-<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npx -y @modelcontextprotocol/inspector node node_modules/underqubit-sidecar-mcp/dist/cli.js -- \
-  serve --config node_modules/underqubit-sidecar-mcp/examples/cli.yaml --transport stdio</code></pre></div>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npx -y @modelcontextprotocol/inspector node node_modules/@underqubit/sidecar-mcp/dist/cli.js -- \
+  serve --config node_modules/@underqubit/sidecar-mcp/examples/cli.yaml --transport stdio</code></pre></div>
 <p>El Inspector inicia con Node el CLI del paquete, el mismo archivo que ejecuta el comando <code>underqubit-sidecar-mcp</code>. El separador <code>--</code> hace que los argumentos posteriores se pasen al servidor. Es necesario porque el Inspector también reconoce <code>--config</code> y <code>--transport</code>: sin el separador, podría interpretar el YAML de tools como su propia configuración de cliente. Ver la <a href="https://modelcontextprotocol.io/docs/2026-07-28/tools/inspector/configuration#the--separator">referencia oficial de argumentos del Inspector</a>.</p>
 <p>El Inspector inicia el servidor como proceso hijo mediante stdio; no hace falta ejecutar <code>serve</code> previamente en otra terminal.</p>
 <ol>
@@ -92,8 +92,8 @@ npx underqubit-sidecar-mcp serve --config node_modules/underqubit-sidecar-mcp/ex
 API_TOKEN=replace-me</code></pre></div>
 <p>Después ejecutar:</p>
 <div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npx -y @modelcontextprotocol/inspector node -- \
-  --env-file=.env node_modules/underqubit-sidecar-mcp/dist/cli.js \
-  serve --config node_modules/underqubit-sidecar-mcp/examples/http.yaml --transport stdio</code></pre></div>
+  --env-file=.env node_modules/@underqubit/sidecar-mcp/dist/cli.js \
+  serve --config node_modules/@underqubit/sidecar-mcp/examples/http.yaml --transport stdio</code></pre></div>
 <p>En este comando, <code>--env-file</code> se pasa a Node antes del archivo JavaScript. <code>--transport stdio</code> define la conexión entre Inspector y MCP y sobrescribe el transporte HTTP declarado en el ejemplo. La tool <code>api_get_user</code> sigue llamando a la API REST mediante Axios; probarla con un argumento como <code>{&quot;id&quot;:&quot;42&quot;}</code> que corresponda al servicio configurado.</p>
 <p>Después de cambiar configuración o variables, reiniciar la conexión/proceso del servidor desde el Inspector para cargar los nuevos valores.</p>
 <h2 id="conectar-un-cliente-mediante-stdio">Conectar un cliente mediante stdio<a class="heading-link" href="#conectar-un-cliente-mediante-stdio" aria-label="Enlace a Conectar un cliente mediante stdio">#</a></h2>
@@ -106,7 +106,7 @@ API_TOKEN=replace-me</code></pre></div>
       &quot;command&quot;: &quot;npx&quot;,
       &quot;args&quot;: [
         &quot;-y&quot;,
-        &quot;underqubit-sidecar-mcp@1.0.0&quot;,
+        &quot;@underqubit/sidecar-mcp@1.0.0&quot;,
         &quot;serve&quot;,
         &quot;--config&quot;,
         &quot;/ruta/absoluta/config.yaml&quot;
@@ -123,14 +123,14 @@ API_TOKEN=replace-me</code></pre></div>
 <div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">claude mcp add --transport stdio \
   --env API_BASE_URL=https://api.example.com \
   --env API_TOKEN=replace-me \
-  underqubit -- npx -y underqubit-sidecar-mcp@1.0.0 serve --config /ruta/absoluta/config.yaml</code></pre></div>
+  underqubit -- npx -y @underqubit/sidecar-mcp@1.0.0 serve --config /ruta/absoluta/config.yaml</code></pre></div>
 <p>Para compartir la configuración en un proyecto sin escribir secretos, declararla en <code>.mcp.json</code> y referenciar variables del entorno de quien ejecuta Claude Code:</p>
 <div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{
   &quot;mcpServers&quot;: {
     &quot;underqubit&quot;: {
       &quot;type&quot;: &quot;stdio&quot;,
       &quot;command&quot;: &quot;npx&quot;,
-      &quot;args&quot;: [&quot;-y&quot;, &quot;underqubit-sidecar-mcp@1.0.0&quot;, &quot;serve&quot;, &quot;--config&quot;, &quot;/ruta/absoluta/config.yaml&quot;],
+      &quot;args&quot;: [&quot;-y&quot;, &quot;@underqubit/sidecar-mcp@1.0.0&quot;, &quot;serve&quot;, &quot;--config&quot;, &quot;/ruta/absoluta/config.yaml&quot;],
       &quot;env&quot;: {
         &quot;API_BASE_URL&quot;: &quot;${API_BASE_URL}&quot;,
         &quot;API_TOKEN&quot;: &quot;${API_TOKEN}&quot;
@@ -146,13 +146,13 @@ API_TOKEN=replace-me</code></pre></div>
 <li><strong>Una variable referenciada ausente o vacía impide el arranque.</strong> El cliente muestra el servidor MCP como fallido; el mensaje <code>[config] Required environment variable: ...</code> aparece en sus logs.</li>
 </ul>
 <h3 id="probar-la-conexión">Probar la conexión<a class="heading-link" href="#probar-la-conexión" aria-label="Enlace a Probar la conexión">#</a></h3>
-<p>Para probar sin credenciales, apuntar <code>--config</code> al ejemplo <code>node_modules/underqubit-sidecar-mcp/examples/cli.yaml</code> del directorio <code>sidecar</code>, con ruta absoluta, y omitir <code>env</code>. El cliente inicia el proceso y descubre las tools. Pedirle que invoque <code>local_echo</code> con <code>message: hola</code>. El contenido estructurado esperado es:</p>
+<p>Para probar sin credenciales, apuntar <code>--config</code> al ejemplo <code>node_modules/@underqubit/sidecar-mcp/examples/cli.yaml</code> del directorio <code>sidecar</code>, con ruta absoluta, y omitir <code>env</code>. El cliente inicia el proceso y descubre las tools. Pedirle que invoque <code>local_echo</code> con <code>message: hola</code>. El contenido estructurado esperado es:</p>
 <div class="code-block"><span class="code-label">json</span><pre><code class="language-json">{&quot;message&quot;:&quot;hola&quot;}</code></pre></div>
-<p>Indicar la versión (<code>@1.0.0</code>) hace que el cliente siempre inicie la misma versión; sin ella, npx puede usar la última publicada. El primer arranque descarga el paquete y puede tardar más. Con pnpm, usar <code>&quot;command&quot;: &quot;pnpm&quot;</code> y <code>&quot;args&quot;: [&quot;dlx&quot;, &quot;underqubit-sidecar-mcp@1.0.0&quot;, &quot;serve&quot;, &quot;--config&quot;, &quot;...&quot;]</code>.</p>
+<p>Indicar la versión (<code>@1.0.0</code>) hace que el cliente siempre inicie la misma versión; sin ella, npx puede usar la última publicada. El primer arranque descarga el paquete y puede tardar más. Con pnpm, usar <code>&quot;command&quot;: &quot;pnpm&quot;</code> y <code>&quot;args&quot;: [&quot;dlx&quot;, &quot;@underqubit/sidecar-mcp@1.0.0&quot;, &quot;serve&quot;, &quot;--config&quot;, &quot;...&quot;]</code>.</p>
 <p>Para cargar un archivo <code>.env</code> en lugar de declarar las variables en el cliente, ver <a href="#cargar-variables-de-entorno">Cargar variables de entorno</a>. Si una aplicación gráfica no encuentra <code>npx</code> o <code>node</code>, usar la ruta absoluta del ejecutable: el PATH de una aplicación gráfica puede diferir del de la terminal.</p>
 <h2 id="conectar-mediante-http">Conectar mediante HTTP<a class="heading-link" href="#conectar-mediante-http" aria-label="Enlace a Conectar mediante HTTP">#</a></h2>
-<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npx underqubit-sidecar-mcp serve \
-  --config node_modules/underqubit-sidecar-mcp/examples/cli.yaml --transport http</code></pre></div>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npx @underqubit/sidecar-mcp serve \
+  --config node_modules/@underqubit/sidecar-mcp/examples/cli.yaml --transport http</code></pre></div>
 <p>El proceso informa el endpoint por stderr. Con los defaults es <code>http://127.0.0.1:3000/mcp</code>. Configurar esa URL como servidor <strong>Streamable HTTP</strong> en el cliente MCP.</p>
 <p>HTTP no sirve una página web ni una API REST de tools. Las operaciones de descubrimiento e invocación se realizan mediante MCP. Abrir la URL en un navegador no equivale a invocar una tool.</p>
 <p><code>--transport</code> prevalece sobre <code>server.transport</code>. Cada proceso inicia un solo transporte. Consultar <a href="operacion-y-diagnostico.html">Operación</a> antes de exponer el endpoint fuera de localhost.</p>
@@ -160,10 +160,10 @@ API_TOKEN=replace-me</code></pre></div>
 <p>El paquete no carga archivos <code>.env</code> automáticamente. <code>--env-file</code> es una opción de Node: no se puede pasar a través de <code>npx</code>, <code>pnpm exec</code> ni <code>yarn</code>, y Node no la acepta en <code>NODE_OPTIONS</code>. Hay dos alternativas:</p>
 <ul>
 <li><p>Ejecutar con Node el CLI del paquete instalado:</p>
-<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node --env-file=.env node_modules/underqubit-sidecar-mcp/dist/cli.js \
-  validate --config node_modules/underqubit-sidecar-mcp/examples/http.yaml
-node --env-file=.env node_modules/underqubit-sidecar-mcp/dist/cli.js \
-  serve --config node_modules/underqubit-sidecar-mcp/examples/http.yaml</code></pre></div>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">node --env-file=.env node_modules/@underqubit/sidecar-mcp/dist/cli.js \
+  validate --config node_modules/@underqubit/sidecar-mcp/examples/http.yaml
+node --env-file=.env node_modules/@underqubit/sidecar-mcp/dist/cli.js \
+  serve --config node_modules/@underqubit/sidecar-mcp/examples/http.yaml</code></pre></div>
 <p>En un cliente stdio, usar <code>&quot;command&quot;: &quot;node&quot;</code> con <code>--env-file=/ruta/absoluta/.env</code> como primer argumento, antes de la ruta absoluta de <code>dist/cli.js</code>.</p>
 </li>
 <li><p>Definir las variables en el entorno del proceso: en la shell, en el supervisor del servicio o en el bloque <code>env</code> del cliente MCP.</p>
@@ -179,19 +179,19 @@ node --env-file=.env node_modules/underqubit-sidecar-mcp/dist/cli.js \
 </tr>
 </thead>
 <tbody><tr>
-<td><code>npx underqubit-sidecar-mcp --help</code></td>
+<td><code>npx @underqubit/sidecar-mcp --help</code></td>
 <td>Muestra ayuda y termina. También admite <code>-h</code>.</td>
 </tr>
 <tr>
-<td><code>npx underqubit-sidecar-mcp validate --config archivo.yaml</code></td>
+<td><code>npx @underqubit/sidecar-mcp validate --config archivo.yaml</code></td>
 <td>Valida y termina, sin ejecutar tools.</td>
 </tr>
 <tr>
-<td><code>npx underqubit-sidecar-mcp serve --config archivo.yaml</code></td>
+<td><code>npx @underqubit/sidecar-mcp serve --config archivo.yaml</code></td>
 <td>Sirve el transporte declarado; stdio si se omite.</td>
 </tr>
 <tr>
-<td><code>npx underqubit-sidecar-mcp serve --config archivo.json --transport http</code></td>
+<td><code>npx @underqubit/sidecar-mcp serve --config archivo.json --transport http</code></td>
 <td>Fuerza HTTP para esa ejecución.</td>
 </tr>
 </tbody></table></div>
@@ -208,8 +208,8 @@ node --env-file=.env node_modules/underqubit-sidecar-mcp/dist/cli.js \
 <p>Continuar con <a href="configuracion.html">Configuración</a>, <a href="tools-http.html">Tools HTTP</a> o <a href="tools-cli.html">Tools CLI</a>.</p>
 <h2 id="varios-archivos-de-integración">Varios archivos de integración<a class="heading-link" href="#varios-archivos-de-integración" aria-label="Enlace a Varios archivos de integración">#</a></h2>
 <p>Usar <a href="grupos-de-tools.html">grupos de tools</a> para cargar varios archivos en un proceso. Los ejemplos no requieren credenciales de APIs:</p>
-<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npx underqubit-sidecar-mcp validate --config node_modules/underqubit-sidecar-mcp/examples/composition.json
-npx underqubit-sidecar-mcp serve --config node_modules/underqubit-sidecar-mcp/examples/composition.json</code></pre></div>
+<div class="code-block"><span class="code-label">sh</span><pre><code class="language-sh">npx @underqubit/sidecar-mcp validate --config node_modules/@underqubit/sidecar-mcp/examples/composition.json
+npx @underqubit/sidecar-mcp serve --config node_modules/@underqubit/sidecar-mcp/examples/composition.json</code></pre></div>
 <p>El ejemplo JSON publica un catálogo unificado por stdio. Para HTTP con catálogo completo y endpoints por grupo, usar <code>composition.yaml</code> del mismo directorio. La guía incluye conexiones con Inspector y nombres esperados de tools. <code>--transport</code> cambia el transporte, no el modo de publicación; solo <code>unified</code> admite stdio.</p>
 <h2 id="desde-el-código-fuente">Desde el código fuente<a class="heading-link" href="#desde-el-código-fuente" aria-label="Enlace a Desde el código fuente">#</a></h2>
 <p>Para contribuir o probar cambios que todavía no se publicaron, desde un checkout del repositorio:</p>

@@ -8,7 +8,7 @@ Supports stdio and Streamable HTTP, service authentication, input/output JSON Sc
 
 Complete documentation is available in [docs/en/README.md](docs/en/README.md): usage guides, configuration reference, authentication, responses, architecture, development, and operations.
 
-For AI agents, the usage skill is available in [skills/underqubit-sidecar-mcp/SKILL.md](skills/underqubit-sidecar-mcp/SKILL.md).
+For AI agents, the usage skill is available in [skills/sidecar-mcp/SKILL.md](skills/sidecar-mcp/SKILL.md).
 
 Load multiple integration files in one process with [tool groups](docs/en/tool-groups.md): a unified catalog, separate HTTP endpoints on the same listener, or both.
 
@@ -20,14 +20,16 @@ Requires Node.js 24 or later.
 
 ### Use the npm package
 
+The npm package is `@underqubit/sidecar-mcp`; the installed CLI command is `underqubit-sidecar-mcp`.
+
 With an existing configuration file:
 
 ```sh
-npx -y underqubit-sidecar-mcp@1.0.0 validate --config /absolute/path/config.yaml
-npx -y underqubit-sidecar-mcp@1.0.0 serve --config /absolute/path/config.yaml --transport stdio
+npx -y @underqubit/sidecar-mcp@1.0.0 validate --config /absolute/path/config.yaml
+npx -y @underqubit/sidecar-mcp@1.0.0 serve --config /absolute/path/config.yaml --transport stdio
 ```
 
-To try the bundled examples, install `underqubit-sidecar-mcp@1.0.0` in a working directory and use `node_modules/underqubit-sidecar-mcp/examples/cli.yaml` as the configuration path. See [Quick start](docs/en/quick-start.md) for npm, pnpm, Yarn, client setup, and environment variables. The package does not load `.env` automatically.
+To try the bundled examples, install `@underqubit/sidecar-mcp@1.0.0` in a working directory and use `node_modules/@underqubit/sidecar-mcp/examples/cli.yaml` as the configuration path. See [Quick start](docs/en/quick-start.md) for npm, pnpm, Yarn, client setup, and environment variables. The package does not load `.env` automatically.
 
 ### Run from source
 
@@ -275,7 +277,7 @@ References: [MCP SDK v2](https://ts.sdk.modelcontextprotocol.io/v2/), [JSON Sche
 The package is distributed publicly on npm:
 
 ```sh
-npx -y underqubit-sidecar-mcp@1.0.0 serve --config /absolute/path/config.yaml
+npx -y @underqubit/sidecar-mcp@1.0.0 serve --config /absolute/path/config.yaml
 ```
 
 See [npm publishing](docs/en/npm-publishing.md) for production installation, package verification, and release steps. OpenAPI import scripts are included in the package; the Jira example, tests, and development scripts are available in the source repository.

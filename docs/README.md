@@ -10,18 +10,18 @@ Sidecar MCP está desarrollado por [Underqubit](https://underqubit.com).
 
 ## Instalación
 
-El paquete `underqubit-sidecar-mcp` está publicado en npm, requiere Node.js 24 o superior e instala el comando `underqubit-sidecar-mcp`. Se puede ejecutar sin instalarlo o agregarlo a un proyecto:
+El paquete npm `@underqubit/sidecar-mcp` requiere Node.js 24 o superior e instala el comando `underqubit-sidecar-mcp`. Se puede ejecutar sin instalarlo o agregarlo a un proyecto:
 
 | Gestor | Ejecutar sin instalar | Instalar en un proyecto | Ejecutar la versión instalada |
 | --- | --- | --- | --- |
-| npm | `npx -y underqubit-sidecar-mcp <comando>` | `npm install underqubit-sidecar-mcp` | `npx underqubit-sidecar-mcp <comando>` |
-| pnpm | `pnpm dlx underqubit-sidecar-mcp <comando>` | `pnpm add underqubit-sidecar-mcp` | `pnpm exec underqubit-sidecar-mcp <comando>` |
-| Yarn | No admitido | `yarn add underqubit-sidecar-mcp` | `yarn underqubit-sidecar-mcp <comando>` |
+| npm | `npx -y @underqubit/sidecar-mcp <comando>` | `npm install @underqubit/sidecar-mcp` | `npx @underqubit/sidecar-mcp <comando>` |
+| pnpm | `pnpm dlx @underqubit/sidecar-mcp <comando>` | `pnpm add @underqubit/sidecar-mcp` | `pnpm exec underqubit-sidecar-mcp <comando>` |
+| Yarn | No admitido | `yarn add @underqubit/sidecar-mcp` | `yarn underqubit-sidecar-mcp <comando>` |
 
 `<comando>` es `serve`, `validate` o `--help`. Por ejemplo:
 
 ```sh
-npx -y underqubit-sidecar-mcp validate --config ./config.yaml
+npx -y @underqubit/sidecar-mcp validate --config ./config.yaml
 ```
 
 Yarn 2 o superior requiere `nodeLinker: node-modules` en `.yarnrc.yml`: con Plug'n'Play, el worker que procesa regex y JSONata no puede cargar sus dependencias y la configuración falla al validarse. Por el mismo motivo, `yarn dlx` no está admitido. Yarn 1 instala en `node_modules` y no requiere cambios.
@@ -57,7 +57,7 @@ El [Inicio rápido](inicio-rapido.md) explica cómo conectar un cliente MCP, fij
 
 | Recurso | Uso |
 | --- | --- |
-| [Skill para agentes de IA](../skills/underqubit-sidecar-mcp/SKILL.md) | Guía en inglés para usar, configurar y diagnosticar las integraciones del servidor. |
+| [Skill para agentes de IA](../skills/sidecar-mcp/SKILL.md) | Guía en inglés para usar, configurar y diagnosticar las integraciones del servidor. |
 | [Ejemplo CLI en YAML](../examples/cli.yaml) | Dos tools locales, sin servicios externos ni credenciales. |
 | [Ejemplo CLI en JSON](../examples/cli.json) | Una tool que recibe y devuelve un mensaje. |
 | [Ejemplo HTTP](../examples/http.yaml) | Consulta de usuario con Bearer y transformación de respuesta. |
@@ -69,9 +69,9 @@ El [Inicio rápido](inicio-rapido.md) explica cómo conectar un cliente MCP, fij
 
 ## Alcance de esta documentación
 
-Describe el formato de configuración `version: 1` del paquete publicado en npm. El [Inicio rápido](inicio-rapido.md) usa el comando instalado por el paquete. Las demás guías muestran `node dist/cli.js`, la forma equivalente desde un checkout del código fuente; con el paquete instalado, reemplazarlo por `npx underqubit-sidecar-mcp` (o `pnpm exec` / `yarn` según el gestor). Los ejemplos que esas guías ubican en `examples/` se encuentran en `node_modules/underqubit-sidecar-mcp/examples/`, salvo el ejemplo de Jira, que solo está en el repositorio.
+Describe el formato de configuración `version: 1` del paquete npm `@underqubit/sidecar-mcp`. El [Inicio rápido](inicio-rapido.md) usa el comando instalado por el paquete. Las demás guías muestran `node dist/cli.js`, la forma equivalente desde un checkout del código fuente; con el paquete instalado, reemplazarlo por `npx @underqubit/sidecar-mcp` (o `pnpm exec underqubit-sidecar-mcp` / `yarn underqubit-sidecar-mcp` según el gestor). Los ejemplos que esas guías ubican en `examples/` se encuentran en `node_modules/@underqubit/sidecar-mcp/examples/`, salvo el ejemplo de Jira, que solo está en el repositorio.
 
-Si un comando usa `node --env-file=.env`, conservar Node y cambiar la ruta del ejecutable a `node_modules/underqubit-sidecar-mcp/dist/cli.js`; no pasar `--env-file` como opción de Sidecar. Ver [Cargar variables de entorno](inicio-rapido.md#cargar-variables-de-entorno).
+Si un comando usa `node --env-file=.env`, conservar Node y cambiar la ruta del ejecutable a `node_modules/@underqubit/sidecar-mcp/dist/cli.js`; no pasar `--env-file` como opción de Sidecar. Ver [Cargar variables de entorno](inicio-rapido.md#cargar-variables-de-entorno).
 
 Al leer los Markdown directamente, reemplazar los marcadores de versión entre llaves dobles por la versión de `package.json` antes de copiar un comando. El generador HTML realiza esa sustitución automáticamente.
 
