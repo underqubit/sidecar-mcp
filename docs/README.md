@@ -67,6 +67,10 @@ El [Inicio rápido](inicio-rapido.md) explica cómo conectar un cliente MCP, fij
 | [JSON Schema de configuración](../schema/config.schema.json) | Autocompletado y validación estructural en editores. |
 | [Evaluaciones](../evaluations/questions.xml) | Preguntas sobre un conjunto fijo de datos, para evaluar el uso de las tools. |
 
+## Apoyar el proyecto
+
+Sidecar MCP es libre y de código abierto. Si resulta útil, es posible apoyar su mantenimiento en [Patreon](https://www.patreon.com/Underqubit): los aportes financian nuevas versiones, correcciones y la documentación en español e inglés.
+
 ## Alcance de esta documentación
 
 Describe el formato de configuración `version: 1` del paquete npm `@underqubit/sidecar-mcp`. El [Inicio rápido](inicio-rapido.md) usa el comando instalado por el paquete. Las demás guías muestran `node dist/cli.js`, la forma equivalente desde un checkout del código fuente; con el paquete instalado, reemplazarlo por `npx @underqubit/sidecar-mcp` (o `pnpm exec underqubit-sidecar-mcp` / `yarn underqubit-sidecar-mcp` según el gestor). Los ejemplos que esas guías ubican en `examples/` se encuentran en `node_modules/@underqubit/sidecar-mcp/examples/`, salvo el ejemplo de Jira, que solo está en el repositorio.

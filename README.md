@@ -1,6 +1,6 @@
 # Underqubit Sidecar MCP
 
-[Español](README.es.md) · [English documentation](docs/en/README.md)
+[Español](README.es.md) · [English documentation](docs/en/README.md) · [Support on Patreon](https://www.patreon.com/Underqubit)
 
 An MCP server built with Node.js 24 and TypeScript that turns existing REST APIs and CLIs into tools declared in YAML or JSON. Adding a tool requires no programming or recompilation: edit the configuration and restart the process.
 
@@ -281,6 +281,10 @@ npx -y @underqubit/sidecar-mcp@1.0.0 serve --config /absolute/path/config.yaml
 ```
 
 See [npm publishing](docs/en/npm-publishing.md) for production installation, package verification, and release steps. OpenAPI import scripts are included in the package; the Jira example, tests, and development scripts are available in the source repository.
+
+## Support the project
+
+Sidecar MCP is free and open source. If it is useful to you, you can support its maintenance on [Patreon](https://www.patreon.com/Underqubit): contributions fund new releases, fixes, and documentation in English and Spanish.
 
 ## License
 

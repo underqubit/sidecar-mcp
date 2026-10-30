@@ -362,7 +362,7 @@ headers:
 <p>Configurable timeouts are integers from 1 to 2147483647 ms. Configurable byte limits are integers from 1 to 67108864 (64 MiB). <code>0</code> cannot disable these limits.</p>
 <p>For HTTP, the tool limit applies to the outgoing body, captured response, and final JSON. For CLI, it limits stdin, combined captured stdout and stderr, and final JSON. Exceeding a limit returns an error; a response is never truncated and presented as successful.</p>
 <p>The deadline starts after input validation and covers auth, execution, and processing. Cancellation in the main process is cooperative; regex and JSONata have their own terminable worker. This does not isolate all synchronous validation and serialization in a process with a strict deadline.</p>
-</article><footer class="page-footer"><span><a href="https://underqubit.com">Underqubit</a> · Sidecar MCP</span><a href="../../en/configuration.md">Markdown source</a></footer></main>
+</article><footer class="page-footer"><span><a href="https://underqubit.com">Underqubit</a> · Sidecar MCP · <a href="https://www.patreon.com/Underqubit">Support on Patreon</a></span><a href="../../en/configuration.md">Markdown source</a></footer></main>
 <aside class="toc" aria-label="On this page"><span class="nav-label">On this page</span><a class="depth-2" href="#format-and-validation">Format and validation</a>
 <a class="depth-2" href="#integration-root">Integration root</a>
 <a class="depth-2" href="#server">Server</a>

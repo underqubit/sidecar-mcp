@@ -67,6 +67,10 @@ The [Quick start](quick-start.md) explains how to connect an MCP client, pin the
 | [Configuration JSON Schema](../../schema/config.schema.json) | Editor completion and structural validation. |
 | [Evaluations](../../evaluations/questions.xml) | Questions about a fixed dataset for evaluating tool use. |
 
+## Support the project
+
+Sidecar MCP is free and open source. If it is useful to you, you can support its maintenance on [Patreon](https://www.patreon.com/Underqubit): contributions fund new releases, fixes, and documentation in English and Spanish.
+
 ## Scope of this documentation
 
 This documentation describes configuration format `version: 1` of the `@underqubit/sidecar-mcp` npm package. The [Quick start](quick-start.md) uses the command installed by the package. The other guides show `node dist/cli.js`, the equivalent form from a source checkout; with the package installed, replace it with `npx @underqubit/sidecar-mcp` (or `pnpm exec underqubit-sidecar-mcp` / `yarn underqubit-sidecar-mcp`, depending on the package manager). Examples those guides place in `examples/` are in `node_modules/@underqubit/sidecar-mcp/examples/`, except the Jira example, which is only in the repository.
